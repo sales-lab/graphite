@@ -1,0 +1,278 @@
+%\VignetteIndexEntry{GRAPH Interaction from pathway Topological Environment}
+%\VignetteDepends{graphite}
+%\VignetteDepends{SPIA}
+%\VignetteDepends{hgu133plus2.db}
+%\VignetteDepends{DEGraph}
+%\VignetteDepends{topologyGSA}
+\documentclass[12pt]{article}
+\usepackage{amsmath}
+\usepackage[pdftex]{graphicx}
+\usepackage{color}
+\usepackage{xspace}
+\usepackage{fancyvrb}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\usepackage[
+         colorlinks=true,
+         linkcolor=blue,
+         citecolor=blue,
+         urlcolor=blue]
+         {hyperref}
+\usepackage{Sweave}
+\SweaveOpts{keep.source=TRUE}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% define new colors for use
+\definecolor{darkgreen}{rgb}{0,0.6,0}
+\definecolor{darkred}{rgb}{0.6,0.0,0}
+\definecolor{lightbrown}{rgb}{1,0.9,0.8}
+\definecolor{brown}{rgb}{0.6,0.3,0.3}
+\definecolor{darkblue}{rgb}{0,0,0.8}
+\definecolor{darkmagenta}{rgb}{0.5,0,0.5}
+
+\newcommand{\code}[1]{\mbox{\footnotesize\color{darkblue}\texttt{#1}}}
+\newcommand{\pkg}[1]{{\fontseries{b}\selectfont #1}}
+\renewcommand{\pkg}[1]{{\textsf{#1}}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\DefineVerbatimEnvironment{Sinput}{Verbatim}{fontshape=sl,formatcom=\color{darkblue}}
+\fvset{listparameters={\setlength{\topsep}{0pt}}}
+\renewenvironment{Schunk}{\vspace{\topsep}}{\vspace{\topsep}}
+
+\fvset{fontsize=\footnotesize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\bld}[1]{\mbox{\boldmath $#1$}}
+\newcommand{\shell}[1]{\mbox{$#1$}}
+\renewcommand{\vec}[1]{\mbox{\bf {#1}}}
+
+\newcommand{\ReallySmallSpacing}{\renewcommand{\baselinestretch}{.6}\Large\normalsize}
+\newcommand{\SmallSpacing}{\renewcommand{\baselinestretch}{1.1}\Large\normalsize}
+
+\newcommand{\halfs}{\frac{1}{2}}
+
+\setlength{\oddsidemargin}{-.25 truein}
+\setlength{\evensidemargin}{0truein}
+\setlength{\topmargin}{-0.2truein}
+\setlength{\textwidth}{7 truein}
+\setlength{\textheight}{8.5 truein}
+\setlength{\parindent}{0.20truein}
+\setlength{\parskip}{0.10truein}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\pagestyle{fancy}
+\lhead{}
+\chead{GRAPH Interaction from pathway Topological Environment}
+\rhead{}	
+\lfoot{}
+\cfoot{}
+\rfoot{\thepage\ of \pageref{LastPage}}
+\renewcommand{\headrulewidth}{1pt}
+\renewcommand{\footrulewidth}{1pt}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\title{GRAPH Interaction from pathway Topological Environment}
+\author{Gabriele Sales (gabriele.sales@unipd.it) \\ Enrica Calura (enrica.calura@gmail.com)\\ Chiara Romualdi (chiara.romualdi@unipd.it)}
+
+\begin{document}
+
+\maketitle
+
+\thispagestyle{empty}
+
+
+<<startup, echo=FALSE, results=hide>>=
+library(graphite)
+@
+
+	
+\section{Introduction}
+
+{\it graphite} (GRAPH Interaction from pathway Topological Environment) an R package built to i) provide networks from four databases (KEGG, \cite{KEGG}; Biocarta, www.biocarta.com; Reactome, \cite{Reactome}; NCI/Nature Pathway Interaction Database, \cite{NCI}); ii) discriminate between different types of gene groups; iii) propagate pathway connections through chemical compounds; iv) allow the selection of edge attributes and the conversion of nodes identifiers to EntrezGene IDs and HUGO Symbols; finally, v) to run {\it SPIA}, {\it DEGraph}, and {\it topologyGSA} analyses directly on {\it graphite} networks.
+
+\section{Pathway topology conversion to gene network}
+In order to gather curated information about human pathways, we have collected data from the four public databases that have emerged as reference points for the systems biology community. Reactome (using the BioPax format), backed by the EBI, is one of the most complete repository; it is frequently updated and provides a semantically rich description of each pathway \cite{Reactome}. KEGG Pathways (KGML format) provides maps for both signaling and metabolic pathways \cite{KEGG}. Finally, we selected BioCarta (www.biocarta.com) and NCI (NCI/Nature Pathway Interaction Database  \cite{NCI}), both publishing their data using the BioPax format.
+
+\subsection{Pathway definition}
+KEGG database provides separate {\tt xml} files, one for each pathway, thus, a pathway is defined by all the reactions defined within each file. For the other databases, we identify a pathway every time in the BioPax format is defined the  {\tt xml} tag  {\tt pathway}.
+\subsection{Nodes with multiple elements}
+Within a pathway nodes often correspond to multiple gene products. These can be divided into protein complexes (proteins linked by protein-protein interactions) and the groups containing alternative members (genes generally with similar biochemical functions). Thus, when considering signal propagation these groups should be considered differently; the first (hereafter group AND) should be expanded into a clique (all proteins connected to the others), while the second (hereafter group OR) should be expanded without connection among the contained elements.
+
+In the KGML format there are two ways of defining nodes with multiple elements: protein complexes (group AND defined by entry {\tt type="group"}) and group with alternative members (group OR defined by entry {\tt type="gene"}).
+In the BioPax format only one type of group is allowed: protein complexes (group AND) with the {\tt owl} tag {\tt complex}. However, it often happened that {\tt protein} tag contains multiple {\tt xref} pointing to alternative elements of the process  (group OR).
+
+\subsection{Compound mediated interactions}
+Compound mediated interactions are interactions for which a compound acts as a bridge between two elements. Since chemical compounds are generally not measured with high-throughput technology, they should be removed from the network. However, the trivial elimination of the compounds, without signal propagation, will strongly bias the topology interrupting the signals that pass through them. If element $A$ is linked to compound $c$ and compound $c$ is linked to element $B$, thus elements $A$ should be linked to elements $B$.
+
+Within the KGML format there are two different ways of describing a compound mediated interaction: i) direct interaction {\tt type="PPrel"} ($A$ interacts whit $B$ through compound $c$ ) and ii) indirect one {\tt type="PCrel"} ($A$ interacts whit compound $c$ and $c$ interacts whit $B$). In the BioPax {\tt owl} language, one the other hand, only a indirect way of defining compound mediated signals is available.
+
+Since signal propagation reconstruction is crucial for topological gene set analysis we decide to include additional rules for the propagation reconstructing a connection between two genes connected through a series of chemical compounds.
+Not all compound are considered for the propagation because some of them, such as Hydrogen, H2O, ATP, ADP etc., are highly frequent in map descriptions and the signal propagation through them would lead to degenerate too long chains of compounds. The compounds not considered for propagation are not characteristic of a specific reaction but secondary substrates/products widely shared among different processes.
+
+\subsection{Relation attributes}
+{\it graphite} allows the user to see the single/multiple relation types that characterized an edge.
+The type of edges have been conserved as much as possible to those annotated in the data formats. Some new types have been introduced due to topological conversion needs.
+
+\subsection{Pathway  functions recovery}
+A pathway network can be retrieved using the name of the pathway:
+
+<<base1>>=
+names(biocarta)[1:10]
+p <- biocarta[["acetylation and deacetylation of rela in nucleus"]]
+p
+@
+
+or its position  in the list of pathways:
+
+<<base2>>=
+p <- biocarta[[1]]
+p@title
+@
+
+In the network, nodes represent genes and edges functional relationships among them. Nodes can have heterogeneous IDs (see section 4 for more details):
+<<base3>>=
+nodes(p)
+@
+
+Edges can be characterized by multiple functional relationships:
+<<base4>>=
+edges(p)
+@
+
+
+This same steps can be used to access the Reactome, KEGG and NCI databases (through the \code{reactome}, \code{kegg} and \code{nci} lists, respectively).
+\section{Graph}
+
+The function \code{pathwayGraph} builds a \code{graphNEL} object from a pathway \code{p}:
+<<graph1>>=
+g <- pathwayGraph(p)
+g
+@
+
+<<graph2>>=
+edgeData(g)[1]
+@
+
+\section{Identifiers}
+Gene annotations databases are widely used as public repositories of biological information. Our current knowledge on biological elements is spread out over a number of databases (such as: Entrez Gene , RefSeq, backed by the NCBI http://www.ncbi.nlm.nih.gov/, UniProt,  ENSEMBL backed by the EBI http://www.ebi.ac.uk/ to name just a few), specialised on a subset of specific biological entities (for instance, UniProt focuses on proteins while Entrez Gene focuses on genes).
+Key identifiers (IDs) in the internal structure of each such database uniquely represent biological entities, thus biological entities can be identified by heterogeneous IDs according to the selected database they refer to.
+Due to their different origins and specificity, switching from an ID to another is possible but not trivial: there could be either no correspondence between them or many-to-many relations.
+For detailed information about IDs, their structures and differences please consult those resources. For our purposes, we have chosen EntrezGene IDs and Gene Symbols because of their widespread use and simplicity.
+The function \code{converterIdentifiers} allows the user to map such variety of IDs to a single type. This mapping process, however, may lead to the loss of some nodes (not all identifiers may be recognized) and has an impact on the topology of the network (one ID may correspond to multiple IDs in another annotation or vice versa).
+
+<<ident1>>=
+pEntrez <- convertIdentifiers(p, "entrez")
+pEntrez
+nodes(pEntrez)
+@
+
+<<ident2>>=
+pSymbol <- convertIdentifiers(p, "symbol")
+nodes(pSymbol)
+@
+
+\clearpage
+\section{Cytoscape Plot}
+
+Several pathways have a huge number of nodes and edges, thus there is the need of an efficient system of visualization. To this end {\it graphite} uses the {\it Rcytoscape} package to export the network to Cytoscape. Cytoscape is a Java based software specifically built to manage biological network complexity and for this reason it is widely used by the biological community.
+
+\begin{Schunk}
+\begin{Sinput}
+> cytoscapePlot(convertIdentifiers(reactome$`Unwinding of DNA`, "symbol"))
+\end{Sinput}
+\end{Schunk}
+\begin{center}
+  \includegraphics[width=10cm, height=9.12cm]{Cytoscape.png}
+\end{center}
+
+\section{Topological pathway analysis}
+{\it graphite} gives access to three types of topological pathway analyses recently proposed. For more details on the results obtained by these analyses see the corresponding R packages.
+
+\subsection{SPIA}
+
+The analysis with {\it SPIA} requires the conversion of the networks in a suitable format. This conversion is performed by the function \code{prepareSPIA} that must be executed before the analysis command \code{runSPIA}. The {\it SPIA} data will be saved in the current working directory; every time you change it, you should also re-run \code{prepareSPIA}.
+
+<<spia1>>=
+library(SPIA)
+data(colorectalcancer)
+
+library(hgu133plus2.db)
+x <- hgu133plus2ENTREZID
+top$ENTREZ <- unlist(as.list(x[top$ID]))
+top <- top[!is.na(top$ENTREZ), ]
+top <- top[!duplicated(top$ENTREZ), ]
+tg1 <- top[top$adj.P.Val < 0.05, ]
+
+DE_Colorectal = tg1$logFC
+names(DE_Colorectal) <- as.vector(tg1$ENTREZ)
+ALL_Colorectal <- top$ENTREZ
+
+prepareSPIA(biocarta[1:2], "biocartaEx")
+runSPIA(de=DE_Colorectal, all=ALL_Colorectal, "biocartaEx")
+@
+
+For more details see the {\it SPIA} package \cite{Tarca2009,Adi2009,Draghici2007}.
+
+
+\subsection{DEGraph}
+{\it DEGraph} implements recent hypothesis testing methods which directly assess whether a particular gene network is differentially expressed between two conditions.
+
+<<dg1>>=
+library(DEGraph)
+data("Loi2008_DEGraphVignette")
+
+p <- convertIdentifiers(biocarta[["actions of nitric oxide in the heart"]], "entrez")
+res <- runDEGraph(p, exprLoi2008, classLoi2008)
+res$`1`
+@
+
+For more details see the {\it DEGraph} package \cite{Jacob2010}.
+
+\subsection{topologyGSA}
+{\it topologyGSA} uses graphical models to test the pathway components and to highlight those involved in its deregulation.
+
+<<tg1>>=
+library(topologyGSA)
+data(examples)
+
+p <- convertIdentifiers(kegg[["Fc epsilon RI signaling pathway"]], "symbol")
+runTopologyGSA(p, "var", exp1, exp2, 0.05)
+@
+
+For more details see the {\it topologyGSA} package \cite{Massa2010}.
+
+
+\begin{thebibliography}{9}
+
+\bibitem{KEGG}
+Ogata H, Goto S, Sato K, Fujibuchi W, Bono H, Kanehisa M. KEGG: Kyoto Encyclopedia of Genes and Genomes. Nucleic Acids Res. 1999 Jan 1;27(1):29-34.
+
+\bibitem{Reactome}
+Matthews L, Gopinath G, Gillespie M, Caudy M, Croft D, de Bono B, Garapati P, Hemish J, Hermjakob H, Jassal B, Kanapin A, Lewis S, Mahajan S, May B, Schmidt E, Vastrik I, Wu G, Birney E, Stein L, D'Eustachio P. Reactome knowledgebase of human biological pathways and processes. Nucleic Acids Res. 2009 Jan;37(Database issue):D619-22. Epub 2008 Nov 3.
+
+\bibitem{NCI}
+Schaefer CF, Anthony K, Krupa S, Buchoff J, Day M, Hannay T, Buetow KH. PID: the Pathway Interaction Database. Nucleic Acids Res. 2009 Jan;37(Database issue):D674-9. Epub 2008 Oct 2.
+
+\bibitem{Draghici2007}
+Draghici, S., Khatri, P., Tarca, A.L., Amin, K., Done, A., Voichita, C., Georgescu, C., Romero, R. A systems biology approach for pathway level analysis. Genome Research, 17, 2007.
+
+\bibitem{Tarca2009}
+Tarca AL, Draghici S, Khatri P, Hassan SS, Mittal P, Kim JS, Kim CJ, Kusanovic JP, Romero R. A novel signaling pathway impact analysis. Bioinformatics. 2009 Jan 1;25(1):75-82.
+
+\bibitem{Adi2009}
+Adi L. Tarca, Sorin Draghici, Purvesh Khatri, et. al, A Signaling Pathway Impact Analysis for Microarray Experiments, 2008, Bioinformatics, 2009, 25(1):75-82.
+
+\bibitem{Jacob2010}
+L. Jacob, P. Neuvial, and S. Dudoit. Gains in power from structured two-sample tests of means on graphs. Technical Report arXiv:q-bio/1009.5173v1, arXiv, 2010.
+
+\bibitem{Massa2010}
+Massa MS, Chiogna M, Romualdi C. Gene set analysis exploiting the topology of a pathway. BMC System Biol. 2010 Sep 1;4:121.
+
+\end{thebibliography}
+
+\end{document}
+
+
+
