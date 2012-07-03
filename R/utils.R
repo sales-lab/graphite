@@ -22,9 +22,7 @@ checkPkgVersion <- function(name, min_version) {
 }
 
 insufficientCommonGenes <- function(pathway, exprGenes) {
-  es <- edges(pathway)
-  esNames <- unique(c(es$src, es$dest))
-  commonNames <- intersect(esNames, exprGenes)
+  commonNames <- intersect(nodes(pathway), exprGenes)
 
   if (length(commonNames) < 2) {
     warning("not enough genes in common between pathway \"",
