@@ -24,7 +24,7 @@ importFrom(graphics, layout)
 
 importClassesFrom(methods, ANY, data.frame, Date, vector)
 importMethodsFrom(methods, show)
-importFrom(methods, "@<-", as, new)
+importFrom(methods, as, new)
 
 importFrom(org.Hs.eg.db, org.Hs.egENSEMBLTRANS2EG, org.Hs.egENZYME,
            org.Hs.egSYMBOL, org.Hs.egUNIPROT)
