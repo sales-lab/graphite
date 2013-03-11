@@ -28,6 +28,9 @@
     \item{\code{database}:}{Object of class \code{"vector"}.
       The name of the database from which the pathway was retrieved.
     }
+    \item{\code{species}:}{Object of class \code{"character"}.
+      The name of the species the pathway belongs to.
+    }
     \item{\code{timestamp}:}{Object of class \code{"Date"}.
       The date when the pathway was retrieved.
     }
