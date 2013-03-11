@@ -96,11 +96,10 @@ any2entrez <- function(v, n) {
   res <- copy(l$`EntrezGene`, res)
   res <- convert(l$`ENSEMBL`, org.Hs.egENSEMBLTRANS2EG, res)
   res <- convert(l$`EnzymeConsortium`, revmap(org.Hs.egENZYME), res)
-  res <- convert(l$`UniProt`, revmap(org.Hs.egUNIPROT), res)
+  res <- convert(dropIsoformLabel(l$`UniProt`), revmap(org.Hs.egUNIPROT), res)
 
   return(res)
 }
-
 
 splitIds <- function(v) {
   splitted  <- strsplit(v, ":", fixed=TRUE)
@@ -112,6 +111,10 @@ splitIds <- function(v) {
   partition(paired, 2)
 }
 
+dropIsoformLabel <- function(df) {
+  df$id <- sub("-.*", "", df$id)
+  return(df)
+}
 
 copy <- function(info, res) {
   for (i in seq_len(NROW(info)))

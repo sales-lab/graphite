@@ -1,4 +1,4 @@
-# Copyright 2011 Gabriele Sales <gabriele.sales@unipd.it>
+# Copyright 2011,2013 Gabriele Sales <gabriele.sales@unipd.it>
 #
 #
 # This file is part of graphite.
@@ -21,6 +21,7 @@ setClass("pathway",
                         edges="data.frame",
                         ident="vector",
                         database="vector",
+                        species="vector",
                         timestamp="Date"))
 
 setMethod("show", signature(object="pathway"),
