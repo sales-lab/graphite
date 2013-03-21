@@ -2,28 +2,31 @@
 \alias{runTopologyGSA}
 \docType{data}
 \title{
-Run topological analysis on expression dataset using topologyGSA. See topologyGSA.
+  Run a topological analysis on an expression dataset using topologyGSA.
 }
 \description{
   Use graphical models to test the pathway components highlighting those
   involved in its deregulation.
 }
 \usage{
-runTopologyGSA(pathway, test, exp1, exp2, ...)
+runTopologyGSA(pathway, test, exp1, exp2, alpha, ...)
 }
 \arguments{
   \item{pathway}{
-One of the pathways contained in \link{biocarta}, \link{kegg},\link{nci} or \link{reactome}.
-    }
+    One of the pathways contained in \link{biocarta}, \link{kegg},\link{nci} or \link{reactome}.
+  }
   \item{test}{
-Either \code{"var"} and \code{"mean"}. Determine the type of test used by topologyGSA.
-    }
+    Either \code{"var"} and \code{"mean"}. Determine the type of test used by topologyGSA.
+  }
   \item{exp1}{
-Experiment matrix of the first class, genes in columns.
-}
+    Experiment matrix of the first class, genes in columns.
+  }
  \item{exp2}{
-Experiment matrix of the second class, genes in columns.
-    }
+   Experiment matrix of the second class, genes in columns.
+ }
+ \item{alpha}{
+   Significance level of the test.
+ }
  \item{...}{
    Additional parameters.
  }
@@ -34,7 +37,8 @@ Experiment matrix of the second class, genes in columns.
   less than 3.
 }
 \references{
-Massa MS, Chiogna M, Romualdi C. Gene set analysis exploiting the topology of a pathway. BMC System Biol. 2010 Sep 1;4:121.
+  Massa MS, Chiogna M, Romualdi C. Gene set analysis exploiting the
+  topology of a pathway. BMC System Biol. 2010 Sep 1;4:121.
 }
 \examples{
 if (require(topologyGSA)) {
@@ -45,9 +49,8 @@ if (require(topologyGSA)) {
 }
 }
 \seealso{
-\code{\link[topologyGSA:pathway.var.test]{pathway.var.test}}
-\code{\link[topologyGSA:pathway.mean.test]{pathway.mean.test}}
-
+  \code{\link[topologyGSA:pathway.var.test]{pathway.var.test}}
+  \code{\link[topologyGSA:pathway.mean.test]{pathway.mean.test}}
 }
 \keyword{topology}
 \keyword{analysis}

@@ -1,4 +1,4 @@
-# Copyright 2011 Gabriele Sales <gabriele.sales@unipd.it>
+# Copyright 2011,2013 Gabriele Sales <gabriele.sales@unipd.it>
 #
 #
 # This file is part of graphite.
@@ -16,23 +16,40 @@
 # License along with graphite. If not, see <http://www.gnu.org/licenses/>.
 
 
-runTopologyGSA <- function(pathway, test, exp1, exp2, ...) {
+runTopologyGSA <- function(pathway, test, exp1, exp2, alpha, ...) {
+  initTopologyGSA()
+  runTopologyGSASingle(pathway, switchTest(test), exp1, exp2, alpha, ...)
+}
+
+runTopologyGSAMulti <- function(pathways, test, exp1, exp2, alpha, maxNodes=150, ...) {
+  initTopologyGSA()
+
+  test <- switchTest(test)
+  pathways <- filterPathwaysByNodeNum(pathways, maxNodes)
+
+  lapplyCapturingErrors(pathways, function(p) runTopologyGSASingle(p, test, exp1, exp2, alpha, ...))
+}
+
+initTopologyGSA <- function() {
   if (!require(topologyGSA))
     stop("library topologyGSA is missing")
 
   checkPkgVersion("topologyGSA", "1.0")
+}
 
-  if (test == "var") {
-    test <- pathway.var.test
-  } else if (test == "mean") {
-    test <- pathway.mean.test
-  } else {
-    stop("invalid test type: ", test)
-  }
+switchTest <- function(name) {
+  switch(name,
 
+         var  = pathway.var.test,
+         mean = pathway.mean.test,
+
+         stop("invalid test type: ", name))
+}
+
+runTopologyGSASingle <- function(pathway, test, exp1, exp2, alpha, ...) {
   if (insufficientCommonGenes(pathway, colnames(exp1)))
     return(NULL)
 
   g <- buildGraphNEL(nodes(pathway), edges(pathway), FALSE)
-  test(exp1, exp2, g, ...)
+  test(exp1, exp2, g, alpha, ...)
 }

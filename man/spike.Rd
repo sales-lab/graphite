@@ -13,8 +13,8 @@
 }
 
 \section{Pathway topology conversion}{
-  SPIKE pathways were retrieved in BioPax format from the SPIKE database web
-  site.
+  SPIKE pathways were retrieved in the BioPax format from the SPIKE
+  database web site.
 
   We define a pathway for each BioPax tag ``pathway''. Pathway nodes
   often correspond to multiple gene products. These can be divided into

@@ -1,4 +1,4 @@
-# Copyright 2011,2013 Gabriele Sales <gabriele.sales@unipd.it>
+# Copyright 2013 Gabriele Sales <gabriele.sales@unipd.it>
 #
 #
 # This file is part of graphite.
@@ -16,28 +16,27 @@
 # License along with graphite. If not, see <http://www.gnu.org/licenses/>.
 
 
-runDEGraph <- function(pathway, expr, classes) {
-  initDEGraph()
-  runDEGraphSingle(pathway, expr, classes)
+runClipper <- function(pathway, expr, classes, method, ...) {
+  initClipper()
+  runClipperSingle(pathway, expr, classes, method, ...)
 }
 
-runDEGraphMulti <- function(pathways, expr, classes, maxNodes=150) {
-  initDEGraph()
+runClipperMulti <- function(pathways, expr, classes, method, maxNodes=150, ...) {
+  initClipper()
   pathways <- filterPathwaysByNodeNum(pathways, maxNodes)
-  lapplyCapturingErrors(pathways, function(p) runDEGraphSingle(p, expr, classes))
+  lapplyCapturingErrors(pathways, function(p) runClipperSingle(p, expr, classes, method, ...))
 }
 
-initDEGraph <- function() {
-  if (!require(DEGraph))
-    stop("library DEGraph is missing")
-
-  checkPkgVersion("DEGraph", "1.4.0")
+initClipper <- function() {
+  if (!require(clipper))
+    stop("library clipper is missing")
 }
 
-runDEGraphSingle <- function(pathway, expr, classes) {
-  if (insufficientCommonGenes(pathway, rownames(expr)))
+runClipperSingle <- function(pathway, expr, classes, method, ...) {
+  genes <- rownames(expr)
+  if (insufficientCommonGenes(pathway, genes))
     return(NULL)
   
   g <- buildGraphNEL(nodes(pathway), edges(pathway), FALSE)
-  testOneGraph(g, expr, classes, useInteractionSigns=FALSE)
+  easyClip(expr, classes, g, method=method, ...)
 }

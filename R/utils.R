@@ -1,4 +1,4 @@
-# Copyright 2011 Gabriele Sales <gabriele.sales@unipd.it>
+# Copyright 2011,2013 Gabriele Sales <gabriele.sales@unipd.it>
 #
 #
 # This file is part of graphite.
@@ -14,6 +14,7 @@
 #
 # You should have received a copy of the GNU Affero General Public
 # License along with graphite. If not, see <http://www.gnu.org/licenses/>.
+
 
 checkPkgVersion <- function(name, min_version) {
   version <- package_version(installed.packages()[name, "Version"])
@@ -31,4 +32,27 @@ insufficientCommonGenes <- function(pathway, exprGenes) {
     return(TRUE)
   } else
     return(FALSE)
+}
+
+
+lapplyCapturingErrors <- function(l, f) {
+  log <- lapply(l, function(x) {
+    tryCatch(list("ok", f(x)),
+             error = function(e) list("err", e))
+  })
+
+  list(results = Filter(Negate(is.null), filterByTag("ok", log)),
+       errors  = sapply(filterByTag("err", log), gettext))
+}
+
+filterByTag <- function(tag, l) {
+  isTagged <- sapply(l, function(x) x[[1]] == tag)
+  lapply(l[isTagged], function(x) x[[2]])
+}
+
+filterPathwaysByNodeNum <- function(pathways, maxNodes) {
+  if (!is.null(maxNodes))
+    pathways <- Filter(function(p) length(nodes(p)) <= maxNodes, pathways)
+
+  return(pathways)
 }

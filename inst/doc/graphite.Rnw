@@ -90,10 +90,10 @@ library(graphite)
 	
 \section{Introduction}
 
-{\it graphite} (GRAPH Interaction from pathway Topological Environment) an R package built to i) provide networks from four databases (KEGG, \cite{KEGG}; Biocarta, www.biocarta.com; Reactome, \cite{Reactome}; NCI/Nature Pathway Interaction Database, \cite{NCI}); ii) discriminate between different types of gene groups; iii) propagate pathway connections through chemical compounds; iv) allow the selection of edge attributes and the conversion of nodes identifiers to EntrezGene IDs and HUGO Symbols; finally, v) to run {\it SPIA}, {\it DEGraph}, and {\it topologyGSA} analyses directly on {\it graphite} networks.
+{\it graphite} (GRAPH Interaction from pathway Topological Environment) an R package built to i) provide networks from five databases (KEGG, \cite{KEGG}; Biocarta, www.biocarta.com; Reactome, \cite{Reactome}; NCI/Nature Pathway Interaction Database, \cite{NCI}; SPIKE, \cite{spike}); ii) discriminate between different types of gene groups; iii) propagate pathway connections through chemical compounds; iv) allow the selection of edge attributes and the conversion of nodes identifiers to EntrezGene IDs and HUGO Symbols; finally, v) to run {\it SPIA}, {\it DEGraph}, and {\it topologyGSA} analyses directly on {\it graphite} networks.
 
 \section{Pathway topology conversion to gene network}
-In order to gather curated information about human pathways, we have collected data from the four public databases that have emerged as reference points for the systems biology community. Reactome (using the BioPax format), backed by the EBI, is one of the most complete repository; it is frequently updated and provides a semantically rich description of each pathway \cite{Reactome}. KEGG Pathways (KGML format) provides maps for both signaling and metabolic pathways \cite{KEGG}. Finally, we selected BioCarta (www.biocarta.com) and NCI (NCI/Nature Pathway Interaction Database  \cite{NCI}), both publishing their data using the BioPax format.
+In order to gather curated information about human pathways, we have collected data from the four public databases that have emerged as reference points for the systems biology community. Reactome (using the BioPax format), backed by the EBI, is one of the most complete repository; it is frequently updated and provides a semantically rich description of each pathway \cite{Reactome}. KEGG Pathways (KGML format) provides maps for both signaling and metabolic pathways \cite{KEGG}. BioCarta (www.biocarta.com) and NCI (NCI/Nature Pathway Interaction Database \cite{NCI}), both publishing their data using the BioPax format. Finally, SPIKE (www.cs.tau.ac.il/~spike/) a database for human curated signaling pathways backed by Tel Aviv University \cite{spike}.
 
 \subsection{Pathway definition}
 KEGG database provides separate {\tt xml} files, one for each pathway, thus, a pathway is defined by all the reactions defined within each file. For the other databases, we identify a pathway every time in the BioPax format is defined the  {\tt xml} tag  {\tt pathway}.
@@ -101,7 +101,7 @@ KEGG database provides separate {\tt xml} files, one for each pathway, thus, a p
 Within a pathway nodes often correspond to multiple gene products. These can be divided into protein complexes (proteins linked by protein-protein interactions) and the groups containing alternative members (genes generally with similar biochemical functions). Thus, when considering signal propagation these groups should be considered differently; the first (hereafter group AND) should be expanded into a clique (all proteins connected to the others), while the second (hereafter group OR) should be expanded without connection among the contained elements.
 
 In the KGML format there are two ways of defining nodes with multiple elements: protein complexes (group AND defined by entry {\tt type="group"}) and group with alternative members (group OR defined by entry {\tt type="gene"}).
-In the BioPax format only one type of group is allowed: protein complexes (group AND) with the {\tt owl} tag {\tt complex}. However, it often happened that {\tt protein} tag contains multiple {\tt xref} pointing to alternative elements of the process  (group OR).
+In the BioPax format only one type of group is allowed: protein complexes (group AND) with the {\tt owl} tag {\tt complex}. However, it often happened that {\tt protein} tag contains multiple {\tt xref} pointing to alternative elements of the process (group OR).
 
 \subsection{Compound mediated interactions}
 Compound mediated interactions are interactions for which a compound acts as a bridge between two elements. Since chemical compounds are generally not measured with high-throughput technology, they should be removed from the network. However, the trivial elimination of the compounds, without signal propagation, will strongly bias the topology interrupting the signals that pass through them. If element $A$ is linked to compound $c$ and compound $c$ is linked to element $B$, thus elements $A$ should be linked to elements $B$.
@@ -115,7 +115,7 @@ Not all compound are considered for the propagation because some of them, such a
 {\it graphite} allows the user to see the single/multiple relation types that characterized an edge.
 The type of edges have been conserved as much as possible to those annotated in the data formats. Some new types have been introduced due to topological conversion needs.
 
-\subsection{Pathway  functions recovery}
+\subsection{Pathway functions recovery}
 A pathway network can be retrieved using the name of the pathway:
 
 <<base1>>=
@@ -142,7 +142,8 @@ edges(p)
 @
 
 
-This same steps can be used to access the Reactome, KEGG and NCI databases (through the \code{reactome}, \code{kegg} and \code{nci} lists, respectively).
+This same steps can be used to access the Reactome, KEGG, SPIKE and NCI databases (through the \code{reactome}, \code{kegg}, \code{spike} and \code{nci} lists, respectively).
+
 \section{Graph}
 
 The function \code{pathwayGraph} builds a \code{graphNEL} object from a pathway \code{p}:
@@ -221,6 +222,8 @@ For more details see the {\it SPIA} package \cite{Tarca2009,Adi2009,Draghici2007
 \subsection{DEGraph}
 {\it DEGraph} implements recent hypothesis testing methods which directly assess whether a particular gene network is differentially expressed between two conditions.
 
+In {\it graphite}, {\it DEGraph} has two dedicated functions. The first is {\it runDEGraph}, which performs the analysis on a single pathway.
+
 <<dg1>>=
 library(DEGraph)
 data("Loi2008_DEGraphVignette")
@@ -230,10 +233,14 @@ res <- runDEGraph(p, exprLoi2008, classLoi2008)
 res$`1`
 @
 
+The second function is {\it runDEGraphMulti}, which easily performs the analysis on the entire pathway database having as result a list of two elements: a list with the results of the pathway analyses and the list of generated errors.
+
 For more details see the {\it DEGraph} package \cite{Jacob2010}.
 
 \subsection{topologyGSA}
 {\it topologyGSA} uses graphical models to test the pathway components and to highlight those involved in its deregulation.
+
+In {\it graphite}, {\it topologyGSA} has two dedicated functions. The first is {\it runTopologyGSA}, which performs the analysis on a single pathway.
 
 <<tg1>>=
 library(topologyGSA)
@@ -243,7 +250,52 @@ p <- convertIdentifiers(kegg[["Fc epsilon RI signaling pathway"]], "symbol")
 runTopologyGSA(p, "var", exp1, exp2, 0.05)
 @
 
+The second function is {\it runTopologyGSAMulti}, which easily performs the analysis on the entire pathway database having as result a list of two elements: a list with the results of the pathway analyses and the list of generated errors.
+
 For more details see the {\it topologyGSA} package \cite{Massa2010}.
+
+\subsection{clipper}
+{\it clipper} is a package for topological gene set analysis. It implements a
+two-step empirical approach based on the exploitation of graph
+decomposition into a junction tree to reconstruct the most relevant
+signal path. In the first step clipper selects significant pathways
+according to statistical tests on the means and the concentration
+matrices of the graphs derived from pathway topologies. Then, it "clips"
+the whole pathway identifying the signal paths having the greatest
+association with a specific phenotype.
+
+In {\it graphite}, {\it clipper} has two dedicated functions. The first is {\it runClipper}, which performs the analysis on a single pathway.
+
+<<tg1>>=
+library(clipper)
+library(ALL)
+path <- convertIdentifiers(kegg$'Chronic myeloid leukemia', "entrez")
+genes <- nodes(path)
+data(ALL)
+all <- as.matrix(exprs(ALL[1:length(genes),1:20]))
+classes <- c(rep(1,10), rep(2,10))
+rownames(all) <- genes
+clipped <- runClipper(path, all, classes, "mean", pathThr=0.1)
+clipped[,1:5]
+@
+
+The second function is {\it runClipperMulti}, which easily performs the analysis on the entire pathway database having as result a list of two elements: a list with the results of the pathway analyses and the list of generated errors.
+
+<<tg2>>=
+library(clipper)
+library(ALL)
+paths <- lapply(kegg[1:5], function(x) convertIdentifiers(x, "entrez"))
+genes <- unlist(lapply(paths, nodes))
+data(ALL)
+all <- as.matrix(exprs(ALL[1:length(genes),1:20]))
+classes <- c(rep(1,10), rep(2,10))
+rownames(all) <- genes
+clipped <- runClipperMulti(paths, all, classes, "mean", pathThr=0.1)
+resClip <- do.call(rbind,clipped$results)
+resClip[,1:5]
+@
+
+For more details see the {\it clipper} package \cite{Martini2013}.
 
 
 \begin{thebibliography}{9}
@@ -271,6 +323,14 @@ L. Jacob, P. Neuvial, and S. Dudoit. Gains in power from structured two-sample t
 
 \bibitem{Massa2010}
 Massa MS, Chiogna M, Romualdi C. Gene set analysis exploiting the topology of a pathway. BMC System Biol. 2010 Sep 1;4:121.
+
+\bibitem{Martini2013}
+Martini P, Sales G, Massa MS, Chiogna M, Romualdi C. Along signal paths: an
+empirical gene set approach exploiting pathway topology. Nucleic Acids Res. 2013 
+Jan 7;41(1):e19. doi: 10.1093/nar/gks866. Epub 2012 Sep 21.
+
+\bibitem{spike}
+Arnon Paz, Zippora Brownstein, Yaara Ber, Shani Bialik, Eyal David, Dorit Sagir, Igor Ulitsky, Ran Elkon, Adi Kimchi, Karen B. Avraham, Yosef Shiloh and Ron Shamir SPIKE: a database of highly curated human signaling pathways. Nucleic Acids Research, 2011, Vol. 39, Database issue.
 
 \end{thebibliography}
 

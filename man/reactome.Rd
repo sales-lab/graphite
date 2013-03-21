@@ -2,7 +2,7 @@
 \alias{reactome}
 \title{Reactome pathways}
 \description{
-    A list with a \code{\link[=pathway-class]{pathway}} object for each Reactome pathway.
+  A list with a \code{\link[=pathway-class]{pathway}} object for each Reactome pathway.
 
   Matthews L, Gopinath G, Gillespie M, Caudy M, Croft D, de Bono B, Garapati P,
 Hemish J, Hermjakob H, Jassal B, Kanapin A, Lewis S, Mahajan S, May B, Schmidt E,

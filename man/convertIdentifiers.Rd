@@ -27,5 +27,5 @@ convertIdentifiers(pathway, type)
   \code{\link{pathway-class}}
 }
 \examples{
-p <- convertIdentifiers(reactome$`mTOR signalling`, type="symbol")
+convertIdentifiers(reactome$`mTOR signalling`, type="symbol")
 }

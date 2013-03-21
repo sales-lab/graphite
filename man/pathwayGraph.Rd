@@ -20,5 +20,5 @@ pathwayGraph(pathway, edge.types=NULL)
   \code{\link[graph:graphNEL-class]{graphNEL-class}}
 }
 \examples{
-g <- pathwayGraph(reactome$`mTOR signalling`, edge.types=c("binding"))
+pathwayGraph(reactome$`mTOR signalling`, edge.types=c("binding"))
 }
