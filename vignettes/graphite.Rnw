@@ -65,7 +65,7 @@
 \pagestyle{fancy}
 \lhead{}
 \chead{GRAPH Interaction from pathway Topological Environment}
-\rhead{}	
+\rhead{}
 \lfoot{}
 \cfoot{}
 \rfoot{\thepage\ of \pageref{LastPage}}
@@ -84,10 +84,11 @@
 
 
 <<startup, echo=FALSE, results=hide>>=
+library(graph)
 library(graphite)
 @
 
-	
+
 \section{Introduction}
 
 {\it graphite} (GRAPH Interaction from pathway Topological Environment) an R package built to i) provide networks from five databases (KEGG, \cite{KEGG}; Biocarta, www.biocarta.com; Reactome, \cite{Reactome}; NCI/Nature Pathway Interaction Database, \cite{NCI}; SPIKE, \cite{spike}); ii) discriminate between different types of gene groups; iii) propagate pathway connections through chemical compounds; iv) allow the selection of edge attributes and the conversion of nodes identifiers to EntrezGene IDs and HUGO Symbols; finally, v) to run {\it SPIA}, {\it DEGraph}, and {\it topologyGSA} analyses directly on {\it graphite} networks.
@@ -194,7 +195,7 @@ Several pathways have a huge number of nodes and edges, thus there is the need o
 \subsection{SPIA}
 
 The analysis with {\it SPIA} requires the conversion of the networks in a suitable format. This conversion is performed by the function \code{prepareSPIA} that must be executed before the analysis command \code{runSPIA}. The {\it SPIA} data will be saved in the current working directory; every time you change it, you should also re-run \code{prepareSPIA}.
-Edges not included in SPIA have been coerced into the admitted SPIA types. 
+Edges not included in SPIA have been coerced into the admitted SPIA types.
 Compound mediated interactions annotated in graphite with "indirect" type are mapped into the SPIA edge type "indirect effect" by default set to zero. To use the signal propagated through compounds type 1 in "indirect effect".
 
 <<spia1>>=
@@ -326,7 +327,7 @@ Massa MS, Chiogna M, Romualdi C. Gene set analysis exploiting the topology of a 
 
 \bibitem{Martini2013}
 Martini P, Sales G, Massa MS, Chiogna M, Romualdi C. Along signal paths: an
-empirical gene set approach exploiting pathway topology. Nucleic Acids Res. 2013 
+empirical gene set approach exploiting pathway topology. Nucleic Acids Res. 2013
 Jan 7;41(1):e19. doi: 10.1093/nar/gks866. Epub 2012 Sep 21.
 
 \bibitem{spike}
