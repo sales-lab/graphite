@@ -1,87 +1,30 @@
 %\VignetteIndexEntry{GRAPH Interaction from pathway Topological Environment}
+%\VignetteDepends{graph}
 %\VignetteDepends{graphite}
 %\VignetteDepends{SPIA}
 %\VignetteDepends{hgu133plus2.db}
 %\VignetteDepends{DEGraph}
 %\VignetteDepends{topologyGSA}
-\documentclass[12pt]{article}
-\usepackage{amsmath}
-\usepackage[pdftex]{graphicx}
-\usepackage{color}
-\usepackage{xspace}
-\usepackage{fancyvrb}
-\usepackage{fancyhdr}
-\usepackage{lastpage}
-\usepackage[
-         colorlinks=true,
-         linkcolor=blue,
-         citecolor=blue,
-         urlcolor=blue]
-         {hyperref}
-\usepackage{Sweave}
-\SweaveOpts{keep.source=TRUE}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% define new colors for use
-\definecolor{darkgreen}{rgb}{0,0.6,0}
-\definecolor{darkred}{rgb}{0.6,0.0,0}
-\definecolor{lightbrown}{rgb}{1,0.9,0.8}
-\definecolor{brown}{rgb}{0.6,0.3,0.3}
-\definecolor{darkblue}{rgb}{0,0,0.8}
-\definecolor{darkmagenta}{rgb}{0.5,0,0.5}
+\documentclass{article}
 
-\newcommand{\code}[1]{\mbox{\footnotesize\color{darkblue}\texttt{#1}}}
-\newcommand{\pkg}[1]{{\fontseries{b}\selectfont #1}}
-\renewcommand{\pkg}[1]{{\textsf{#1}}}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\DefineVerbatimEnvironment{Sinput}{Verbatim}{fontshape=sl,formatcom=\color{darkblue}}
-\fvset{listparameters={\setlength{\topsep}{0pt}}}
-\renewenvironment{Schunk}{\vspace{\topsep}}{\vspace{\topsep}}
-
-\fvset{fontsize=\footnotesize}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\newcommand{\bld}[1]{\mbox{\boldmath $#1$}}
-\newcommand{\shell}[1]{\mbox{$#1$}}
-\renewcommand{\vec}[1]{\mbox{\bf {#1}}}
-
-\newcommand{\ReallySmallSpacing}{\renewcommand{\baselinestretch}{.6}\Large\normalsize}
-\newcommand{\SmallSpacing}{\renewcommand{\baselinestretch}{1.1}\Large\normalsize}
-
-\newcommand{\halfs}{\frac{1}{2}}
-
-\setlength{\oddsidemargin}{-.25 truein}
-\setlength{\evensidemargin}{0truein}
-\setlength{\topmargin}{-0.2truein}
-\setlength{\textwidth}{7 truein}
-\setlength{\textheight}{8.5 truein}
-\setlength{\parindent}{0.20truein}
-\setlength{\parskip}{0.10truein}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\pagestyle{fancy}
-\lhead{}
-\chead{GRAPH Interaction from pathway Topological Environment}
-\rhead{}
-\lfoot{}
-\cfoot{}
-\rfoot{\thepage\ of \pageref{LastPage}}
-\renewcommand{\headrulewidth}{1pt}
-\renewcommand{\footrulewidth}{1pt}
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+<<style, eval=TRUE, echo=FALSE, results=tex>>=
+BiocStyle::latex()
+@
 
 \title{GRAPH Interaction from pathway Topological Environment}
-\author{Gabriele Sales (gabriele.sales@unipd.it) \\ Enrica Calura (enrica.calura@gmail.com)\\ Chiara Romualdi (chiara.romualdi@unipd.it)}
+\author{
+  Gabriele Sales (gabriele.sales@unipd.it) \\
+  Enrica Calura (enrica.calura@gmail.com) \\
+  Chiara Romualdi (chiara.romualdi@unipd.it)
+}
 
 \begin{document}
+\SweaveOpts{concordance=TRUE}
 
 \maketitle
 
-\thispagestyle{empty}
-
+\tableofcontents
 
 <<startup, echo=FALSE, results=hide>>=
 library(graph)
@@ -143,11 +86,11 @@ edges(p)
 @
 
 
-This same steps can be used to access the Reactome, KEGG, SPIKE and NCI databases (through the \code{reactome}, \code{kegg}, \code{spike} and \code{nci} lists, respectively).
+This same steps can be used to access the Reactome, KEGG, SPIKE and NCI databases (through the \Robject{reactome}, \Robject{kegg}, \Robject{spike} and \Robject{nci} lists, respectively).
 
 \section{Graph}
 
-The function \code{pathwayGraph} builds a \code{graphNEL} object from a pathway \code{p}:
+The function \Rfunction{pathwayGraph} builds a \Rclass{graphNEL} object from a pathway \Robject{p}:
 <<graph1>>=
 g <- pathwayGraph(p)
 g
@@ -162,7 +105,7 @@ Gene annotations databases are widely used as public repositories of biological 
 Key identifiers (IDs) in the internal structure of each such database uniquely represent biological entities, thus biological entities can be identified by heterogeneous IDs according to the selected database they refer to.
 Due to their different origins and specificity, switching from an ID to another is possible but not trivial: there could be either no correspondence between them or many-to-many relations.
 For detailed information about IDs, their structures and differences please consult those resources. For our purposes, we have chosen EntrezGene IDs and Gene Symbols because of their widespread use and simplicity.
-The function \code{converterIdentifiers} allows the user to map such variety of IDs to a single type. This mapping process, however, may lead to the loss of some nodes (not all identifiers may be recognized) and has an impact on the topology of the network (one ID may correspond to multiple IDs in another annotation or vice versa).
+The function \Rfunction{converterIdentifiers} allows the user to map such variety of IDs to a single type. This mapping process, however, may lead to the loss of some nodes (not all identifiers may be recognized) and has an impact on the topology of the network (one ID may correspond to multiple IDs in another annotation or vice versa).
 
 <<ident1>>=
 pEntrez <- convertIdentifiers(p, "entrez")
@@ -178,7 +121,7 @@ nodes(pSymbol)
 \clearpage
 \section{Cytoscape Plot}
 
-Several pathways have a huge number of nodes and edges, thus there is the need of an efficient system of visualization. To this end {\it graphite} uses the {\it Rcytoscape} package to export the network to Cytoscape. Cytoscape is a Java based software specifically built to manage biological network complexity and for this reason it is widely used by the biological community.
+Several pathways have a huge number of nodes and edges, thus there is the need of an efficient system of visualization. To this end \Biocpkg{graphite} uses the \Biocpkg{Rcytoscape} package to export the network to Cytoscape. Cytoscape is a Java based software specifically built to manage biological network complexity and for this reason it is widely used by the biological community.
 
 \begin{Schunk}
 \begin{Sinput}
@@ -190,11 +133,11 @@ Several pathways have a huge number of nodes and edges, thus there is the need o
 \end{center}
 
 \section{Topological pathway analysis}
-{\it graphite} gives access to three types of topological pathway analyses recently proposed. For more details on the results obtained by these analyses see the corresponding R packages.
+\Biocpkg{graphite} gives access to three types of topological pathway analyses recently proposed. For more details on the results obtained by these analyses see the corresponding R packages.
 
 \subsection{SPIA}
 
-The analysis with {\it SPIA} requires the conversion of the networks in a suitable format. This conversion is performed by the function \code{prepareSPIA} that must be executed before the analysis command \code{runSPIA}. The {\it SPIA} data will be saved in the current working directory; every time you change it, you should also re-run \code{prepareSPIA}.
+The analysis with \Biocpkg{SPIA} requires the conversion of the networks in a suitable format. This conversion is performed by the function \Rfunction{prepareSPIA} that must be executed before the analysis command \Rfunction{runSPIA}. The \Biocpkg{SPIA} data will be saved in the current working directory; every time you change it, you should also re-run \Rfunction{prepareSPIA}.
 Edges not included in SPIA have been coerced into the admitted SPIA types.
 Compound mediated interactions annotated in graphite with "indirect" type are mapped into the SPIA edge type "indirect effect" by default set to zero. To use the signal propagated through compounds type 1 in "indirect effect".
 
@@ -214,16 +157,18 @@ names(DE_Colorectal) <- as.vector(tg1$ENTREZ)
 ALL_Colorectal <- top$ENTREZ
 
 prepareSPIA(biocarta[1:2], "biocartaEx")
-runSPIA(de=DE_Colorectal, all=ALL_Colorectal, "biocartaEx")
+res <- runSPIA(de=DE_Colorectal, all=ALL_Colorectal, "biocartaEx")
+res
 @
 
-For more details see the {\it SPIA} package \cite{Tarca2009,Adi2009,Draghici2007}.
+For more details see the \Biocpkg{SPIA} package \cite{Tarca2009,Adi2009,Draghici2007}.
 
 
 \subsection{DEGraph}
-{\it DEGraph} implements recent hypothesis testing methods which directly assess whether a particular gene network is differentially expressed between two conditions.
 
-In {\it graphite}, {\it DEGraph} has two dedicated functions. The first is {\it runDEGraph}, which performs the analysis on a single pathway.
+\Biocpkg{DEGraph} implements recent hypothesis testing methods which directly assess whether a particular gene network is differentially expressed between two conditions.
+
+In \Biocpkg{graphite}, \Biocpkg{DEGraph} has two dedicated functions. The first is \Rfunction{runDEGraph}, which performs the analysis on a single pathway.
 
 <<dg1>>=
 library(DEGraph)
@@ -234,14 +179,15 @@ res <- runDEGraph(p, exprLoi2008, classLoi2008)
 res$`1`
 @
 
-The second function is {\it runDEGraphMulti}, which easily performs the analysis on the entire pathway database having as result a list of two elements: a list with the results of the pathway analyses and the list of generated errors.
+The second function is \Rfunction{runDEGraphMulti}, which easily performs the analysis on the entire pathway database having as result a list of two elements: a list with the results of the pathway analyses and the list of generated errors.
 
-For more details see the {\it DEGraph} package \cite{Jacob2010}.
+For more details see the \Biocpkg{DEGraph} package \cite{Jacob2010}.
 
 \subsection{topologyGSA}
-{\it topologyGSA} uses graphical models to test the pathway components and to highlight those involved in its deregulation.
 
-In {\it graphite}, {\it topologyGSA} has two dedicated functions. The first is {\it runTopologyGSA}, which performs the analysis on a single pathway.
+\Biocpkg{topologyGSA} uses graphical models to test the pathway components and to highlight those involved in its deregulation.
+
+In \Biocpkg{graphite}, \Biocpkg{topologyGSA} has two dedicated functions. The first is \Rfunction{runTopologyGSA}, which performs the analysis on a single pathway.
 
 <<tg1>>=
 library(topologyGSA)
@@ -251,21 +197,15 @@ p <- convertIdentifiers(kegg[["Fc epsilon RI signaling pathway"]], "symbol")
 runTopologyGSA(p, "var", exp1, exp2, 0.05)
 @
 
-The second function is {\it runTopologyGSAMulti}, which easily performs the analysis on the entire pathway database having as result a list of two elements: a list with the results of the pathway analyses and the list of generated errors.
+The second function is \Rfunction{runTopologyGSAMulti}, which easily performs the analysis on the entire pathway database having as result a list of two elements: a list with the results of the pathway analyses and the list of generated errors.
 
-For more details see the {\it topologyGSA} package \cite{Massa2010}.
+For more details see the \Biocpkg{topologyGSA} package \cite{Massa2010}.
 
 \subsection{clipper}
-{\it clipper} is a package for topological gene set analysis. It implements a
-two-step empirical approach based on the exploitation of graph
-decomposition into a junction tree to reconstruct the most relevant
-signal path. In the first step clipper selects significant pathways
-according to statistical tests on the means and the concentration
-matrices of the graphs derived from pathway topologies. Then, it "clips"
-the whole pathway identifying the signal paths having the greatest
-association with a specific phenotype.
 
-In {\it graphite}, {\it clipper} has two dedicated functions. The first is {\it runClipper}, which performs the analysis on a single pathway.
+\Biocpkg{clipper} is a package for topological gene set analysis. It implements a two-step empirical approach based on the exploitation of graph decomposition into a junction tree to reconstruct the most relevant signal path. In the first step clipper selects significant pathways according to statistical tests on the means and the concentration matrices of the graphs derived from pathway topologies. Then, it "clips" the whole pathway identifying the signal paths having the greatest association with a specific phenotype.
+
+In \Biocpkg{graphite}, \Biocpkg{clipper} has two dedicated functions. The first is \Rfunction{runClipper}, which performs the analysis on a single pathway.
 
 <<tg1>>=
 library(clipper)
@@ -296,7 +236,7 @@ resClip <- do.call(rbind,clipped$results)
 resClip[,1:5]
 @
 
-For more details see the {\it clipper} package \cite{Martini2013}.
+For more details see the \Biocpkg{clipper} package \cite{Martini2013}.
 
 
 \begin{thebibliography}{9}
@@ -336,6 +276,3 @@ Arnon Paz, Zippora Brownstein, Yaara Ber, Shani Bialik, Eyal David, Dorit Sagir,
 \end{thebibliography}
 
 \end{document}
-
-
-

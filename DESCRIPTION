@@ -8,6 +8,6 @@ Description: Graph objects from pathway topology derived from Biocarta, KEGG, NC
 License:     AGPL-3
 Depends:     R (>= 2.10)
 Imports:     AnnotationDbi, graph, graphics, methods, org.Hs.eg.db, stats, utils
-Suggests:    DEGraph (>= 1.4), hgu133plus2.db, RCytoscape (>= 1.6), SPIA (>= 2.2), topologyGSA (>= 1.0), clipper, ALL
+Suggests:    BiocStyle, DEGraph (>= 1.4), hgu133plus2.db, RCytoscape (>= 1.6), SPIA (>= 2.2), topologyGSA (>= 1.0), clipper, ALL
 LazyData:    yes
 biocViews:   Pathways, ConnectTools, GraphsAndNetworks
