@@ -194,7 +194,7 @@ library(topologyGSA)
 data(examples)
 
 p <- convertIdentifiers(kegg[["Fc epsilon RI signaling pathway"]], "symbol")
-runTopologyGSA(p, "var", exp1, exp2, 0.05)
+runTopologyGSA(p, "var", y1, y2, 0.05)
 @
 
 The second function is \Rfunction{runTopologyGSAMulti}, which easily performs the analysis on the entire pathway database having as result a list of two elements: a list with the results of the pathway analyses and the list of generated errors.

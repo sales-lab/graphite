@@ -58,7 +58,7 @@ if (require(topologyGSA)) {
 
   ps <- lapply(kegg[c("Acute myeloid leukemia", "Fc epsilon RI signaling pathway")],
                function(p) convertIdentifiers(p, "symbol"))
-  runTopologyGSAMulti(ps, "var", exp1, exp2, 0.05)
+  runTopologyGSAMulti(ps, "var", y1, y2, 0.05)
 }
 }
 \seealso{

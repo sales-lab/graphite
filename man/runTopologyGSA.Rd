@@ -45,7 +45,7 @@ if (require(topologyGSA)) {
   data(examples)
 
   p <- convertIdentifiers(kegg[["Fc epsilon RI signaling pathway"]], "symbol")
-  runTopologyGSA(p, "var", exp1, exp2, 0.05)
+  runTopologyGSA(p, "var", y1, y2, 0.05)
 }
 }
 \seealso{
