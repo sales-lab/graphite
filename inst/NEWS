@@ -1,3 +1,6 @@
 Changes in version 1.9.4 (2014-04-04)
   - Updated Biocarta, KEGG, NCI and Reactome data.
   - New databases: HumanCyc and Panther.
+
+Changes in version 1.11.4 (2014-10-01)
+  - Updated Biocarta, KEGG, NCI, HumanCyc, Panther and Reactome data.
