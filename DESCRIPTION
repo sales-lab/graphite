@@ -1,5 +1,5 @@
 Package: graphite
-Version: 1.13.0
+Version: 1.13.1
 Date: 2014-10-02
 Title: GRAPH Interaction from pathway Topological Environment
 Author: Gabriele Sales <gabriele.sales@unipd.it>, Enrica Calura
@@ -15,4 +15,5 @@ Imports: AnnotationDbi, graph, graphics, methods, org.Hs.eg.db, stats,
 Suggests: BiocStyle, DEGraph (>= 1.4), hgu133plus2.db, RCytoscape (>=
         1.6), SPIA (>= 2.2), topologyGSA (>= 1.4.0), clipper, ALL
 LazyData: yes
-biocViews: Pathways, ThirdPartyClient, GraphAndNetwork, Network
+biocViews: Pathways, ThirdPartyClient, GraphAndNetwork, Network,
+        Reactome, KEGG, BioCarta
