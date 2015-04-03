@@ -1,4 +1,4 @@
-# Copyright 2011,2013 Gabriele Sales <gabriele.sales@unipd.it>
+# Copyright 2011,2015 Gabriele Sales <gabriele.sales@unipd.it>
 #
 #
 # This file is part of graphite.
@@ -16,22 +16,26 @@
 # License along with graphite. If not, see <http://www.gnu.org/licenses/>.
 
 
-checkPkgVersion <- function(name, min_version) {
-  version <- package_version(installed.packages()[name, "Version"])
-  if (version < package_version(min_version))
-    stop("the installed ", name, " version is too old (need at least ", min_version, ")")
+deprecatedObj <- function(name) {
+  warning("Object \"", name, "\" is deprecated and will be removed from ",
+          "the next release.\n",
+          "Use the pathways() function instead.",
+          call.=FALSE)
 }
 
-insufficientCommonGenes <- function(pathway, exprGenes) {
-  commonNames <- intersect(nodes(pathway), exprGenes)
+deprecatedFn <- function(name, repl) {
+  warning("Function \"", name, "\" is deprecated and will be removed from ",
+          "the next release.\n",
+          "Use the \"", repl, "\" function instead.",
+          call.=FALSE)
+}
 
-  if (length(commonNames) < 2) {
-    warning("not enough genes in common between pathway \"",
-            pathway@title,
-            "\" and expression data (mismatched identifiers?)")
-    return(TRUE)
-  } else
-    return(FALSE)
+
+filterPathwaysByNodeNum <- function(pathways, maxNodes) {
+  if (!is.null(maxNodes))
+    pathways <- Filter(function(p) length(nodes(p)) <= maxNodes, pathways)
+
+  return(pathways)
 }
 
 
@@ -50,9 +54,35 @@ filterByTag <- function(tag, l) {
   lapply(l[isTagged], function(x) x[[2]])
 }
 
-filterPathwaysByNodeNum <- function(pathways, maxNodes) {
-  if (!is.null(maxNodes))
-    pathways <- Filter(function(p) length(nodes(p)) <= maxNodes, pathways)
 
-  return(pathways)
+checkPathwayList <- function(l) {
+  if (!all(sapply(l, function(e) is(e, "Pathway"))))
+    stop("can only process a list of Pathways")
+}
+
+
+insufficientCommonGenes <- function(pathway, exprGenes) {
+  commonNames <- intersect(nodes(pathway), exprGenes)
+
+  if (length(commonNames) < 2) {
+    warning("not enough genes in common between pathway \"",
+            pathway@title,
+            "\" and expression data (mismatched identifiers?)")
+    return(TRUE)
+  } else
+    return(FALSE)
+}
+
+
+requirePkg <- function(name) {
+  if (!requireNamespace(name, quietly=TRUE))
+    stop("library ", name, " is missing", call.=FALSE)
+}
+
+checkPkgVersion <- function(name, min_version) {
+  version <- package_version(installed.packages()[name, "Version"])
+  if (version < package_version(min_version))
+    stop("the installed ", name, " version is too old (need at least ",
+         min_version, ")",
+         call.=FALSE)
 }

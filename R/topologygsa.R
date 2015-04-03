@@ -1,4 +1,4 @@
-# Copyright 2011,2013 Gabriele Sales <gabriele.sales@unipd.it>
+# Copyright 2011,2013,2015 Gabriele Sales <gabriele.sales@unipd.it>
 #
 #
 # This file is part of graphite.
@@ -16,40 +16,68 @@
 # License along with graphite. If not, see <http://www.gnu.org/licenses/>.
 
 
-runTopologyGSA <- function(pathway, test, exp1, exp2, alpha, ...) {
-  initTopologyGSA()
-  runTopologyGSASingle(pathway, switchTest(test), exp1, exp2, alpha, ...)
-}
-
-runTopologyGSAMulti <- function(pathways, test, exp1, exp2, alpha, maxNodes=150, ...) {
-  initTopologyGSA()
-
-  test <- switchTest(test)
-  pathways <- filterPathwaysByNodeNum(pathways, maxNodes)
-
-  lapplyCapturingErrors(pathways, function(p) runTopologyGSASingle(p, test, exp1, exp2, alpha, ...))
-}
-
 initTopologyGSA <- function() {
-  if (!require(topologyGSA))
-    stop("library topologyGSA is missing")
-
+  requirePkg("topologyGSA")
   checkPkgVersion("topologyGSA", "1.0")
 }
 
 switchTest <- function(name) {
   switch(name,
 
-         var  = pathway.var.test,
-         mean = pathway.mean.test,
+         var  = topologyGSA::pathway.var.test,
+         mean = topologyGSA::pathway.mean.test,
 
          stop("invalid test type: ", name))
 }
 
-runTopologyGSASingle <- function(pathway, test, exp1, exp2, alpha, ...) {
+.topologyGSA <- function(pathway, test, exp1, exp2, alpha, ...) {
   if (insufficientCommonGenes(pathway, colnames(exp1)))
     return(NULL)
 
   g <- buildGraphNEL(nodes(pathway), edges(pathway), FALSE)
   test(exp1, exp2, g, alpha, ...)
+}
+
+.topologyGSAList <- function(l, test, exp1, exp2, alpha, maxNodes=150, ...) {
+  initTopologyGSA()
+  test <- switchTest(test)
+  lapplyCapturingErrors(filterPathwaysByNodeNum(l, maxNodes),
+    function(p) .topologyGSA(p, test, exp1, exp2, alpha, ...))
+}
+
+
+setGeneric("runTopologyGSA",
+  function(x, test, exp1, exp2, alpha, ...)
+    standardGeneric("runTopologyGSA"))
+
+
+setMethod("runTopologyGSA", "PathwayList",
+  function(x, test, exp1, exp2, alpha, maxNodes=150, ...) {
+    .topologyGSAList(x@entries, test, exp1, exp2, alpha, maxNodes, ...)
+  })
+
+setMethod("runTopologyGSA", "list",
+  function(x, test, exp1, exp2, alpha, maxNodes=150, ...) {
+    checkPathwayList(x)
+    .topologyGSAList(x, expr, classes, maxNodes)
+  })
+
+setMethod("runTopologyGSA", "DeprecatedPathwayList",
+  function(x, test, exp1, exp2, alpha, maxNodes=150, ...) {
+    deprecatedObj(x@name)
+    runTopologyGSA(x@content, test, exp1, exp2, alpha, maxNodes, ...)
+  })
+
+
+
+setMethod("runTopologyGSA", "Pathway",
+  function(x, test, exp1, exp2, alpha, ...) {
+    initTopologyGSA()
+    .topologyGSA(x, switchTest(test), exp1, exp2, alpha, ...)
+  })
+
+
+runTopologyGSAMulti <- function(pathways, test, exp1, exp2, alpha, maxNodes=150, ...) {
+  deprecatedFn("runTopologyGSAMulti", "runTopologyGSA")
+  runTopologyGSA(pathways, test, exp1, exp2, alpha, maxNodes, ...)
 }

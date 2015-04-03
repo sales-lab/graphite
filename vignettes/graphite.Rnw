@@ -7,6 +7,7 @@
 %\VignetteDepends{topologyGSA}
 
 \documentclass{article}
+\usepackage[utf8]{inputenc}
 
 <<style, eval=TRUE, echo=FALSE, results=tex>>=
 BiocStyle::latex()
@@ -34,7 +35,7 @@ library(graphite)
 
 \section{Introduction}
 
-{\it graphite} (GRAPH Interaction from pathway Topological Environment) an R package built to i) provide networks from seven databases (KEGG, \cite{KEGG}; Biocarta, www.biocarta.com; Reactome, \cite{Reactome}; NCI/Nature Pathway Interaction Database, \cite{NCI}; SPIKE, \cite{spike}; HumanCyc, \cite{humancyc}; Panther, \cite{panther}); ii) discriminate between different types of gene groups; iii) propagate pathway connections through chemical compounds; iv) allow the selection of edge attributes and the conversion of nodes identifiers to EntrezGene IDs and HUGO Symbols; finally, v) to run {\it SPIA}, {\it DEGraph}, {\it CliPPER} and {\it topologyGSA} analyses directly on {\it graphite} networks.
+{\it graphite} (GRAPH Interaction from pathway Topological Environment) an R package built to i) provide networks from six databases (KEGG, \cite{KEGG}; Biocarta, www.biocarta.com; Reactome, \cite{Reactome}; NCI/Nature Pathway Interaction Database, \cite{NCI}; HumanCyc, \cite{humancyc}; Panther, \cite{panther}) and, since the version 1.14, from 14 species; ii) discriminate between different types of gene groups; iii) propagate pathway connections through chemical compounds; iv) allow the selection of edge attributes and the conversion of nodes identifiers to EntrezGene IDs and HUGO Symbols; finally, v) to run {\it SPIA}, {\it DEGraph}, {\it CliPPER} and {\it topologyGSA} analyses directly on {\it graphite} networks.
 
 \section{Pathway topology conversion to gene network}
 In order to gather curated information about human pathways, we have collected data from the four public databases that have emerged as reference points for the systems biology community.
@@ -42,8 +43,8 @@ The KEGG database has been in development by Kanehisa Laboratories since 1995, a
 Reactome, backed by the EBI, is one of the most complete repository; it is frequently updated and provides a semantically rich description of each pathway \cite{Reactome}. KEGG Pathways (KGML format) provides maps for both signaling and metabolic pathways \cite{KEGG}.
 BioCarta (www.biocarta.com) is a developer, supplier and distributor company of reagents and assays for biopharmaceutical and academic research. Through an "open source" approach, this community-fed forum constantly integrates emerging proteomic information from the scientific community. It also catalogs and summarizes important resources providing information for over 120,000 genes.BioCarta pathway data in biopax format are available through NCI website.
 NCI (NCI/Nature Pathway Interaction Database \cite{NCI}) is a highly-structured, curated collection of information about known biomolecular interactions and key cellular processes assembled into signaling pathways. This was a collaborative project between the NCI and Nature Publishing Group (NPG).
-Panther \cite{panther} data are a comprehensive, curated database of pathways, protein families, trees, subfamilies and functions available at http://pantherdb.org backed by the University of Southern California.
-HumanCyc is part of the BioCyc database collection of pathways \cite{humancyc}. Finally, SPIKE (www.cs.tau.ac.il/~spike/) a database for human curated signaling pathways backed by Tel Aviv University \cite{spike}.
+Finally, Panther \cite{panther} data are a comprehensive, curated database of pathways, protein families, trees, subfamilies and functions available at http://pantherdb.org backed by the University of Southern California.
+HumanCyc is part of the BioCyc database collection of pathways \cite{humancyc}.
 
 \subsection{Pathway definition}
 KEGG database provides separate {\tt xml} files, one for each pathway, thus, a pathway is defined by all the reactions defined within each file. For the other databases, we identify a pathway every time in the BioPax format is defined the  {\tt xml} tag  {\tt pathway}.
@@ -66,33 +67,42 @@ Not all compound are considered for the propagation because some of them, such a
 The type of edges have been conserved as much as possible to those annotated in the data formats. Some new types have been introduced due to topological conversion needs.
 
 \subsection{Pathway functions recovery}
-A pathway network can be retrieved using the name of the pathway:
+Human pathway data are natively distribuited with the package. But, since the version 1.14.0, non-human pathway data are also available and can be dowloaded using \Rfunction{pathways}
+
+\Rfunction{pathways} requires the name of the specie of interest and the name of the pathway database name as follow:
 
 <<base1>>=
-names(biocarta)[1:10]
-p <- biocarta[["acetylation and deacetylation of rela in nucleus"]]
+humanReactome <- pathways("hsapiens", "reactome")
+names(humanReactome)[1:10]
+p <- humanReactome[["ABC-family proteins mediated transport"]]
 p
 @
 
-or its position  in the list of pathways:
+A pathway database is a list of pathways. We can access to a pathway through its name, as above, or through its position in the list, as follow:
 
 <<base2>>=
-p <- biocarta[[1]]
+p <- humanReactome[[21]]
 p@title
 @
 
-In the network, nodes represent genes and edges functional relationships among them. Nodes can have heterogeneous IDs (see section 4 for more details):
+In the pathway, nodes represent genes/proteins and the edges represent the functional relationships:
 <<base3>>=
-nodes(p)
+head(nodes(p))
 @
 
 Edges can be characterized by multiple functional relationships:
+
 <<base4>>=
-edges(p)
+head(edges(p))
 @
 
+This same steps can be used to access the KEGG, Biocarta, Panther, HumanCyc and NCI databases for Homo sapiens pathways (through the \Robject{kegg}, \Robject{biocarta}, \Robject{panther}, \Robject{humancyc} and \Robject{nci} lists, respectively), but not all the databases are present for all the species.
+To know the pathway data available the user can use the \Rfunction{pathwayDatabases}.
 
-This same steps can be used to access the Reactome, KEGG, SPIKE and NCI databases (through the \Robject{reactome}, \Robject{kegg}, \Robject{spike} and \Robject{nci} lists, respectively).
+<<base5>>=
+pathwayDatabases()
+@
+
 
 \section{Graph}
 
@@ -108,20 +118,20 @@ edgeData(g)[1]
 
 \section{Identifiers}
 Gene annotations databases are widely used as public repositories of biological information. Our current knowledge on biological elements is spread out over a number of databases (such as: Entrez Gene , RefSeq, backed by the NCBI http://www.ncbi.nlm.nih.gov/, UniProt,  ENSEMBL backed by the EBI http://www.ebi.ac.uk/ to name just a few), specialised on a subset of specific biological entities (for instance, UniProt focuses on proteins while Entrez Gene focuses on genes).
-Key identifiers (IDs) in the internal structure of each such database uniquely represent biological entities, thus biological entities can be identified by heterogeneous IDs according to the selected database they refer to.
+Key identifiers (IDs) in the internal structure of each database uniquely represent biological entities, thus biological entities can be identified by homogeneous IDs according to the selected database they refer to.
 Due to their different origins and specificity, switching from an ID to another is possible but not trivial: there could be either no correspondence between them or many-to-many relations.
-For detailed information about IDs, their structures and differences please consult those resources. For our purposes, we have chosen EntrezGene IDs and Gene Symbols because of their widespread use and simplicity.
-The function \Rfunction{converterIdentifiers} allows the user to map such variety of IDs to a single type. This mapping process, however, may lead to the loss of some nodes (not all identifiers may be recognized) and has an impact on the topology of the network (one ID may correspond to multiple IDs in another annotation or vice versa).
+For detailed information about IDs, their structures and differences please consult those resources. 
+
+The function \Rfunction{converterIdentifiers} allows the user to convert the pathway IDs into different types, to fit the user needs. This mapping process, however, may lead to the loss of some nodes (not all identifiers may be recognized) and has an impact on the topology of the network (one ID may correspond to multiple IDs in another annotation or vice versa). We based the function of ID conversion through the species-specific Bioconductor \Biocpkg{AnnotationDbi}, such as \Biocpkg{org.Hs.eg.db}. Since the version 1.14, all the conversion supported in the annotation packages can be used. \Rfunction{converterIdentifiers} needs a list of pathways or a single pathway and a string describing the type of the identifier as provided by an Annotation package (for example,‘"ENTREZID"’), the values ‘"entrez"’, ‘"symbol"’ remains for backward compatibility.
 
 <<ident1>>=
-pEntrez <- convertIdentifiers(p, "entrez")
-pEntrez
-nodes(pEntrez)
+pSymbol <- convertIdentifiers(p, "SYMBOL")
+pSymbol
+head(nodes(pSymbol))
 @
 
 <<ident2>>=
-pSymbol <- convertIdentifiers(p, "symbol")
-nodes(pSymbol)
+reactomeSymbol <- convertIdentifiers(humanReactome[1:5], "SYMBOL")
 @
 
 \clearpage
@@ -176,18 +186,19 @@ For more details see the \Biocpkg{SPIA} package \cite{Tarca2009,Adi2009,Draghici
 
 \Biocpkg{DEGraph} implements recent hypothesis testing methods which directly assess whether a particular gene network is differentially expressed between two conditions.
 
-In \Biocpkg{graphite}, \Biocpkg{DEGraph} has two dedicated functions. The first is \Rfunction{runDEGraph}, which performs the analysis on a single pathway.
+In \Biocpkg{graphite}, \Biocpkg{DEGraph} has a dedicated function, called \Rfunction{runDEGraph}, which performs the analysis on a single pathway or on a pathway list.
 
 <<dg1>>=
 library(DEGraph)
 data("Loi2008_DEGraphVignette")
 
-p <- convertIdentifiers(biocarta[["actions of nitric oxide in the heart"]], "entrez")
+biocarta <- pathways("hsapiens", "biocarta")
+p <- convertIdentifiers(biocarta[["actions of nitric oxide in the heart"]], "ENTREZID")
 res <- runDEGraph(p, exprLoi2008, classLoi2008)
 res$`1`
 @
 
-The second function is \Rfunction{runDEGraphMulti}, which easily performs the analysis on the entire pathway database having as result a list of two elements: a list with the results of the pathway analyses and the list of generated errors.
+The function \Rfunction{runDEGraph}, which easily performs the analysis on the entire pathway database, provides as result a list of two elements: a list with the results of the pathway analyses and the list of generated errors.
 
 For more details see the \Biocpkg{DEGraph} package \cite{Jacob2010}.
 
@@ -195,17 +206,18 @@ For more details see the \Biocpkg{DEGraph} package \cite{Jacob2010}.
 
 \Biocpkg{topologyGSA} uses graphical models to test the pathway components and to highlight those involved in its deregulation.
 
-In \Biocpkg{graphite}, \Biocpkg{topologyGSA} has two dedicated functions. The first is \Rfunction{runTopologyGSA}, which performs the analysis on a single pathway.
+In \Biocpkg{graphite}, \Biocpkg{topologyGSA} has a dedicated function, \Rfunction{runTopologyGSA}, which performs the analysis on a single pathway or on a pathway list.
 
 <<tg1>>=
 library(topologyGSA)
 data(examples)
 
-p <- convertIdentifiers(kegg[["Fc epsilon RI signaling pathway"]], "symbol")
+kegg <- pathways("hsapiens", "kegg")
+p <- convertIdentifiers(kegg[["Fc epsilon RI signaling pathway"]], "SYMBOL")
 runTopologyGSA(p, "var", y1, y2, 0.05)
 @
 
-The second function is \Rfunction{runTopologyGSAMulti}, which easily performs the analysis on the entire pathway database having as result a list of two elements: a list with the results of the pathway analyses and the list of generated errors.
+The function \Rfunction{runTopologyGSA}, which easily performs the analysis on the entire pathway database, provides as result a list of two elements: a list with the results of the pathway analyses and the list of generated errors.
 
 For more details see the \Biocpkg{topologyGSA} package \cite{Massa2010}.
 
@@ -213,36 +225,25 @@ For more details see the \Biocpkg{topologyGSA} package \cite{Massa2010}.
 
 \Biocpkg{clipper} is a package for topological gene set analysis. It implements a two-step empirical approach based on the exploitation of graph decomposition into a junction tree to reconstruct the most relevant signal path. In the first step clipper selects significant pathways according to statistical tests on the means and the concentration matrices of the graphs derived from pathway topologies. Then, it "clips" the whole pathway identifying the signal paths having the greatest association with a specific phenotype.
 
-In \Biocpkg{graphite}, \Biocpkg{clipper} has two dedicated functions. The first is \Rfunction{runClipper}, which performs the analysis on a single pathway.
+In \Biocpkg{graphite}, \Biocpkg{clipper} has a dedicated function, \Rfunction{runClipper}, which performs the analysis on a single pathway or on a pathway list.
 
 <<tg1>>=
 library(clipper)
 library(ALL)
-path <- convertIdentifiers(kegg$'Chronic myeloid leukemia', "entrez")
-genes <- nodes(path)
-data(ALL)
-all <- as.matrix(exprs(ALL[1:length(genes),1:20]))
-classes <- c(rep(1,10), rep(2,10))
-rownames(all) <- genes
-clipped <- runClipper(path, all, classes, "mean", pathThr=0.1)
-clipped[,1:5]
-@
 
-The second function is {\it runClipperMulti}, which easily performs the analysis on the entire pathway database having as result a list of two elements: a list with the results of the pathway analyses and the list of generated errors.
-
-<<tg2>>=
-library(clipper)
-library(ALL)
-paths <- lapply(kegg[1:5], function(x) convertIdentifiers(x, "entrez"))
+kegg <- pathways("hsapiens", "kegg")
+paths <-convertIdentifiers(kegg[1:5], "ENTREZID")
 genes <- unlist(lapply(paths, nodes))
 data(ALL)
 all <- as.matrix(exprs(ALL[1:length(genes),1:20]))
 classes <- c(rep(1,10), rep(2,10))
 rownames(all) <- genes
-clipped <- runClipperMulti(paths, all, classes, "mean", pathThr=0.1)
+clipped <- runClipper(paths, all, classes, "mean", pathThr=0.1)
 resClip <- do.call(rbind,clipped$results)
 resClip[,1:5]
 @
+
+The function \Rfunction{runClipper}, which easily performs the analysis on the entire pathway database, provides as result a list of two elements: the list with the results of the pathway analyses and the list of generated errors.
 
 For more details see the \Biocpkg{clipper} package \cite{Martini2013}.
 
@@ -292,11 +293,6 @@ For more details see the \Biocpkg{clipper} package \cite{Martini2013}.
   Martini P, Sales G, Massa MS, Chiogna M, Romualdi C.
   Along signal paths: an empirical gene set approach exploiting pathway topology.
   Nucleic Acids Res. 2013 Jan 7;41(1):e19. doi: 10.1093/nar/gks866. Epub 2012 Sep 21.
-
-\bibitem{spike}
-  Arnon Paz, Zippora Brownstein, Yaara Ber, Shani Bialik, Eyal David, Dorit Sagir, Igor Ulitsky, Ran Elkon, Adi Kimchi, Karen B. Avraham, Yosef Shiloh and Ron Shamir.
-  SPIKE: a database of highly curated human signaling pathways.
-  Nucleic Acids Research, 2011, Vol. 39, Database issue.
 
 \bibitem{humancyc}
   Caspi R, Altman T, Dale JM, Dreher K, Fulcher CA, Gilham F, Kaipa P, Karthikeyan AS, Kothari A, Krummenacker M, Latendresse M, Mueller LA, Paley S, Popescu L, Pujar A, Shearer AG, Zhang P, Karp PD.

@@ -1,15 +1,16 @@
 \name{panther}
+\docType{data}
 \alias{panther}
 \title{Panther pathways}
 \description{
-  A list with a \code{\link[=pathway-class]{pathway}} object for each
-  Panther pathway.
+  \href{http://www.pantherdb.org/pathway/}{PANTHER} pathways.
+
+  Direct access to this object is deprecated.
+  Call \code{pathways(species, "panther")} instead.
 
   PANTHER in 2013: modeling the evolution of gene function, and other gene attributes, in the context of phylogenetic trees.
   Huaiyu Mi, Anushya Muruganujan and Paul D. Thomas
   Nucl. Acids Res. (2012) doi: 10.1093/nar/gks1118
-
-  \url{www.pantherdb.org/pathway/}
 }
 
 \section{Pathway topology conversion}{
@@ -52,5 +53,5 @@
 }
 
 \seealso{
-  \code{\link{pathway-class}}.
+  \code{\linkS4class{PathwayList}}
 }

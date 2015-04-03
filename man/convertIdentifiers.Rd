@@ -1,31 +1,29 @@
 \name{convertIdentifiers}
+\docType{methods}
 \alias{convertIdentifiers}
 \title{Convert the node identifiers of a pathway.}
 \description{
-  Converts the node identifiers of a pathway to either Entrez Genes of Gene Symbols.
+  Converts the node identifiers of pathways.
 }
 \usage{
-convertIdentifiers(pathway, type)
+convertIdentifiers(x, to)
 }
 \arguments{
-  \item{pathway}{a pathway from \link{biocarta}, \link{kegg},
-    \link{nci} or \link{reactome}.}
-  \item{type}{the type of identifier: either "entrez" or "symbol".}
+  \item{x}{can be a list of pathways or a single pathway}
+  \item{to}{
+    a string describing the type of the identifier.
+    Can assume the values \code{"entrez"}, \code{"symbol"} or the name
+    of one of the columns provided by an Annotation package (for example,
+    \code{"UNIPROT"}).
+  }
 }
 \value{
-  A \code{pathway} object.
+  A \code{Pathway} object.
 }
 \seealso{
-  \code{\link{biocarta}}
-
-  \code{\link{kegg}}
-
-  \code{\link{nci}}
-
-  \code{\link{reactome}}
-
-  \code{\link{pathway-class}}
+  \code{\linkS4class{Pathway}}
 }
 \examples{
-convertIdentifiers(reactome$`mTOR signalling`, type="symbol")
+  r <- pathways("hsapiens", "reactome")
+  convertIdentifiers(r$`mTOR signalling`, "symbol")
 }

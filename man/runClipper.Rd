@@ -1,8 +1,9 @@
 \name{runClipper}
+\docType{methods}
 \alias{runClipper}
-\docType{data}
+\alias{runClipper,list-method}
 \title{
-  Run a topological analysis on an expression dataset using the clipper.
+  Run a topological analysis on an expression dataset using clipper.
 }
 \description{
   clipper is a package for topological gene set analysis. It implements a
@@ -15,26 +16,31 @@
   association with a specific phenotype.
 }
 \usage{
-runClipper(pathway, expr, classes, method, ...)
+runClipper(x, expr, classes, method, ...)
 }
 \arguments{
-  \item{pathway}{
-    One of the pathways contained in \link{biocarta},
-    \link{kegg},\link{nci},\link{reactome} or \link{spike}.
+  \item{x}{
+    a \code{\linkS4class{PathwayList}}, a list of \code{\linkS4class{Pathway}}s
+    or a single \code{\linkS4class{Pathway}} object.
   }
   \item{expr}{
-    A \code{matrix} (size: number \code{p} of genes x number \code{n} of
+    a \code{matrix} (size: number \code{p} of genes x number \code{n} of
     samples) of gene expression.
   }
   \item{classes}{
-    A \code{vector} (length: \code{n}) of class assignments.
+    a \code{vector} (length: \code{n}) of class assignments.
   }
   \item{method}{
-    The kind of test to perform on the cliques. It could be
-    either mean or variance.
+    the kind of test to perform on the cliques. It could be
+    either \code{"mean"} or \code{"variance"}.
   }
   \item{\dots}{
-    Additional options see for details \code{\link[clipper:easyClip]{easyClip}}.
+    Additional options; see for details
+    \code{\link[clipper:easyClip]{easyClip}}.
+
+    When invoked on a \code{\linkS4class{PathwayList}}, can use the named
+    option "maxNodes" to limit the analysis to those pathways having up to
+    this given number of nodes.
   }
 }
 \details{
@@ -42,13 +48,14 @@ runClipper(pathway, expr, classes, method, ...)
 }
 \references{
   Martini P, Sales G, Massa MS, Chiogna M, Romualdi C. Along signal paths: an
-  empirical gene set approach exploiting pathway topology. Nucleic Acids Res. 2013 
+  empirical gene set approach exploiting pathway topology. Nucleic Acids Res. 2013
   Jan 7;41(1):e19. doi: 10.1093/nar/gks866. Epub 2012 Sep 21. PubMed PMID:
   23002139; PubMed Central PMCID: PMC3592432.
 }
 \examples{
 if (require(clipper) & require(ALL)){
-  path <- convertIdentifiers(kegg$'Chronic myeloid leukemia', "entrez")
+  k <- pathways("hsapiens", "kegg")
+  path <- convertIdentifiers(k$'Chronic myeloid leukemia', "entrez")
   genes <- nodes(path)
   data(ALL)
   all <- as.matrix(exprs(ALL[1:length(genes),1:20]))

@@ -1,6 +1,7 @@
 \name{runDEGraph}
+\docType{methods}
 \alias{runDEGraph}
-\docType{data}
+\alias{runDEGraph,list-method}
 \title{
   Run a topological analysis on an expression dataset using DEGraph package.
 }
@@ -10,18 +11,24 @@
   between two conditions.
 }
 \usage{
-runDEGraph(pathway, expr, classes)
+  runDEGraph(x, expr, classes, ...)
 }
 \arguments{
-  \item{pathway}{
-    One of the pathways contained in \link{biocarta}, \link{kegg},\link{nci} or \link{reactome}.
+  \item{x}{
+    a \code{\linkS4class{PathwayList}}, a list of \code{\linkS4class{Pathway}}s
+    or a single \code{\linkS4class{Pathway}} object.
   }
   \item{expr}{
-    A \code{matrix} (size: number \code{p} of genes x number \code{n} of
+    a \code{matrix} (size: number \code{p} of genes x number \code{n} of
     samples) of gene expression.
   }
   \item{classes}{
-    A \code{vector} (length: \code{n}) of class assignments.
+    a \code{vector} (length: \code{n}) of class assignments.
+  }
+  \item{\dots}{
+    when invoked on a \code{\linkS4class{PathwayList}}, can use the named
+    option "maxNodes" to limit the analysis to those pathways having up to
+    this given number of nodes.
   }
 }
 \details{
@@ -36,7 +43,8 @@ runDEGraph(pathway, expr, classes)
 if (require(DEGraph)) {
   data("Loi2008_DEGraphVignette")
 
-  p <- convertIdentifiers(biocarta[["actions of nitric oxide in the heart"]], "entrez")
+  b <- pathways("hsapiens", "biocarta")
+  p <- convertIdentifiers(b[["actions of nitric oxide in the heart"]], "entrez")
   runDEGraph(p, exprLoi2008, classLoi2008)
 }
 }

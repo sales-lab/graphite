@@ -1,21 +1,17 @@
 \name{runTopologyGSAMulti}
 \alias{runTopologyGSAMulti}
-\docType{data}
 \title{
-  Run topological analyses on an expression dataset, calling topologyGSA
-  over all the pathways in a list.
+  Run a topological analysis on an expression dataset using topologyGSA.
 }
 \description{
-  Use graphical models to test the pathway components highlighting those
-  involved in its deregulation.
+  This function is deprecated and will be removed in a future release.
+  You can use \code{\link{runTopologyGSA}} instead.
 }
 \usage{
-runTopologyGSAMulti(pathways, test, exp1, exp2, alpha, maxNodes=150, ...)
+  runTopologyGSAMulti(pathways, test, exp1, exp2, alpha, maxNodes=150, ...)
 }
 \arguments{
-  \item{pathways}{
-    A list of pathways, such as \link{biocarta}, \link{kegg},\link{nci} or \link{reactome}.
-  }
+  \item{pathways}{a \code{\linkS4class{PathwayList}} object.}
   \item{test}{
     Either \code{"var"} and \code{"mean"}. Determine the type of test used by topologyGSA.
   }
@@ -56,8 +52,10 @@ runTopologyGSAMulti(pathways, test, exp1, exp2, alpha, maxNodes=150, ...)
 if (require(topologyGSA)) {
   data(examples)
 
-  ps <- lapply(kegg[c("Acute myeloid leukemia", "Fc epsilon RI signaling pathway")],
-               function(p) convertIdentifiers(p, "symbol"))
+  k <- pathways("hsapiens", "kegg")
+  ps <- convertIdentifiers(
+    k[c("Acute myeloid leukemia", "Fc epsilon RI signaling pathway")],
+    "symbol")
   runTopologyGSAMulti(ps, "var", y1, y2, 0.05)
 }
 }

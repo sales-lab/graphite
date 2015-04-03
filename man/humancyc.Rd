@@ -1,8 +1,12 @@
 \name{humancyc}
+\docType{data}
 \alias{humancyc}
 \title{Humancyc pathways}
 \description{
-  A list with a \code{\link[=pathway-class]{pathway}} object for each HumanCyc pathway.
+  \href{http://humancyc.org}{HumanCyc} pathways.
+
+  Direct access to this object is deprecated.
+  Call \code{pathways(species, "humancyc")} instead.
 
   Caspi R, Altman T, Dale JM, Dreher K, Fulcher CA, Gilham F, Kaipa P,
   Karthikeyan AS, Kothari A, Krummenacker M, Latendresse M, Mueller LA,
@@ -10,8 +14,6 @@
   The MetaCyc database of metabolic pathways and enzymes and the BioCyc
   collection of pathway/genome databases.
   Nucleic Acids Research 38:D473-9 2010.
-
-  \url{http://humancyc.org}
 }
 
 \section{Pathway topology conversion}{
@@ -54,5 +56,5 @@
 }
 
 \seealso{
-  \code{\link{pathway-class}}.
+  \code{\linkS4class{PathwayList}}
 }

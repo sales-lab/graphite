@@ -1,4 +1,4 @@
-# Copyright 2011,2013 Gabriele Sales <gabriele.sales@unipd.it>
+# Copyright 2011,2013,2015 Gabriele Sales <gabriele.sales@unipd.it>
 #
 #
 # This file is part of graphite.
@@ -16,28 +16,55 @@
 # License along with graphite. If not, see <http://www.gnu.org/licenses/>.
 
 
-runDEGraph <- function(pathway, expr, classes) {
-  initDEGraph()
-  runDEGraphSingle(pathway, expr, classes)
-}
-
-runDEGraphMulti <- function(pathways, expr, classes, maxNodes=150) {
-  initDEGraph()
-  pathways <- filterPathwaysByNodeNum(pathways, maxNodes)
-  lapplyCapturingErrors(pathways, function(p) runDEGraphSingle(p, expr, classes))
-}
-
 initDEGraph <- function() {
-  if (!require(DEGraph))
-    stop("library DEGraph is missing")
-
+  requirePkg("DEGraph")
   checkPkgVersion("DEGraph", "1.4.0")
 }
 
-runDEGraphSingle <- function(pathway, expr, classes) {
+.degraph <- function(pathway, expr, classes) {
   if (insufficientCommonGenes(pathway, rownames(expr)))
     return(NULL)
-  
+
   g <- buildGraphNEL(nodes(pathway), edges(pathway), FALSE)
-  testOneGraph(g, expr, classes, useInteractionSigns=FALSE)
+  DEGraph::testOneGraph(g, expr, classes, useInteractionSigns=FALSE)
+}
+
+.degraphList <- function(l, expr, classes, maxNodes=150) {
+  initDEGraph()
+  lapplyCapturingErrors(filterPathwaysByNodeNum(l, maxNodes),
+    function(p) .degraph(p, expr, classes))
+}
+
+
+setGeneric("runDEGraph",
+  function(x, expr, classes, ...) standardGeneric("runDEGraph"))
+
+
+setMethod("runDEGraph", "PathwayList",
+  function(x, expr, classes, maxNodes=150) {
+    .degraphList(x@entries, expr, classes, maxNodes)
+  })
+
+setMethod("runDEGraph", "DeprecatedPathwayList",
+  function(x, expr, classes, maxNodes=150) {
+    deprecatedObj(x@name)
+    runDEGraph(x@content, expr, classes)
+  })
+
+setMethod("runDEGraph", "list",
+  function(x, expr, classes, maxNodes=150) {
+    checkPathwayList(x)
+    .degraphList(x@entries, expr, classes, maxNodes)
+  })
+
+setMethod("runDEGraph", "Pathway",
+  function(x, expr, classes) {
+    initDEGraph()
+    .degraph(x, expr, classes)
+  })
+
+
+runDEGraphMulti <- function(pathways, expr, classes, maxNodes=150) {
+  deprecatedFn("runDEGraphMulti", "runDEGraph")
+  runDEGraph(pathways, expr, classes, maxNodes)
 }

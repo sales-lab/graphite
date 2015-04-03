@@ -5,7 +5,7 @@
   Run a topological analysis on an expression dataset using SPIA.
 }
 \usage{
-runSPIA(de, all, pathwaySetName, ...)
+  runSPIA(de, all, pathwaySetName, ...)
 }
 \arguments{
   \item{de}{
@@ -61,7 +61,8 @@ if (require(SPIA) && require(hgu133plus2.db)) {
   names(DE_Colorectal) <- as.vector(tg1$ENTREZ)
   ALL_Colorectal <- top$ENTREZ
 
-  prepareSPIA(biocarta[1:20], "biocartaEx")
+  b <- pathways("hsapiens", "biocarta")
+  prepareSPIA(b[1:20], "biocartaEx")
   runSPIA(de=DE_Colorectal, all=ALL_Colorectal, "biocartaEx")
 }
 }

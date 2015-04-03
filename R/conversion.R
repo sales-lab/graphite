@@ -1,4 +1,4 @@
-# Copyright 2011 Gabriele Sales <gabriele.sales@unipd.it>
+# Copyright 2011,2015 Gabriele Sales <gabriele.sales@unipd.it>
 #
 #
 # This file is part of graphite.
@@ -16,154 +16,116 @@
 # License along with graphite. If not, see <http://www.gnu.org/licenses/>.
 
 
-convertIdentifiers <- function(pathway, type) {
-  if (pathway@ident != "native")
-    stop("can only work on a pathway with native identifiers")
+setGeneric("convertIdentifiers",
+  function(x, to) standardGeneric("convertIdentifiers"))
 
-  ns     <- nodes(pathway)
-  es     <- edges(pathway)
 
-  if (type == "entrez") {
-    ns <- nodesToEntrez(ns)
-    es <- edgesToEntrez(es)
-    id <- "Entrez Gene"
-  } else if (type == "symbol") {
-    ns <- nodesToSymbol(ns)
-    es <- edgesToSymbol(es)
-    id <- "Gene Symbol"
-  } else 
-    stop("unknown identifier type: ", type)
-
-  pathway@nodes <- ns
-  pathway@edges <- es
-  pathway@ident <- id
-  return(pathway)
-}
-
-nodesToEntrez <- function(v) {
-  unique(safe.unlist(any2entrez(v, length(v))))
-}
-
-edgesToEntrez <- function(m) {
-  nr <- NROW(m)
-  if (nr == 0)
-    return(m)
-
-  leftIds  <- any2entrez(m[,1], nr)
-  rightIds <- any2entrez(m[,2], nr)
-
-  convL <- lapply(seq_along(leftIds), function(i) {
-    l <- leftIds[[i]]
-    r <- rightIds[[i]]
-
-    if (!is.null(l) && !is.null(r)) {
-      suf <- as.matrix(m[i, -c(1,2)])
-      pairMatrix(l, r, suf)
-    }
+setMethod("convertIdentifiers", "PathwayList",
+  function(x, to) {
+    x@entries <- lapply(x@entries,
+                   function(p) convertIdentifiers(p, to))
+    return(x)
   })
 
-  es <- unique(do.call(rbind, Filter(Negate(is.null), convL)))
-  data.frame(src=safe.unlist(es[,1]),
-             dest=safe.unlist(es[,2]),
-             direction=factor(es[,3]),
-             type=factor(es[,4]),
-             stringsAsFactors=FALSE)
+setMethod("convertIdentifiers", "DeprecatedPathwayList",
+  function(x, to) {
+    deprecatedObj(x@name)
+    convertIdentifiers(x@content, to)
+  })
+
+setMethod("convertIdentifiers", "Pathway",
+  function(x, to) {
+
+    db <- loadDb(x@species)
+    to <- destIdentifier(to, db)
+
+    if (x@identifier != to) {
+
+      cn <- colnames(x@edges)
+
+      es <- convert(db, x@edges, "src", x@identifier, to)
+      es <- convert(db, es, "dest", x@identifier, to)
+
+      x@edges <- es[, cn]
+      x@identifier <- to
+
+      if (nrow(x@edges) == 0)
+        warning("the conversion lost all edges of pathway \"", x@title, "\"")
+    }
+
+    return(x)
+  })
+
+loadDb <- function(species) {
+  db <- selectDb(species)
+
+  tryCatch(get(db),
+    error=function(e) {
+      if (!suppressPackageStartupMessages(require(db, character.only=TRUE)))
+        stop("package \"", db, "\" is missing", call.=FALSE)
+      get(db)
+    })
 }
 
-nodesToSymbol <- function(v) {
-  conv <- nodesToEntrez(v)
-  na.omit(unique(safe.unlist(mget(conv, org.Hs.egSYMBOL, ifnotfound=NA))))
+destIdentifier <- function(to, db) {
+
+  if (to == "entrez")
+    to <- "ENTREZID"
+  else if (to == "symbol")
+    to <- "SYMBOL"
+
+  if (!(to %in% columns(db)))
+    stop(to, " is not supported with this species.",
+         call.=FALSE)
+
+  return(to)
 }
 
-edgesToSymbol <- function(m) {
-  if (NROW(m) == 0)
-    return(m)
+selectDb <- function(species) {
 
-  conv <- edgesToEntrez(m)
-  if (NROW(conv) == 0)
-    return(conv)
+  l <- list(athaliana="org.At.tair.db",
+            btaurus="org.Bt.eg.db",
+            celegans="org.Ce.eg.db",
+            cfamiliaris="org.Cf.eg.db",
+            dmelanogaster="org.Dm.eg.db",
+            drerio="org.Dr.eg.db",
+            ecoli="org.EcK12.eg.db",
+            ggallus="org.Gg.eg.db",
+            hsapiens="org.Hs.eg.db",
+            mmusculus="org.Mm.eg.db",
+            rnorvegicus="org.Rn.eg.db",
+            scerevisiae="org.Sc.sgd.db",
+            sscrofa="org.Ss.eg.db",
+            xlaevis="org.Xl.eg.db")
 
-  conv$src  <- unlist(mget(conv$src,  org.Hs.egSYMBOL, ifnotfound=NA))
-  conv$dest <- unlist(mget(conv$dest, org.Hs.egSYMBOL, ifnotfound=NA))
-  na.omit(conv)
+  n <- l[[species]]
+  if (is.null(n))
+    stop("no such species")
+
+  return(n)
 }
 
+convert <- function(db, edges, colname, from, to) {
 
-any2entrez <- function(v, n) {
-  l <- splitIds(v)
+  keys <- unique(edges[[colname]])
+  tbl <- lookupKeys(db, keys, from, to)
 
-  res <- vector("list", n)
-  res <- copy(l$`EntrezGene`, res)
-  res <- convert(l$`ENSEMBL`, org.Hs.egENSEMBLTRANS2EG, res)
-  res <- convert(l$`EnzymeConsortium`, revmap(org.Hs.egENZYME), res)
-  res <- convert(dropIsoformLabel(l$`UniProt`), revmap(org.Hs.egUNIPROT), res)
-
-  return(res)
-}
-
-splitIds <- function(v) {
-  splitted  <- strsplit(v, ":", fixed=TRUE)
-  filtered  <- lapply(splitted, function(x) if (length(x) == 2) x else rep(NA,2))
-
-  paired    <- data.frame(seq_along(filtered), do.call(rbind, filtered), stringsAsFactors=FALSE)
-  colnames(paired) <- c("idx", "type", "id")
-
-  partition(paired, 2)
-}
-
-dropIsoformLabel <- function(df) {
-  df$id <- sub("-.*", "", df$id)
-  return(df)
-}
-
-copy <- function(info, res) {
-  for (i in seq_len(NROW(info)))
-    res[[ info$idx[i] ]] <- info$id[i]
-  return(res)
-}
-
-convert <- function(info, map, res) {
-  if (NROW(info) == 0)
-    return(res)
-  
-  converted <- mget(info$id, map, ifnotfound=NA)
-  for (i in seq_along(converted)) {
-    conv <- converted[[i]]
-    if (length(conv) > 1 || !is.na(conv[1]))
-      res[[ info$idx[i] ]] <- conv
+  if (is.null(tbl)) {
+    edges[0,]
+  } else {
+    colnames(tbl) <- c(colname, "converted")
+    edges <- merge(edges, tbl)
+    replaceColumn(colname, "converted", edges)
   }
-  
-  return(res)
 }
 
+lookupKeys <- function(db, keys, from, to)
+  tryCatch(
+    na.omit(suppressWarnings(select(db, keys, to, from))),
+    error=function(e) NULL)
 
-pairMatrix <- function(l, r, suf) {
-  stopifnot(length(l) >= 1 && length(r) >= 1)
-  
-  lRep <- rep(l, length(r))
-  rRep <- rep(r, each=length(l))
-
-  t(sapply(seq_along(lRep), function(j) {
-    buildEdge(lRep[j], rRep[j], suf)
-  }))
-}
-
-buildEdge <- function(l, r, suf) {
-  if (suf[1] == "undirected" && l > r)
-    c(r, l, suf)
-  else
-    c(l, r, suf)
-}
-
-
-partition <- function(m, col) {
-  tapply(seq_len(NROW(m)), m[,col], function(idxs) m[idxs,-col], simplify=FALSE)
-}
-
-safe.unlist <- function(l) {
-  v <- unlist(l)
-  if (is.null(v))
-    character(0)
-  else
-    v
+replaceColumn <- function(old, new, df) {
+  df <- df[, !colnames(df)==old, drop=FALSE]
+  colnames(df)[colnames(df)==new] <- old
+  return(df)
 }

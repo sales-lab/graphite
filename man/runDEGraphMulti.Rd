@@ -1,22 +1,17 @@
 \name{runDEGraphMulti}
 \alias{runDEGraphMulti}
-\docType{data}
 \title{
-  Run topological analyses on an expression dataset, calling DEGraph
-  over all the pathways in a list.
+  Run a topological analysis on an expression dataset using DEGraph package.
 }
 \description{
-  DEGraph implements recent hypothesis testing methods which directly
-  assess whether a particular gene network is differentially expressed
-  between two conditions.
+  This function is deprecated and will be removed in a future release.
+  You can use \code{\link{runDEGraph}} instead.
 }
 \usage{
-runDEGraphMulti(pathways, expr, classes, maxNodes=150)
+  runDEGraphMulti(pathways, expr, classes, maxNodes=150)
 }
 \arguments{
-  \item{pathways}{
-    A list of pathways, such as \link{biocarta}, \link{kegg},\link{nci} or \link{reactome}.
-  }
+  \item{pathways}{a \code{\linkS4class{PathwayList}} object.}
   \item{expr}{
     A \code{matrix} (size: number \code{p} of genes x number \code{n} of
     samples) of gene expression.
@@ -26,7 +21,7 @@ runDEGraphMulti(pathways, expr, classes, maxNodes=150)
   }
   \item{maxNodes}{
     Ignore pathways with more than \code{"maxNodes"} nodes. Set to
-    \code{"NULL"} to disable the filter.
+    \code{NULL} to disable the filter.
   }
 }
 \value{
@@ -48,8 +43,8 @@ runDEGraphMulti(pathways, expr, classes, maxNodes=150)
 if (require(DEGraph)) {
   data("Loi2008_DEGraphVignette")
 
-  ps <- lapply(biocarta[1:3],
-               function(p) convertIdentifiers(p, "entrez"))
+  b <- pathways("hsapiens", "biocarta")
+  ps <- convertIdentifiers(b[1:3], "entrez")
   runDEGraphMulti(ps, exprLoi2008, classLoi2008)
 }
 }

@@ -1,10 +1,12 @@
 \name{biocarta}
+\docType{data}
 \alias{biocarta}
 \title{BioCarta pathways}
 \description{
-  A list with a \code{\link[=pathway-class]{pathway}} object for each BioCarta pathway.
+  \href{http://www.biocarta.com}{BioCarta} pathways.
 
-  \url{http://www.biocarta.com}
+  Direct access to this object is deprecated.
+  Call \code{pathways(species, "biocarta")} instead.
 }
 
 \section{Pathway topology conversion}{
@@ -47,5 +49,5 @@
 }
 
 \seealso{
-  \code{\link{pathway-class}}.
+  \code{\linkS4class{PathwayList}}
 }

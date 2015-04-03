@@ -1,4 +1,4 @@
-# Copyright 2011 Gabriele Sales <gabriele.sales@unipd.it>
+# Copyright 2011,2015 Gabriele Sales <gabriele.sales@unipd.it>
 #
 #
 # This file is part of graphite.
@@ -15,29 +15,32 @@
 # You should have received a copy of the GNU Affero General Public
 # License along with graphite. If not, see <http://www.gnu.org/licenses/>.
 
-importMethodsFrom(AnnotationDbi, colnames, mget, revmap)
 
-importMethodsFrom(graph, edgeData, "edgeData<-", "edgeDataDefaults<-",
-                  edges, nodes)
-
-importFrom(graphics, layout)
-
-importClassesFrom(methods, ANY, data.frame, Date, vector)
-importMethodsFrom(methods, show)
-importFrom(methods, as, new)
-
-importFrom(org.Hs.eg.db, org.Hs.egENSEMBLTRANS2EG, org.Hs.egENZYME,
-           org.Hs.egSYMBOL, org.Hs.egUNIPROT)
+import(methods)
+import(BiocGenerics)
+import(AnnotationDbi)
 
 importFrom(stats, na.omit)
+importFrom(utils, download.file, installed.packages)
 
-importFrom(utils, installed.packages)
+importMethodsFrom(graph,
+  edgeData, "edgeData<-", "edgeDataDefaults<-", edges, nodes)
+
+importFrom(graphics, plot)
 
 
-exportClasses(pathway)
-exportMethods(show, nodes, edges)
-export(convertIdentifiers, pathwayGraph, cytoscapePlot)
-export(prepareSPIA, runSPIA)
-export(runDEGraph, runDEGraphMulti)
-export(runTopologyGSA, runTopologyGSAMulti)
-export(runClipper, runClipperMulti)
+exportClasses(
+  Pathways, PathwayList, DeprecatedPathwayList,
+  Pathway)
+
+# Re-exports
+exportMethods(edgeData, "edgeData<-", "edgeDataDefaults<-", edges, nodes)
+
+exportMethods(
+  convertIdentifiers, plot,
+  runClipper, runDEGraph, prepareSPIA, runTopologyGSA)
+
+export(
+  as.list.PathwayList, as.list.DeprecatedPathwayList,
+  pathways, pathwayDatabases, cytoscapePlot, pathwayGraph,
+  runClipperMulti, runDEGraphMulti, runSPIA, runTopologyGSAMulti)

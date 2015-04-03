@@ -1,17 +1,19 @@
 \name{kegg}
+\docType{data}
 \alias{kegg}
 \title{KEGG pathways}
 \description{
-  A list with a \code{\link[=pathway-class]{pathway}} object for each KEGG pathway.
+  \href{http://www.genome.jp/kegg/}{KEGG} pathways.
+
+  Direct access to this object is deprecated.
+  Call \code{pathways(species, "kegg")} instead.
 
   Ogata H, Goto S, Sato K, Fujibuchi W, Bono H, Kanehisa M. KEGG: Kyoto Encyclopedia of Genes and Genomes. Nucleic Acids Res. 1999 Jan 1;27(1):29-34.
-
-  \url{http://www.genome.jp/kegg/}
 }
 
 \section{Pathway topology conversion}{ KEGG pathway were retrieved in
   KGML format from the KEGG ftp site.
-  
+
   KEGG database provides separate xml files, one for each pathway. A
   pathway is therefore define by all the reactions described within each
   file.
@@ -57,5 +59,5 @@
 }
 
 \seealso{
-  \code{\link{pathway-class}}.
+  \code{\linkS4class{PathwayList}}
 }

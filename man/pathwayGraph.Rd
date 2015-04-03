@@ -8,17 +8,18 @@
 pathwayGraph(pathway, edge.types=NULL)
 }
 \arguments{
-  \item{pathway}{a \code{pathway} object.}
+  \item{pathway}{a \code{\linkS4class{Pathway}} object.}
   \item{edge.types}{keep only the edges maching the type names in this vector.}
 }
 \value{
   A \code{graphNEL} object.
 }
 \seealso{
-  \code{\link{pathway-class}}
+  \code{\linkS4class{Pathway}}
 
-  \code{\link[graph:graphNEL-class]{graphNEL-class}}
+  \code{\link[graph:graphNEL-class]{graphNEL}}
 }
 \examples{
-pathwayGraph(reactome$`mTOR signalling`, edge.types=c("binding"))
+  r <- pathways("hsapiens", "reactome")
+  pathwayGraph(r$`mTOR signalling`, edge.types="binding")
 }

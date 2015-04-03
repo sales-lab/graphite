@@ -1,4 +1,4 @@
-# Copyright 2011 Gabriele Sales <gabriele.sales@unipd.it>
+# Copyright 2011,2015 Gabriele Sales <gabriele.sales@unipd.it>
 #
 #
 # This file is part of graphite.
@@ -16,7 +16,28 @@
 # License along with graphite. If not, see <http://www.gnu.org/licenses/>.
 
 
-prepareSPIA <- function(db, pathwaySetName, print.names=FALSE) {
+setGeneric("prepareSPIA",
+  function(db, pathwaySetName, print.names=FALSE)
+    standardGeneric("prepareSPIA"))
+
+
+setMethod("prepareSPIA", "PathwayList",
+  function(db, pathwaySetName, print.names)
+    .prepareSPIA(db@entries, pathwaySetName, print.names))
+
+setMethod("prepareSPIA", "DeprecatedPathwayList",
+  function(db, pathwaySetName, print.names) {
+    deprecatedObj(db@name)
+    .prepareSPIA(db@content, pathwaySetName, print.names)
+  })
+
+setMethod("prepareSPIA", "list",
+  function(db, pathwaySetName, print.names) {
+    checkPathwayList(db)
+    .prepareSPIA(db, pathwaySetName, print.names)
+  })
+
+.prepareSPIA <- function(db, pathwaySetName, print.names) {
   path.info <- Filter(Negate(is.null), lapply(db, function(p) {
     if (print.names)
       cat(p@title, "\n")
@@ -48,40 +69,28 @@ prepareSPIA <- function(db, pathwaySetName, print.names=FALSE) {
   save(path.info, file=datasetName(pathwaySetName))
 }
 
-runSPIA <- function(de, all, pathwaySetName, ...) {
-  if (!require(SPIA))
-    stop("library SPIA is missing")
 
-  checkPkgVersion("SPIA", "2.2")
+runSPIA <- function(de, all, pathwaySetName, ...) {
+
+  requirePkg("SPIA")
+  checkPkgVersion("SPIA", "2.18")
 
   if (!(datasetName(pathwaySetName) %in% dir()))
-    stop("There is no dataset corresponding to the pathway set name: ", pathwaySetName, "\n",
+    stop("There is no dataset corresponding to the pathway set name: ",
+         pathwaySetName, "\n",
          "Did you forget to run prepareSPIA?")
 
   optArgs <- list(...)
   if (!is.null(optArgs$organism))
     warning("Ignoring the \"organism\" parameter.")
+  if (!is.null(optArgs$data.dir))
+    warning("Ignoring the \"data.dir\" parameter.")
+
   optArgs$organism <- pathwaySetName
+  optArgs$data.dir <- paste0(dirname(pathwaySetName), "/")
 
-  spiaEnv <- environment(spia)
-  fakeEnv <- new.env(parent=spiaEnv)
-  assign("system.file", fakeSystemFile, fakeEnv)
-
-  tryCatch({
-    environment(spia) <- fakeEnv
-    do.call(spia, c(list(de, all), optArgs))[,c(-2,-12)]
-  }, finally={
-    environment(spia) <- spiaEnv
-  })
+  do.call(SPIA::spia, c(list(de, all), optArgs))[,c(-2,-12)]
 }
 
-datasetName <- function(pathwaySetName) {
+datasetName <- function(pathwaySetName)
   paste(pathwaySetName, "SPIA.RData", sep="")
-}
-
-fakeSystemFile <- function(name, package=NULL, ...) {
-  if (package == "SPIA" && name=="extdata")
-    getwd()
-  else
-    base::system.file(name, package=package, ...)
-}

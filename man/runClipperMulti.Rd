@@ -1,45 +1,34 @@
 \name{runClipperMulti}
 \alias{runClipperMulti}
-\docType{data}
 \title{
-  Run topological analyses on an expression dataset, calling clipper
-  over all the pathways in a list.
+  Run a topological analysis on an expression dataset using clipper.
 }
 \description{
-  clipper is a package for topological gene set analysis. It implements a
-  two-step empirical approach based on the exploitation of graph
-  decomposition into a junction tree to reconstruct the most relevant
-  signal path. In the first step clipper selects significant pathways
-  according to statistical tests on the means and the concentration
-  matrices of the graphs derived from pathway topologies. Then, it "clips"
-  the whole pathway identifying the signal paths having the greatest
-  association with a specific phenotype. This function easily provide
-  pathway analysis using clipper on an entire pathway database.
+  This function is deprecated and will be removed in a future release.
+  You can use \code{\link{runClipper}} instead.
 }
 \usage{
-runClipperMulti(pathways, expr, classes, method, maxNodes=150, ...)
+  runClipperMulti(pathways, expr, classes, method, maxNodes=150, ...)
 }
 \arguments{
-  \item{pathways}{
-    A list of pathways, such as \link{biocarta}, \link{kegg},\link{nci},
-    \link{reactome} or \link{spike}.
-  }
+  \item{pathways}{a \code{\linkS4class{PathwayList}} object.}
   \item{expr}{
-    A \code{matrix} (size: number \code{p} of genes x number \code{n} of
+    a \code{matrix} (size: number \code{p} of genes x number \code{n} of
     samples) of gene expression.
   }
   \item{classes}{
-    A \code{vector} (length: \code{n}) of class assignments.
+    a \code{vector} (length: \code{n}) of class assignments.
   }
   \item{method}{
-    The kind of test to perform on the cliques. It could be either mean or variance.
+    the kind of test to perform on the cliques. It could be
+    either \code{"mean"} or \code{"variance"}.
   }
   \item{maxNodes}{
-    Ignore pathways with more than \code{"maxNodes"} nodes. Set to
-    \code{"NULL"} to disable the filter.
+    ignore a pathway when it has more than this number of nodes.
   }
   \item{\dots}{
-    Additional options for details see \code{\link[clipper:easyClip]{clipper}}.
+    Additional options; see for details
+    \code{\link[clipper:easyClip]{easyClip}}.
   }
 }
 \value{
@@ -54,20 +43,21 @@ runClipperMulti(pathways, expr, classes, method, maxNodes=150, ...)
 }
 \references{
 Martini P, Sales G, Massa MS, Chiogna M, Romualdi C. Along signal paths: an
-empirical gene set approach exploiting pathway topology. Nucleic Acids Res. 2013 
+empirical gene set approach exploiting pathway topology. Nucleic Acids Res. 2013
 Jan 7;41(1):e19. doi: 10.1093/nar/gks866. Epub 2012 Sep 21. PubMed PMID:
 23002139; PubMed Central PMCID: PMC3592432.
 }
 
 \examples{
 if (require(clipper) & require(ALL)){
-  paths <- lapply(kegg[1:5], function(x) convertIdentifiers(x, "entrez"))
+  k <- pathways("hsapiens", "kegg")
+  paths <- convertIdentifiers(k[1:5], "entrez")
   genes <- unlist(lapply(paths, nodes))
   data(ALL)
   all <- as.matrix(exprs(ALL[1:length(genes),1:20]))
   classes <- c(rep(1,10), rep(2,10))
   rownames(all) <- genes
-  clipped <- runClipperMulti(paths, all, classes, "mean", pathThr=0.1)
+  runClipperMulti(paths, all, classes, "mean", pathThr=0.1)
 }
 }
 \seealso{

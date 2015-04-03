@@ -1,6 +1,7 @@
 \name{runTopologyGSA}
+\docType{methods}
 \alias{runTopologyGSA}
-\docType{data}
+\alias{runTopologyGSA,list-method}
 \title{
   Run a topological analysis on an expression dataset using topologyGSA.
 }
@@ -9,11 +10,12 @@
   involved in its deregulation.
 }
 \usage{
-runTopologyGSA(pathway, test, exp1, exp2, alpha, ...)
+  runTopologyGSA(x, test, exp1, exp2, alpha, ...)
 }
 \arguments{
-  \item{pathway}{
-    One of the pathways contained in \link{biocarta}, \link{kegg},\link{nci} or \link{reactome}.
+  \item{x}{
+    a \code{\linkS4class{PathwayList}}, a list of \code{\linkS4class{Pathway}}s
+    or a single \code{\linkS4class{Pathway}} object.
   }
   \item{test}{
     Either \code{"var"} and \code{"mean"}. Determine the type of test used by topologyGSA.
@@ -28,7 +30,11 @@ runTopologyGSA(pathway, test, exp1, exp2, alpha, ...)
    Significance level of the test.
  }
  \item{...}{
-   Additional parameters.
+   Additional parameters forwarded to \code{topologyGSA}.
+
+   When invoked on a \code{\linkS4class{PathwayList}}, can use the named
+   option "maxNodes" to limit the analysis to those pathways having up to
+   this given number of nodes.
  }
 }
 \details{
@@ -44,7 +50,8 @@ runTopologyGSA(pathway, test, exp1, exp2, alpha, ...)
 if (require(topologyGSA)) {
   data(examples)
 
-  p <- convertIdentifiers(kegg[["Fc epsilon RI signaling pathway"]], "symbol")
+  k <- pathways("hsapiens", "kegg")
+  p <- convertIdentifiers(k[["Fc epsilon RI signaling pathway"]], "symbol")
   runTopologyGSA(p, "var", y1, y2, 0.05)
 }
 }

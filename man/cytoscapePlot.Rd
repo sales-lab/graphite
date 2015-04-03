@@ -8,17 +8,20 @@
 cytoscapePlot(pathway, ...)
 }
 \arguments{
-  \item{pathway}{a \code{pathway} object.}
-  \item{...}{optional arguments to pass to \link{pathwayGraph}.}
+  \item{pathway}{a \code{Pathway} object.}
+  \item{...}{optional arguments forwarded to \code{\link{pathwayGraph}}.}
 }
 \details{
   Requires the \code{RCytoscape} package.
 }
 \seealso{
-  \code{\link{pathway-class}}
+  \code{\linkS4class{Pathway}}
 
   \code{\link{pathwayGraph}}
 }
 \examples{
-\dontrun{cytoscapePlot(convertIdentifiers(reactome$`Unwinding of DNA`, "symbol"))}
+\dontrun{
+  r <- pathways()
+  cytoscapePlot(convertIdentifiers(reactome$`Unwinding of DNA`, "symbol"))
+}
 }

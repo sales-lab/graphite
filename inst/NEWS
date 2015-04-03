@@ -4,3 +4,10 @@ Changes in version 1.9.4 (2014-04-04)
 
 Changes in version 1.11.4 (2014-10-01)
   - Updated Biocarta, KEGG, NCI, HumanCyc, Panther and Reactome data.
+
+Changes in version 1.13.2 (2015-04-02)
+  - Pathways for multiple species: see pathwayDatabases() output.
+  - Native pathway IDs.
+  - Removed SPIKE database.
+  - Deprecated objects: biocarta, humancyc, kegg, nci, panther, reactome.
+  - Deprecated functions: runClipperMulti, runDEGraphMulti, runTopologyGSAMulti.
