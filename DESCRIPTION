@@ -1,6 +1,6 @@
 Package: graphite
-Version: 1.15.1
-Date: 2015-06-17
+Version: 1.15.2
+Date: 2015-09-17
 Title: GRAPH Interaction from pathway Topological Environment
 Author: Gabriele Sales <gabriele.sales@unipd.it>, Enrica Calura
         <enrica.calura@gmail.com>, Chiara Romualdi
@@ -10,7 +10,7 @@ Description: Graph objects from pathway topology derived from Biocarta,
         HumanCyc, KEGG, NCI, Panther, Reactome and SPIKE databases.
 License: AGPL-3
 Depends: R (>= 2.10), BiocGenerics, methods
-Imports: AnnotationDbi, graph, stats, utils
+Imports: AnnotationDbi, graph, stats, utils, rappdirs
 Suggests: BiocStyle, DEGraph (>= 1.4), hgu133plus2.db, RCytoscape (>=
         1.6), SPIA (>= 2.2), topologyGSA (>= 1.4.0), clipper, ALL
 Collate: pathway.R fetch.R conversion.R plot.R utils.R clipper.R degraph.R

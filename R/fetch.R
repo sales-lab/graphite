@@ -73,9 +73,8 @@ localArchive <- function(species) {
 }
 
 archiveDir <- function() {
-  v <- as.character(.version)
-  h <- normalizePath("~")
-  d <- paste0(h, "/.graphite-bioc/", v)
+  d <- user_cache_dir("graphite-bioc", "graphiteweb.bio.unipd.it",
+                      as.character(.version))
 
   if (!file.exists(d)) {
     if (!dir.create(d, FALSE, TRUE))

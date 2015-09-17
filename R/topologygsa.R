@@ -59,7 +59,7 @@ setMethod("runTopologyGSA", "PathwayList",
 setMethod("runTopologyGSA", "list",
   function(x, test, exp1, exp2, alpha, maxNodes=150, ...) {
     checkPathwayList(x)
-    .topologyGSAList(x, expr, classes, maxNodes)
+    .topologyGSAList(x, test, exp1, exp2, alpha, maxNodes)
   })
 
 setMethod("runTopologyGSA", "DeprecatedPathwayList",
