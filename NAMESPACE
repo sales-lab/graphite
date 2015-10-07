@@ -42,6 +42,8 @@ exportMethods(
   runClipper, runDEGraph, prepareSPIA, runTopologyGSA)
 
 export(
-  as.list.PathwayList, as.list.DeprecatedPathwayList,
   pathways, pathwayDatabases, cytoscapePlot, pathwayGraph,
   runClipperMulti, runDEGraphMulti, runSPIA, runTopologyGSAMulti)
+
+S3method(as.list, PathwayList)
+S3method(as.list, DeprecatedPathwayList)
