@@ -227,7 +227,7 @@ For more details see the \Biocpkg{topologyGSA} package \cite{Massa2010}.
 
 In \Biocpkg{graphite}, \Biocpkg{clipper} has a dedicated function, \Rfunction{runClipper}, which performs the analysis on a single pathway or on a pathway list.
 
-<<tg1>>=
+<<tg2>>=
 library(clipper)
 library(ALL)
 

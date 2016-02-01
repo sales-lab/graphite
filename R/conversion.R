@@ -1,4 +1,4 @@
-# Copyright 2011,2015 Gabriele Sales <gabriele.sales@unipd.it>
+# Copyright 2011,2015,2016 Gabriele Sales <gabriele.sales@unipd.it>
 #
 #
 # This file is part of graphite.
@@ -106,13 +106,13 @@ selectDb <- function(species) {
 }
 
 convert <- function(db, edges, colname, from, to) {
-
   keys <- unique(edges[[colname]])
   tbl <- lookupKeys(db, keys, from, to)
 
   if (is.null(tbl)) {
     edges[0,]
   } else {
+    tbl <- tbl[,c(from, to)]
     colnames(tbl) <- c(colname, "converted")
     edges <- merge(edges, tbl)
     replaceColumn(colname, "converted", edges)
