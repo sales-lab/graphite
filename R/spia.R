@@ -43,12 +43,9 @@ setMethod("prepareSPIA", "list",
       cat(p@title, "\n")
 
     p <- convertIdentifiers(p, "entrez")
-    es <- edges(p)
-    if (NROW(es) == 0 || NROW(unique(es[,1:2])) < 5)
-      return(NULL)
 
     ns <- nodes(p)
-    es <- merge(es, spiaConv, all.x=TRUE)[c("src", "dest", "direction", "spiaType")]
+    es <- translateEdges(p)
 
     l <- sapply(spiaAttributes,
                 simplify=FALSE,
@@ -67,6 +64,27 @@ setMethod("prepareSPIA", "list",
   }))
 
   save(path.info, file=datasetName(pathwaySetName))
+}
+
+translateEdges <- function(p) {
+  es <- edges(p)
+  if (NROW(es) == 0 || NROW(unique(es[,1:2])) < 5)
+    return(NULL)
+
+  es <- merge(es, spiaConv, all.x=TRUE)
+  checkEdgeTypes(p@title, es)
+
+  es[c("src", "dest", "direction", "spiaType")]
+}
+
+checkEdgeTypes <- function(title, edges) {
+  nas <- is.na(edges$spiaType)
+  if (any(nas)) {
+    types <- sort(unique(edges$type[nas]))
+
+    stop(paste0("Pathway \"", title, "\" contains edges with types ",
+                "not supported by SPIA: ", paste(types, collapse=", ")))
+  }
 }
 
 

@@ -1,4 +1,4 @@
-# Copyright 2011,2015 Gabriele Sales <gabriele.sales@unipd.it>
+# Copyright 2011,2015-2016 Gabriele Sales <gabriele.sales@unipd.it>
 #
 #
 # This file is part of graphite.
@@ -42,7 +42,7 @@ exportMethods(
   runClipper, runDEGraph, prepareSPIA, runTopologyGSA)
 
 export(
-  pathways, pathwayDatabases, cytoscapePlot, pathwayGraph,
+  pathways, pathwayDatabases, buildPathway, cytoscapePlot, pathwayGraph,
   runClipperMulti, runDEGraphMulti, runSPIA, runTopologyGSAMulti)
 
 S3method(as.list, PathwayList)

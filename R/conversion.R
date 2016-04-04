@@ -1,4 +1,4 @@
-# Copyright 2011,2015,2016 Gabriele Sales <gabriele.sales@unipd.it>
+# Copyright 2011,2015-2016 Gabriele Sales <gabriele.sales@unipd.it>
 #
 #
 # This file is part of graphite.
@@ -37,6 +37,7 @@ setMethod("convertIdentifiers", "Pathway",
   function(x, to) {
 
     db <- loadDb(x@species)
+    checkIdentifier(x@identifier, db)
     to <- destIdentifier(to, db)
 
     if (x@identifier != to) {
@@ -67,6 +68,11 @@ loadDb <- function(species) {
     })
 }
 
+checkIdentifier <- function(id, db) {
+  if (!(id %in% columns(db)))
+    stop(id, " is not supported in this species")
+}
+
 destIdentifier <- function(to, db) {
 
   if (to == "entrez")
@@ -74,10 +80,7 @@ destIdentifier <- function(to, db) {
   else if (to == "symbol")
     to <- "SYMBOL"
 
-  if (!(to %in% columns(db)))
-    stop(to, " is not supported with this species.",
-         call.=FALSE)
-
+  checkIdentifier(to, db)
   return(to)
 }
 
@@ -100,32 +103,24 @@ selectDb <- function(species) {
 
   n <- l[[species]]
   if (is.null(n))
-    stop("no such species")
+    stop("unsupported species")
 
   return(n)
 }
 
 convert <- function(db, edges, colname, from, to) {
-  keys <- unique(edges[[colname]])
-  tbl <- lookupKeys(db, keys, from, to)
 
-  if (is.null(tbl)) {
-    edges[0,]
-  } else {
-    tbl <- tbl[,c(from, to)]
-    colnames(tbl) <- c(colname, "converted")
-    edges <- merge(edges, tbl)
-    replaceColumn(colname, "converted", edges)
-  }
+  converted <- lookupKeys(db, edges[[colname]], from, to)
+  if (is.null(converted))
+    return(edges[0,])
+
+  runLen <- sapply(converted, length)
+  extended <- data.frame(lapply(edges, function(x) rep.int(x, runLen)),
+                         stringsAsFactors=FALSE)
+  extended[colname] <- unlist(converted)
+  na.omit(extended)
 }
 
 lookupKeys <- function(db, keys, from, to)
-  tryCatch(
-    na.omit(suppressWarnings(select(db, keys, to, from))),
-    error=function(e) NULL)
-
-replaceColumn <- function(old, new, df) {
-  df <- df[, !colnames(df)==old, drop=FALSE]
-  colnames(df)[colnames(df)==new] <- old
-  return(df)
-}
+  tryCatch(mapIds(db, keys, to, from, multiVals="list"),
+           error=function(e) NULL)

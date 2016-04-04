@@ -16,3 +16,7 @@ Changes in version 1.15.3 (2015-10-07)
   - Updated all pathway data.
   - More descriptive edge types.
   - Use the package "rappdirs" to select a directory for cached files.
+
+Changes in version 1.17.3
+  - Updated all pathway data.
+  - Added the buildPathway function.

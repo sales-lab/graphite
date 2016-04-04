@@ -1,4 +1,4 @@
-# Copyright 2011-2012,2015 Gabriele Sales <gabriele.sales@unipd.it>
+# Copyright 2011-2012,2015-2016 Gabriele Sales <gabriele.sales@unipd.it>
 #
 #
 # This file is part of graphite.
@@ -42,7 +42,8 @@ cytoscapePlot <- function(pathway, ...) {
 
   RCytoscape::setEdgeTargetArrowRule(w, "edgeType",
                                      c(edgeTypes, "multiple"),
-                                     c(edgeArrows, "No Arrow"))
+                                     c(edgeArrows, "No Arrow"),
+                                     "No Arrow")
   RCytoscape::layoutNetwork(w)
   RCytoscape::redraw(w)
 }

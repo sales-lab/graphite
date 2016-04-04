@@ -1,6 +1,6 @@
 Package: graphite
-Version: 1.17.1
-Date: 2016-02-01
+Version: 1.17.3
+Date: 2016-04-04
 Title: GRAPH Interaction from pathway Topological Environment
 Author: Gabriele Sales <gabriele.sales@unipd.it>, Enrica Calura
         <enrica.calura@gmail.com>, Chiara Romualdi
@@ -15,7 +15,7 @@ Suggests: BiocStyle, DEGraph (>= 1.4), hgu133plus2.db, RCytoscape (>=
           1.6), SPIA (>= 2.2), topologyGSA (>= 1.4.0), clipper, ALL,
           testthat
 Collate: pathway.R fetch.R conversion.R plot.R utils.R clipper.R degraph.R
-         graph.R spia.R tables.R topologygsa.R
+         graph.R spia.R tables.R topologygsa.R build.R
 LazyData: yes
 biocViews: Pathways, ThirdPartyClient, GraphAndNetwork, Network,
            Reactome, KEGG, BioCarta
