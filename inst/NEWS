@@ -17,6 +17,8 @@ Changes in version 1.15.3 (2015-10-07)
   - More descriptive edge types.
   - Use the package "rappdirs" to select a directory for cached files.
 
-Changes in version 1.17.3
-  - Updated all pathway data.
+Changes in version 1.17.3 (2016-04-04)
   - Added the buildPathway function.
+
+Changes in version 1.17.4 (2016-04-04)
+  - Cytoscape 3 support.
