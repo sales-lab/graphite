@@ -24,7 +24,18 @@ setMethod("plot", "Pathway",
   function(x, ...) cytoscapePlot(x, ...))
 
 
-cytoscapePlot <- function(pathway, ...) {
+cytoscapePlot <- function(pathway, ..., cy.ver=3) {
+
+  if (cy.ver == 3) {
+    cytoscapePlot3(pathway, ...)
+  } else if (cy.ver == 2) {
+    cytoscapePlot2(pathway, ...)
+  } else {
+    stop("unsupported Cytoscape version")
+  }
+}
+
+cytoscapePlot2 <- function(pathway, ...) {
 
   requirePkg("RCytoscape")
 
@@ -46,6 +57,31 @@ cytoscapePlot <- function(pathway, ...) {
                                      "No Arrow")
   RCytoscape::layoutNetwork(w)
   RCytoscape::redraw(w)
+}
+
+cytoscapePlot3 <- function(pathway, ...) {
+
+  requirePkg("RCy3")
+
+  g <- buildGraphNEL(nodes(pathway), edges(pathway), FALSE, ...)
+  g <- markMultiple(g)
+  g <- RCy3::initEdgeAttribute(g, "edgeType", "char", "undefined")
+  g <- RCy3::initEdgeAttribute(g, "weight", "numeric", 1)
+
+  cy <- RCy3::CytoscapeConnection()
+  if (pathway@title %in% as.character(RCy3::getWindowList(cy)))
+    RCy3::deleteWindow(cy, pathway@title)
+
+  w <- RCy3::CytoscapeWindow(pathway@title, g)
+  RCy3::displayGraph(w)
+
+  RCy3::setEdgeTargetArrowRule(w, "edgeType",
+                               c(edgeTypes, "multiple"),
+                               c(edgeArrows, "No Arrow"),
+                               "No Arrow")
+
+  RCy3::layoutNetwork(w, "kamada-kawai")
+  RCy3::redraw(w)
 }
 
 markMultiple <- function(g) {

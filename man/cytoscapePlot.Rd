@@ -5,11 +5,12 @@
   Renders the topology of a pathway as a Cytoscape graph.
 }
 \usage{
-cytoscapePlot(pathway, ...)
+cytoscapePlot(pathway, ..., cy.ver=3)
 }
 \arguments{
   \item{pathway}{a \code{Pathway} object.}
   \item{...}{optional arguments forwarded to \code{\link{pathwayGraph}}.}
+  \item{cy.ver}{select a Cytoscape version. It can be 3 (the default) or 2.}
 }
 \details{
   Requires the \code{RCytoscape} package.
