@@ -64,7 +64,7 @@ pathwayDatabases <-function() {
   sscrofa=c("kegg", "reactome"),
   xlaevis=c("kegg"))
 
-.version <- 2
+.version <- 3
 
 
 localArchive <- function(species) {
