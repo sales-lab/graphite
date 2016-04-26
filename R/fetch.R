@@ -51,7 +51,7 @@ pathwayDatabases <-function() {
 .dbs <- list(
   athaliana=c("kegg", "reactome"),
   btaurus=c("kegg", "reactome"),
-  celegans=c("reactome"),
+  celegans=c("kegg", "reactome"),
   cfamiliaris=c("kegg", "reactome"),
   dmelanogaster=c("kegg", "reactome"),
   drerio=c("kegg", "reactome"),
