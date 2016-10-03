@@ -188,15 +188,18 @@ For more details see the \Biocpkg{SPIA} package \cite{Tarca2009,Adi2009,Draghici
 
 In \Biocpkg{graphite}, \Biocpkg{DEGraph} has a dedicated function, called \Rfunction{runDEGraph}, which performs the analysis on a single pathway or on a pathway list.
 
-<<dg1>>=
-library(DEGraph)
-data("Loi2008_DEGraphVignette")
+\begin{Schunk}
+\begin{Sinput}
+> library(DEGraph)
+> data("Loi2008_DEGraphVignette")
 
-biocarta <- pathways("hsapiens", "biocarta")
-p <- convertIdentifiers(biocarta[["actions of nitric oxide in the heart"]], "ENTREZID")
-res <- runDEGraph(p, exprLoi2008, classLoi2008)
-res$`1`
-@
+> biocarta <- pathways("hsapiens", "biocarta")
+> p <- convertIdentifiers(biocarta[["actions of nitric oxide in the heart"]], "ENTREZID")
+> res <- runDEGraph(p, exprLoi2008, classLoi2008)
+> res$`1`
+> cytoscapePlot(convertIdentifiers(reactome$`Unwinding of DNA`, "symbol"))
+\end{Sinput}
+\end{Schunk}
 
 The function \Rfunction{runDEGraph}, which easily performs the analysis on the entire pathway database, provides as result a list of two elements: a list with the results of the pathway analyses and the list of generated errors.
 
