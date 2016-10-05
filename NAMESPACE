@@ -17,7 +17,6 @@
 
 
 import(methods)
-import(BiocGenerics)
 import(AnnotationDbi)
 
 importFrom(rappdirs, user_cache_dir)
