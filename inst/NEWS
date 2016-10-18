@@ -28,3 +28,6 @@ Changes in version 1.17.5 (2016-04-25)
 
 Changes in version 1.17.6 (2016-04-26)
   - Added celegans pathways from KEGG.
+
+Changes in version 1.19.3 (2016-10-07)
+  - Updated all pathway data.
