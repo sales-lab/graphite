@@ -91,8 +91,7 @@ loadLocal <- function(archive, database) {
 }
 
 loadRemote <- function(species, database, archive) {
-  v <- as.character(.version)
-  url <- paste0(.server, "/", v, "/", species, ".rda")
+  url <- remoteUrl(species, database)
   tmp <- paste0(archive, ".tmp")
   res <- download.file(url, tmp)
   if (res != 0)
@@ -100,4 +99,9 @@ loadRemote <- function(species, database, archive) {
 
   file.rename(tmp, archive)
   loadLocal(archive, database)
+}
+
+remoteUrl <- function(species, database) {
+  v <- as.character(.version)
+  paste0(.server, "/", v, "/", species, ".rda")
 }
