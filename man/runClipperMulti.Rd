@@ -49,15 +49,21 @@ Jan 7;41(1):e19. doi: 10.1093/nar/gks866. Epub 2012 Sep 21. PubMed PMID:
 }
 
 \examples{
-if (require(clipper) & require(ALL)){
-  k <- pathways("hsapiens", "kegg")
-  paths <- convertIdentifiers(k[1:5], "entrez")
-  genes <- unlist(lapply(paths, nodes))
+if (require(clipper) & require(ALL) & require(a4Preproc)) {
   data(ALL)
-  all <- as.matrix(exprs(ALL[1:length(genes),1:20]))
+  pheno <- as(phenoData(ALL), "data.frame")
+  samples <- unlist(lapply(c("NEG", "BCR/ABL"), function(t) {
+    which(grepl("^B\\\\d*", pheno$BT) & (pheno$mol.biol == t))[1:10]
+  }))
   classes <- c(rep(1,10), rep(2,10))
-  rownames(all) <- genes
-  runClipperMulti(paths, all, classes, "mean", pathThr=0.1)
+
+  expr <- exprs(ALL)[,samples]
+  rownames(expr) <- featureData(addGeneInfo(ALL))$ENTREZID
+
+  k <- as.list(pathways("hsapiens", "kegg"))
+  selected <- k[c("Bladder cancer", "Cytosolic DNA-sensing pathway")]
+
+  runClipperMulti(selected, expr, classes, "mean", pathThr = 0.1)
 }
 }
 \seealso{

@@ -53,15 +53,21 @@ runClipper(x, expr, classes, method, ...)
   23002139; PubMed Central PMCID: PMC3592432.
 }
 \examples{
-if (require(clipper) & require(ALL)){
-  k <- pathways("hsapiens", "kegg")
-  path <- convertIdentifiers(k$'Chronic myeloid leukemia', "entrez")
-  genes <- nodes(path)
+if (require(clipper) & require(ALL) & require(a4Preproc)) {
   data(ALL)
-  all <- as.matrix(exprs(ALL[1:length(genes),1:20]))
+  pheno <- as(phenoData(ALL), "data.frame")
+  samples <- unlist(lapply(c("NEG", "BCR/ABL"), function(t) {
+    which(grepl("^B\\\\d*", pheno$BT) & (pheno$mol.biol == t))[1:10]
+  }))
   classes <- c(rep(1,10), rep(2,10))
-  rownames(all) <- genes
-  runClipper(path, all, classes, "mean", pathThr=0.1)
+
+  expr <- exprs(ALL)[,samples]
+  rownames(expr) <- featureData(addGeneInfo(ALL))$ENTREZID
+
+  k <- as.list(pathways("hsapiens", "kegg"))
+  selected <- k[c("Bladder cancer", "Cytosolic DNA-sensing pathway")]
+
+  runClipper(selected, expr, classes, "mean", pathThr = 0.1)
 }
 }
 \seealso{

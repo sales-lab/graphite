@@ -231,18 +231,26 @@ For more details see the \Biocpkg{topologyGSA} package \cite{Massa2010}.
 In \Biocpkg{graphite}, \Biocpkg{clipper} has a dedicated function, \Rfunction{runClipper}, which performs the analysis on a single pathway or on a pathway list.
 
 <<tg2>>=
-library(clipper)
 library(ALL)
+library(a4Preproc)
+library(clipper)
 
-kegg <- pathways("hsapiens", "kegg")
-paths <-convertIdentifiers(kegg[1:5], "ENTREZID")
-genes <- unlist(lapply(paths, nodes))
 data(ALL)
-all <- as.matrix(exprs(ALL[1:length(genes),1:20]))
+pheno <- as(phenoData(ALL), "data.frame")
+samples <- unlist(lapply(c("NEG", "BCR/ABL"), function(t) {
+  which(grepl("^B\\d*", pheno$BT) & (pheno$mol.biol == t))[1:10]
+}))
 classes <- c(rep(1,10), rep(2,10))
-rownames(all) <- genes
-clipped <- runClipper(paths, all, classes, "mean", pathThr=0.1)
-resClip <- do.call(rbind,clipped$results)
+
+expr <- exprs(ALL)[,samples]
+rownames(expr) <- featureData(addGeneInfo(ALL))$ENTREZID
+
+k <- as.list(pathways("hsapiens", "kegg"))
+selected <- k[c("Bladder cancer", "Cytosolic DNA-sensing pathway")]
+
+clipped <- runClipper(selected, expr, classes, "mean", pathThr = 0.1)
+
+resClip <- do.call(rbind, clipped$results)
 resClip[,1:5]
 @
 
