@@ -1,4 +1,4 @@
-# Copyright 2016 Gabriele Sales <gabriele.sales@unipd.it>
+# Copyright 2016-2017 Gabriele Sales <gabriele.sales@unipd.it>
 #
 #
 # This file is part of graphite.
@@ -16,42 +16,106 @@
 # License along with graphite. If not, see <http://www.gnu.org/licenses/>.
 
 
-buildPathway <- function(id, title, edges, species, database, identifier,
-                         timestamp=NULL) {
-  checkTitle(title)
-  edges <- fixEdges(edges)
+buildPathway <- function(id, title, species, database, proteinEdges,
+                         metaboliteEdges = NULL, mixedEdges = NULL,
+                         timestamp = NULL) {
+
+  assertString(title, min.chars = 1)
+  assertString(species, min.chars = 1)
+  assertString(database, min.chars = 1)
+  assertEdges(proteinEdges, substitute(proteinEdges), TRUE)
+  assertEdges(metaboliteEdges, substitute(metaboliteEdges), FALSE)
+  assertEdges(mixedEdges, substitute(mixedEdges), FALSE)
 
   if (is.null(timestamp)) {
     timestamp <- Sys.Date()
+  } else {
+    assertDate(timestamp)
   }
+
+  fixedEdges <- fixEdges(proteinEdges, metaboliteEdges, mixedEdges)
 
   new("Pathway",
       id = id,
       title = title,
-      edges = edges,
       species = species,
       database = database,
-      identifier = identifier,
+      protEdges = fixedEdges$prot,
+      protPropEdges = fixedEdges$empty,
+      metabolEdges = fixedEdges$metabol,
+      metabolPropEdges = fixedEdges$empty,
+      mixedEdges = fixedEdges$mixed,
       timestamp = timestamp)
 }
 
-checkTitle <- function(title) {
-  if (length(title) == 0)
-    stop("pathway title is required")
+assertEdges <- function(edges, varName, required) {
+  varName <- deparse(varName)
+
+  if (required || !is.null(edges)) {
+    assertDataFrame(edges, any.missing = FALSE,
+                    types = c("character", "factor"), ncols = 6,
+                    .var.name = varName)
+
+    cnames <- c("src_type", "src", "dest_type", "dest", "direction", "type")
+    assertNames(colnames(edges), permutation.of = cnames, .var.name = varName)
+
+    assertCharacter(as.character(edges$direction), pattern = '^(un)?directed$',
+                    .var.name = paste0(varName, "$direction"))
+  }
 }
 
-fixEdges <- function(edges) {
-  if (!is.data.frame(edges) ||
-      colnames(edges) != c("src", "dest", "direction", "type")) {
-    stop("edges must be a data.frame with the following columns: src, dest, direction and type.")
+fixEdges <- function(prot, metabol, mixed) {
+  nodeTypes <- union(unique(as.character(prot$src_type)),
+                     unique(as.character(prot$dest_type)))
+  edgeTypes <- unique(as.character(prot$type))
+
+  if (!is.null(metabol)) {
+    metabolTypes <- union(unique(as.character(metabol$src_type)),
+                          unique(as.character(metabol$dest_type)))
+    nodeTypes <- union(nodeTypes, metabolTypes)
+    edgeTypes <- union(edgeTypes, unique(as.character(metabol$type)))
   }
 
-  edges <- data.frame(lapply(edges, as.character),
-                      stringsAsFactors=FALSE)
-
-  if (!all(edges[,"direction"] %in% c("directed", "undirected"))) {
-    stop("edge direction must be one of: directed, undirected")
+  if (!is.null(mixed)) {
+    mixedTypes <- union(unique(as.character(mixed$src_type)),
+                        unique(as.character(mixed$dest_type)))
+    nodeTypes <- union(nodeTypes, mixedTypes)
+    edgeTypes <- union(edgeTypes, unique(as.character(mixed$type)))
   }
 
-  return(edges)
+  prot$src_type <- factor(prot$src_type, levels = nodeTypes)
+  prot$src <- as.character(prot$src)
+  prot$dest_type <- factor(prot$dest_type, levels = nodeTypes)
+  prot$dest <- as.character(prot$dest)
+  prot$direction <- factor(prot$direction,
+                           levels = c("directed", "undirected"))
+  prot$type  <- factor(prot$type, levels = edgeTypes)
+
+  empty <- prot[0,]
+
+  if (is.null(metabol)) {
+    metabol <- empty
+  } else {
+    metabol$src_type <- factor(metabol$src_type, levels = nodeTypes)
+    metabol$src <- as.character(metabol$src)
+    metabol$dest_type <- factor(metabol$dest_type, levels = nodeTypes)
+    metabol$dest <- as.character(metabol$dest)
+    metabol$direction <- factor(metabol$direction,
+                                levels = c("directed", "undirected"))
+    metabol$type <- factor(metabol$type, levels = edgeTypes)
+  }
+
+  if (is.null(mixed)) {
+    mixed <- empty
+  } else {
+    mixed$src_type <- factor(mixed$src_type, levels = nodeTypes)
+    mixed$src <- as.character(mixed$src)
+    mixed$dest_type <- factor(mixed$dest_type, levels = nodeTypes)
+    mixed$dest <- as.character(mixed$dest)
+    mixed$direction <- factor(mixed$direction,
+                              levels = c("directed", "undirected"))
+    mixed$type <- factor(mixed$type, levels = edgeTypes)
+  }
+
+  list(prot = prot, metabol = metabol, mixed = mixed, empty = empty)
 }

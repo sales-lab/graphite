@@ -16,6 +16,7 @@
 # License along with graphite. If not, see <http://www.gnu.org/licenses/>.
 
 
+import(checkmate)
 import(methods)
 
 importFrom(AnnotationDbi, columns, mapIds)

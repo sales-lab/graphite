@@ -10,7 +10,7 @@ Description: Graph objects from pathway topology derived from Biocarta,
         HumanCyc, KEGG, NCI, Panther, Reactome and SPIKE databases.
 License: AGPL-3
 Depends: R (>= 2.10), methods
-Imports: AnnotationDbi, graph, rappdirs, stats, utils
+Imports: AnnotationDbi, checkmate, graph, rappdirs, stats, utils
 Suggests: a4Preproc, ALL, BiocStyle, clipper, hgu133plus2.db, hgu95av2.db,
           httr, org.Hs.eg.db, RCy3, SPIA (>= 2.2), testthat,
           topologyGSA (>= 1.4.0)
