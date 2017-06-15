@@ -1,4 +1,4 @@
-# Copyright 2011,2013,2015 Gabriele Sales <gabriele.sales@unipd.it>
+# Copyright 2011-2017 Gabriele Sales <gabriele.sales@unipd.it>
 #
 #
 # This file is part of graphite.
@@ -94,18 +94,24 @@ as.list.DeprecatedPathwayList <- function(x, ...) {
 
 
 setClass("Pathway",
-  representation(id="character",
-                 title="character",
-                 edges="data.frame",
-                 database="character",
-                 species="character",
-                 identifier="vector",
-                 timestamp="Date"))
+  representation(
+    id = "character",
+    title = "character",
+    database = "character",
+    species = "character",
+    protEdges = "data.frame",
+    protPropEdges = "data.frame",
+    metabolEdges = "data.frame",
+    metabolPropEdges = "data.frame",
+    mixedEdges = "data.frame",
+    timestamp = "Date"))
 
 setMethod("nodes", "Pathway",
   function(object) {
     es <- object@edges
-    unique(c(es$src, es$dest))
+    typed <- c(paste(es$src_type, es$src, sep = ":"),
+               paste(es$dest_type, es$dest, sep = ":"))
+    unique(typed)
   })
 
 setMethod("edges", "Pathway",
@@ -117,9 +123,8 @@ setMethod("show", "Pathway",
         "Native ID           = ", object@id, "\n",
         "Database            = ", object@database, "\n",
         "Species             = ", object@species, "\n",
-        "Type of identifiers = ", object@identifier, "\n",
         "Number of nodes     = ", length(nodes(object)), "\n",
-        "Number of edges     = ", NROW(object@edges), "\n",
+        "Number of edges     = ", nrow(object@edges), "\n",
         "Retrieved on        = ", prettyDate(object@timestamp), "\n",
         sep="")
   })
