@@ -26,13 +26,13 @@ buildPathway <- function(id, title, edges, species, database, identifier,
   }
 
   new("Pathway",
-      id=id,
-      title=title,
-      edges=edges,
-      species=species,
-      database=database,
-      identifier=identifier,
-      timestamp=timestamp)
+      id = id,
+      title = title,
+      edges = edges,
+      species = species,
+      database = database,
+      identifier = identifier,
+      timestamp = timestamp)
 }
 
 checkTitle <- function(title) {

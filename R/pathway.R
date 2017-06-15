@@ -26,13 +26,13 @@ setClass("PathwayList",
                  timestamp="Date"),
   contains="Pathways")
 
-setMethod("length", "PathwayList",
+setMethod("length", signature("PathwayList"),
   function(x) length(x@entries))
 
-setMethod("names", "PathwayList",
+setMethod("names", signature("PathwayList"),
   function(x) names(x@entries))
 
-setMethod("show", "PathwayList",
+setMethod("show", signature("PathwayList"),
   function(object) {
     cat(object@name, " pathways for ", object@species, "\n",
         length(object), " entries, retrieved on ",
@@ -40,16 +40,16 @@ setMethod("show", "PathwayList",
         sep="")
   })
 
-setMethod("$", "PathwayList",
+setMethod("$", signature("PathwayList"),
   function(x, name) x@entries[[name]])
 
-setMethod("[", "PathwayList",
+setMethod("[", signature("PathwayList"),
   function(x, i, ...) {
     x@entries <- x@entries[i, ...]
     return(x)
   })
 
-setMethod("[[", "PathwayList",
+setMethod("[[", signature("PathwayList"),
   function(x, i) x@entries[[i]])
 
 as.list.PathwayList <- function(x, ...) as.list(x@entries, ...)
@@ -60,28 +60,28 @@ setClass("DeprecatedPathwayList",
                  content="PathwayList"),
   contains="Pathways")
 
-setMethod("length", "DeprecatedPathwayList",
+setMethod("length", signature("DeprecatedPathwayList"),
   function(x) length(x@content))
 
-setMethod("names", "DeprecatedPathwayList",
+setMethod("names", signature("DeprecatedPathwayList"),
   function(x) names(x@content))
 
-setMethod("show", "DeprecatedPathwayList",
+setMethod("show", signature("DeprecatedPathwayList"),
   function(object) show(object@content))
 
-setMethod("$", "DeprecatedPathwayList",
+setMethod("$", signature("DeprecatedPathwayList"),
   function(x, name) {
     deprecatedObj(x@name)
     x@content[[name]]
   })
 
-setMethod("[", "DeprecatedPathwayList",
+setMethod("[", signature("DeprecatedPathwayList"),
   function(x, i, ...) {
     deprecatedObj(x@name)
     x@content[i, ...]
   })
 
-setMethod("[[", "DeprecatedPathwayList",
+setMethod("[[", signature("DeprecatedPathwayList"),
   function(x, i) {
     deprecatedObj(x@name)
     x@content[[i]]
@@ -106,28 +106,71 @@ setClass("Pathway",
     mixedEdges = "data.frame",
     timestamp = "Date"))
 
-setMethod("nodes", "Pathway",
-  function(object) {
-    es <- object@edges
+pathwayId <- function(p) {
+  p@id
+}
+
+pathwayTitle <- function(p) {
+  p@title
+}
+
+pathwayDatabase <- function(p) {
+  p@database
+}
+
+pathwaySpecies <- function(p) {
+  p@species
+}
+
+pathwayTimestamp <- function(p) {
+  p@timestamp
+}
+
+setMethod("nodes", signature("Pathway"),
+  function(object, which = c("proteins", "metabolites", "mixed")) {
+    es <- edges(object, which = which, stringsAsFactors = FALSE)
     typed <- c(paste(es$src_type, es$src, sep = ":"),
                paste(es$dest_type, es$dest, sep = ":"))
     unique(typed)
   })
 
-setMethod("edges", "Pathway",
-  function(object) object@edges)
+setMethod("edges", signature("Pathway", "character"),
+  function(object, which = c("proteins", "metabolites", "mixed"),
+           stringsAsFactors = TRUE) {
 
-setMethod("show", "Pathway",
-  function(object) {
-    cat('"', object@title, '" pathway\n',
-        "Native ID           = ", object@id, "\n",
-        "Database            = ", object@database, "\n",
-        "Species             = ", object@species, "\n",
-        "Number of nodes     = ", length(nodes(object)), "\n",
-        "Number of edges     = ", nrow(object@edges), "\n",
-        "Retrieved on        = ", prettyDate(object@timestamp), "\n",
-        sep="")
+    es <- switch(match.arg(which),
+      proteins = rbind(object@protEdges, object@protPropEdges),
+      metabolites = rbind(object@metabolEdges, object@metabolPropEdges),
+      mixed = rbind(object@protEdges, object@metabolEdges, object@mixedEdges),
+      stop("invalid pathway variant (\"which\" parameter)")
+    )
+
+    if (!stringsAsFactors) {
+      es[] <- lapply(es, as.character)
+    }
+
+    return(es)
   })
 
+setMethod("edges", signature("Pathway", "missing"),
+  function(object, stringsAsFactors = TRUE) edges(object, "proteins", stringsAsFactors))
+
+setMethod("show", signature("Pathway"),
+  function(object) {
+    node_num <- length(nodes(object, "mixed"))
+
+    edge_num <- nrow(object@protEdges) + nrow(object@protPropEdges) +
+                nrow(object@metabolEdges) + nrow(object@metabolPropEdges) +
+                nrow(object@mixedEdges)
+
+    cat('"', object@title, '" pathway\n',
+        "Native ID       = ", object@id, "\n",
+        "Database        = ", object@database, "\n",
+        "Species         = ", object@species, "\n",
+        "Number of nodes = ", node_num, "\n",
+        "Number of edges = ", edge_num, "\n",
+        "Retrieved on    = ", prettyDate(object@timestamp), "\n",
+        sep="")
+  })
 
 prettyDate <- function(d) format(d, "%d-%m-%Y")
