@@ -1,4 +1,4 @@
-# Copyright 2011 Gabriele Sales <gabriele.sales@unipd.it>
+# Copyright 2011-2017 Gabriele Sales <gabriele.sales@unipd.it>
 #
 #
 # This file is part of graphite.
@@ -16,82 +16,83 @@
 # License along with graphite. If not, see <http://www.gnu.org/licenses/>.
 
 
-pathwayGraph <- function(pathway, edge.types=NULL) {
-  buildGraphNEL(nodes(pathway), edges(pathway), TRUE, edge.types)
+pathwayGraph <- function(pathway, which = "proteins", edge.types = NULL) {
+  assertClass(pathway, "Pathway")
+  buildGraphNEL(edges(pathway, which), TRUE, edge.types)
 }
 
-buildGraphNEL <- function(nodes, edges, sym, edge.types=NULL) {
+buildGraphNEL <- function(edges, sym, edge.types) {
   if (!is.null(edge.types))
     edges <- selectEdges(edges, edge.types)
 
-  if (NROW(edges) == 0)
-    g <- new("graphNEL", nodes, list(), "directed")
+  if (nrow(edges) == 0)
+    g <- new("graphNEL", character(), list(), "directed")
   else {
-    edges <- prepareEdges(as.matrix(edges), sym)
-    g <- new("graphNEL", nodes, edgeList(nodes, edges), "directed")
+    prep <- prepareEdges(edges, sym)
+    nodes <- union(unique(prep$src), unique(prep$dest))
+
+    g <- new("graphNEL", nodes, edgeList(nodes, prep), "directed")
     edgeDataDefaults(g, "edgeType") <- "undefined"
-    edgeData(g, edges[,1], edges[,2], "edgeType") <- edges[,3]
+    edgeData(g, prep$src, prep$dest, "edgeType") <- prep$type
   }
 
   return(g)
 }
 
 selectEdges <- function(m, types) {
-  unknownTypes <- setdiff(types, edgeTypes)
-  if (length(unknownTypes))
-    stop("the following edge types are invalid: ", paste(unknownTypes, collapse=", "))
-
-  m[m[,4] %in% types,]
-}
-
-prepareEdges <- function(m, sym) {
-  ns         <- canonicalEdgeNames(m)
-  simplified <- matrix(unlist(tapply(1:NROW(m), ns, function(is) mergeEdges(m, is))),
-                       ncol=4, byrow=T)
-
-  if (sym)
-    symmetricEdges(simplified)
-  else
-    simplified[, -3, drop=FALSE]
-}
-
-canonicalEdgeNames <- function(m) {
-  apply(m, 1, function(e) {
-    if (e[1] <= e[2])
-      paste(e[1], e[2], sep="|")
-    else
-      paste(e[2], e[1], sep="|")
-  })
-}
-
-mergeEdges <- function(m, is) {
-  h <- m[is[1],]
-  if (length(is) == 1)
-    h
-  else {
-    if ("undirected" %in% m[is,3] || any(h[1]!=m[is,1]))
-      dir <- "undirected"
-    else
-      dir <- "directed"
-
-    c(h[1], h[2], dir, paste(unique(m[is,4]), collapse=";"))
+  missing <- setdiff(types, edgeTypes)
+  if (length(missing) > 0) {
+    stop("the following edge types are missing: ",
+         paste(sort(missing), collapse=", "))
   }
+
+  m[m$type %in% types,, drop = FALSE]
 }
 
-symmetricEdges <- function(m) {
-  undirected <- m[m[,3]=="undirected" & m[,1]!=m[,2], c(2,1,4), drop=FALSE]
+prepareEdges <- function(edges, sym) {
+  edges[] <- lapply(edges, as.character)
+  if (sym) {
+    edges <- symmetric(edges)
+  }
 
-  if (NROW(undirected) > 0) {
-    full <- m[, -3, drop=FALSE]
-    stopifnot(is.null(dimnames(full)))
-    rbind(full, undirected)
-  } else
-    return(m[, -3, drop=FALSE])
+  ends <- endpoints(edges)
+  types <- tapply(edges$type, ends, function(group) {
+    paste(sort(unique(group)), collapse = ";")
+  })
+
+  binder <- function(...) rbind.data.frame(..., stringsAsFactors = FALSE)
+  merged <- do.call(binder, strsplit(names(types), "|", fixed = TRUE))
+  colnames(merged) <- c("src", "dest")
+
+  cbind(merged,
+        data.frame(type = as.character(types), stringsAsFactors = FALSE))
+}
+
+symmetric <- function(edges) {
+  mask <- edges$direction == "undirected" &
+          (edges$src_type != edges$dest_type | edges$src != edges$dest)
+
+  dird <- edges[!mask,]
+  undir <- edges[mask,]
+  revdir <- edges[mask,]
+
+  revdir$src_type <- undir$dest_type
+  revdir$src <- undir$dest
+  revdir$dest_type <- undir$src_type
+  revdir$dest <- undir$src
+
+  rbind(dird, undir, revdir)
+}
+
+endpoints <- function(edges) {
+  paste(paste(edges$src_type, edges$src, sep = ":"),
+        paste(edges$dest_type, edges$dest, sep = ":"),
+        sep = "|")
 }
 
 edgeList <- function(nodes, edges) {
   sapply(nodes,
-         function(n) list(edges=edges[edges[,1]==n, 2]),
+         function(n) list(edges=edges[edges$src == n, "dest"]),
          simplify=FALSE,
          USE.NAMES=TRUE)
 }

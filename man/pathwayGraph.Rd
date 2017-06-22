@@ -5,10 +5,14 @@
   Builds a \code{graphNEL} object representing the topology of a pathway.
 }
 \usage{
-pathwayGraph(pathway, edge.types=NULL)
+  pathwayGraph(pathway, which = "proteins", edge.types = NULL)
 }
 \arguments{
   \item{pathway}{a \code{\linkS4class{Pathway}} object.}
+  \item{which}{the pathway variant you want.
+
+    See \code{\linkS4class{Pathway}} documentation for a list of the supported variants.
+  }
   \item{edge.types}{keep only the edges maching the type names in this vector.}
 }
 \value{
