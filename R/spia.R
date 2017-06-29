@@ -1,4 +1,4 @@
-# Copyright 2011,2015 Gabriele Sales <gabriele.sales@unipd.it>
+# Copyright 2011-2017 Gabriele Sales <gabriele.sales@unipd.it>
 #
 #
 # This file is part of graphite.
@@ -17,7 +17,7 @@
 
 
 setGeneric("prepareSPIA",
-  function(db, pathwaySetName, print.names=FALSE)
+  function(db, pathwaySetName, print.names = FALSE)
     standardGeneric("prepareSPIA"))
 
 
@@ -38,43 +38,54 @@ setMethod("prepareSPIA", "list",
   })
 
 .prepareSPIA <- function(db, pathwaySetName, print.names) {
-  path.info <- Filter(Negate(is.null), lapply(db, function(p) {
+  path.info <- lapply(db, function(p) {
     if (print.names)
       cat(p@title, "\n")
 
-    p <- convertIdentifiers(p, "entrez")
+    # TODO: what happens if the target species has no ENTREZID?
+    p <- convertIdentifiers(p, "ENTREZID")
+    translated <- translateEdges(p)
+    if (is.null(translated) || nrow(translated$edges) < 5) {
+      return(NULL)
+    }
 
-    ns <- nodes(p)
-    es <- translateEdges(p)
-
-    l <- sapply(spiaAttributes,
-                simplify=FALSE,
-                USE.NAMES=TRUE,
-                function(edgeType) {
-                  est <- es[es[,4]==edgeType, , drop=FALSE]
-                  gnl <- buildGraphNEL(ns, est, TRUE)
-                  t(as(gnl, "matrix"))
-                })
-
-    l$title             <- p@title
-    l$nodes             <- ns
+    l <- sapply(spiaAttributes, edgeMatrix(translated$nodes, translated$edges),
+                simplify=FALSE, USE.NAMES=TRUE)
+    l$title <- p@title
+    l$nodes <- translated$nodes
     l$NumberOfReactions <- 0
-
     return(l)
-  }))
+  })
 
-  save(path.info, file=datasetName(pathwaySetName))
+  names(path.info) <- sapply(db, pathwayTitle)
+  path.info <- Filter(Negate(is.null), path.info)
+  save(path.info, file = datasetName(pathwaySetName))
 }
 
-translateEdges <- function(p) {
-  es <- edges(p)
-  if (NROW(es) == 0 || NROW(unique(es[,1:2])) < 5)
+translateEdges <- function(pathway) {
+  es <- edges(pathway, which = "proteins")
+  if (nrow(es) == 0)
     return(NULL)
 
-  es <- merge(es, spiaConv, all.x=TRUE)
-  checkEdgeTypes(p@title, es)
+  # Drop src and dest types (we know they are all ENTREZID).
+  es <- es[, !(colnames(es) %in% c("src_type", "dest_type"))]
 
-  es[c("src", "dest", "direction", "spiaType")]
+  # Convert edge types to the SPIA vocabulary.
+  converted <- merge(es, spiaConv, all.x = TRUE)
+  checkEdgeTypes(pathway@title, converted)
+
+  # Drop the original "type" column.
+  converted <- converted[, colnames(converted) != "type"]
+
+  # Rename the column "spiaType" to "type".
+  colnames(converted)[colnames(converted) == "spiaType"] <- "type"
+
+  # Convert node labels to factors.
+  nodes <- union(unique(converted$src), unique(converted$dest))
+  converted$src <- factor(converted$src, levels = nodes)
+  converted$dest <- factor(converted$dest, levels = nodes)
+
+  list(nodes = nodes, edges = converted)
 }
 
 checkEdgeTypes <- function(title, edges) {
@@ -83,13 +94,28 @@ checkEdgeTypes <- function(title, edges) {
     types <- sort(unique(edges$type[nas]))
 
     stop(paste0("Pathway \"", title, "\" contains edges with types ",
-                "not supported by SPIA: ", paste(types, collapse=", ")))
+                "not supported by SPIA: ", paste(types, collapse = ", ")))
+  }
+}
+
+edgeMatrix <- function(nodes, edges) {
+  function(type) {
+    selected <- edges[edges$type == type, , drop=FALSE]
+    srcs <- as.integer(selected$src)
+    dests <- as.integer(selected$dest)
+
+    m <- matrix(data = 0, nrow = length(nodes), ncol = length(nodes),
+                dimnames = list(nodes, nodes))
+    for (i in seq_along(srcs)) {
+      m[srcs[i], dests[i]] <- 1
+    }
+
+    m
   }
 }
 
 
 runSPIA <- function(de, all, pathwaySetName, ...) {
-
   requirePkg("SPIA")
   checkPkgVersion("SPIA", "2.18")
 
