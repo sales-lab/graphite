@@ -1,4 +1,4 @@
-# Copyright 2011,2015-2016 Gabriele Sales <gabriele.sales@unipd.it>
+# Copyright 2011-2017 Gabriele Sales <gabriele.sales@unipd.it>
 #
 #
 # This file is part of graphite.
@@ -22,6 +22,7 @@ setGeneric("convertIdentifiers",
 
 setMethod("convertIdentifiers", "PathwayList",
   function(x, to) {
+    # TODO: make this parallel?
     x@entries <- lapply(x@entries,
                    function(p) convertIdentifiers(p, to))
     return(x)
@@ -37,20 +38,14 @@ setMethod("convertIdentifiers", "Pathway",
   function(x, to) {
 
     db <- loadDb(x@species)
-    checkIdentifier(x@identifier, db)
     to <- destIdentifier(to, db)
 
-    if (x@identifier != to) {
+    x@protEdges <- convertEdges(x@protEdges, db, to, TRUE)
+    x@protPropEdges <- convertEdges(x@protPropEdges, db, to, TRUE)
+    x@mixedEdges <- convertEdges(x@mixedEdges, db, to, FALSE)
 
-      cn <- colnames(x@edges)
-
-      es <- convert(db, x@edges, "src", x@identifier, to)
-      es <- convert(db, es, "dest", x@identifier, to)
-
-      x@edges <- es[, cn]
-      x@identifier <- to
-
-      if (nrow(x@edges) == 0)
+    if (nrow(x@protEdges) + nrow(x@protPropEdges) + nrow(x@metabolEdges) +
+        nrow(x@metabolPropEdges) + nrow(x@mixedEdges) == 0) {
         warning("the conversion lost all edges of pathway \"", x@title, "\"")
     }
 
@@ -66,22 +61,6 @@ loadDb <- function(species) {
         stop("package \"", db, "\" is missing", call.=FALSE)
       get(db)
     })
-}
-
-checkIdentifier <- function(id, db) {
-  if (!(id %in% columns(db)))
-    stop(id, " is not supported in this species")
-}
-
-destIdentifier <- function(to, db) {
-
-  if (to == "entrez")
-    to <- "ENTREZID"
-  else if (to == "symbol")
-    to <- "SYMBOL"
-
-  checkIdentifier(to, db)
-  return(to)
 }
 
 selectDb <- function(species) {
@@ -108,17 +87,68 @@ selectDb <- function(species) {
   return(n)
 }
 
-convert <- function(db, edges, colname, from, to) {
+destIdentifier <- function(to, db) {
 
-  converted <- lookupKeys(db, edges[[colname]], from, to)
-  if (is.null(converted))
-    return(edges[0,])
+  if (to == "entrez")
+    to <- "ENTREZID"
+  else if (to == "symbol")
+    to <- "SYMBOL"
 
-  runLen <- sapply(converted, length)
-  extended <- data.frame(lapply(edges, function(x) rep.int(x, runLen)),
-                         stringsAsFactors=FALSE)
-  extended[colname] <- unlist(converted)
-  na.omit(extended)
+  checkIdentifier(to, db, TRUE)
+  return(to)
+}
+
+checkIdentifier <- function(id, db, strict) {
+  if (id %in% columns(db)) {
+    TRUE
+  } else if (strict) {
+    stop(id, " is not supported in this species")
+  } else {
+    FALSE
+  }
+}
+
+convertEdges <- function(edges, db, to, strict) {
+  convertSide(convertSide(edges, "src", db, to, strict),
+              "dest", db, to, strict)
+}
+
+convertSide <- function(edges, column, db, to, strict) {
+  if (nrow(edges) == 0) {
+    return(edges)
+  }
+
+  typeColumn <- paste0(column, "_type")
+  parts <- nameLapply(splitByType(edges, typeColumn),
+                      convertColumn(edges, column, typeColumn, db, to, strict))
+
+  merged <- do.call(rbind.data.frame, parts)
+  row.names(merged) <- NULL
+  return(merged)
+}
+
+splitByType <- function(edges, typeColumn) {
+  split(seq.int(nrow(edges)), edges[typeColumn], drop = TRUE)
+}
+
+convertColumn <- function(edges, column, typeColumn, db, to, strict) {
+  function(type, ixs) {
+    if (type == to || !checkIdentifier(type, db, strict)) {
+      return(edges[ixs,])
+    }
+
+    converted <- lookupKeys(db, edges[ixs, column], type, to)
+    if (is.null(converted)) {
+      return(edges[0,])
+    }
+
+    runLen <- sapply(converted, length)
+    extended <- data.frame(lapply(edges[ixs,], function(x) rep.int(x, runLen)),
+                           stringsAsFactors=FALSE)
+    extended[column] <- unlist(converted)
+    extended[typeColumn] <- factor(to)
+    na.omit(extended)
+  }
 }
 
 lookupKeys <- function(db, keys, from, to)

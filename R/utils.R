@@ -1,4 +1,4 @@
-# Copyright 2011,2015 Gabriele Sales <gabriele.sales@unipd.it>
+# Copyright 2011-2017 Gabriele Sales <gabriele.sales@unipd.it>
 #
 #
 # This file is part of graphite.
@@ -38,6 +38,14 @@ filterPathwaysByNodeNum <- function(pathways, maxNodes) {
   return(pathways)
 }
 
+
+nameLapply <- function(l, f) {
+  ns <- names(l)
+  for (i in seq_along(ns)) {
+    l[[i]] <- f(ns[i], l[[i]])
+  }
+  return(l)
+}
 
 lapplyCapturingErrors <- function(l, f) {
   log <- lapply(l, function(x) {
