@@ -1,4 +1,4 @@
-# Copyright 2011,2013,2015 Gabriele Sales <gabriele.sales@unipd.it>
+# Copyright 2011-2017 Gabriele Sales <gabriele.sales@unipd.it>
 #
 #
 # This file is part of graphite.
@@ -25,7 +25,7 @@ initDEGraph <- function() {
   if (insufficientCommonGenes(pathway, rownames(expr)))
     return(NULL)
 
-  g <- buildGraphNEL(nodes(pathway), edges(pathway), FALSE)
+  g <- buildGraphNEL(edges(pathway), FALSE, NULL)
   DEGraph::testOneGraph(g, expr, classes, useInteractionSigns=FALSE)
 }
 
