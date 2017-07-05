@@ -54,7 +54,7 @@ if (require(topologyGSA)) {
   colnames(y2) <- paste("SYMBOL", colnames(y2), sep = ":")
 
   k <- pathways("hsapiens", "kegg")
-  p <- convertIdentifiers(k[["Fc epsilon RI signaling pathway"]], "symbol")
+  p <- convertIdentifiers(k[["Fc epsilon RI signaling pathway"]], "SYMBOL")
   runTopologyGSA(p, "var", y1, y2, 0.05)
 }
 }

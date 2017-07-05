@@ -43,9 +43,9 @@
 \examples{
 if (require(DEGraph)) {
   data("Loi2008_DEGraphVignette")
-
   b <- pathways("hsapiens", "biocarta")
-  p <- convertIdentifiers(b[["actions of nitric oxide in the heart"]], "entrez")
+  p <- convertIdentifiers(b[["t cell receptor signaling pathway"]], "ENTREZID")
+  rownames(exprLoi2008) <- paste("ENTREZID", rownames(exprLoi2008), sep=":")
   runDEGraph(p, exprLoi2008, classLoi2008)
 }
 }
