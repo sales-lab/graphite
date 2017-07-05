@@ -44,7 +44,7 @@ exportMethods(
 export(
   pathways, pathwayDatabases, pathwayId, pathwayTitle, pathwayDatabase,
   pathwaySpecies, pathwayTimestamp, buildPathway, cytoscapePlot, pathwayGraph,
-  runClipperMulti, runDEGraphMulti, runSPIA, runTopologyGSAMulti)
+  runSPIA)
 
 S3method(as.list, PathwayList)
 S3method(as.list, DeprecatedPathwayList)

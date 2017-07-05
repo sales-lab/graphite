@@ -1,6 +1,7 @@
 \name{runClipper}
 \docType{methods}
 \alias{runClipper}
+\alias{runClipperMulti}
 \alias{runClipper,list-method}
 \title{
   Run a topological analysis on an expression dataset using clipper.

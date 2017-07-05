@@ -60,9 +60,3 @@ setMethod("runClipper", signature("Pathway"),
     initClipper()
     .clipper(x, expr, classes, method, which, ...)
   })
-
-
-runClipperMulti <- function(pathways, expr, classes, method, maxNodes=150, ...) {
-  deprecatedFn("runClipperMulti", "runClipper")
-  runClipper(pathways, expr, classes, method, maxNodes, ...)
-}

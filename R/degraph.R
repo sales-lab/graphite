@@ -62,9 +62,3 @@ setMethod("runDEGraph", "Pathway",
     initDEGraph()
     .degraph(x, expr, classes)
   })
-
-
-runDEGraphMulti <- function(pathways, expr, classes, maxNodes=150) {
-  deprecatedFn("runDEGraphMulti", "runDEGraph")
-  runDEGraph(pathways, expr, classes, maxNodes)
-}

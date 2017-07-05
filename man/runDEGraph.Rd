@@ -1,6 +1,7 @@
 \name{runDEGraph}
 \docType{methods}
 \alias{runDEGraph}
+\alias{runDEGraphMulti}
 \alias{runDEGraph,list-method}
 \title{
   Run a topological analysis on an expression dataset using DEGraph package.

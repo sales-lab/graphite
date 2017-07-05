@@ -1,4 +1,4 @@
-# Copyright 2011,2013,2015 Gabriele Sales <gabriele.sales@unipd.it>
+# Copyright 2011-2017 Gabriele Sales <gabriele.sales@unipd.it>
 #
 #
 # This file is part of graphite.
@@ -23,10 +23,8 @@ initTopologyGSA <- function() {
 
 switchTest <- function(name) {
   switch(name,
-
          var  = topologyGSA::pathway.var.test,
          mean = topologyGSA::pathway.mean.test,
-
          stop("invalid test type: ", name))
 }
 
@@ -69,15 +67,8 @@ setMethod("runTopologyGSA", "DeprecatedPathwayList",
   })
 
 
-
 setMethod("runTopologyGSA", "Pathway",
   function(x, test, exp1, exp2, alpha, ...) {
     initTopologyGSA()
     .topologyGSA(x, switchTest(test), exp1, exp2, alpha, ...)
   })
-
-
-runTopologyGSAMulti <- function(pathways, test, exp1, exp2, alpha, maxNodes=150, ...) {
-  deprecatedFn("runTopologyGSAMulti", "runTopologyGSA")
-  runTopologyGSA(pathways, test, exp1, exp2, alpha, maxNodes, ...)
-}

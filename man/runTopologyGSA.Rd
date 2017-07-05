@@ -1,6 +1,7 @@
 \name{runTopologyGSA}
 \docType{methods}
 \alias{runTopologyGSA}
+\alias{runTopologyGSAMulti}
 \alias{runTopologyGSA,list-method}
 \title{
   Run a topological analysis on an expression dataset using topologyGSA.
