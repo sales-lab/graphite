@@ -32,7 +32,7 @@ switchTest <- function(name) {
   if (insufficientCommonGenes(pathway, colnames(exp1)))
     return(NULL)
 
-  g <- buildGraphNEL(nodes(pathway), edges(pathway), FALSE)
+  g <- buildGraphNEL(edges(pathway), FALSE, NULL)
   test(exp1, exp2, g, alpha, ...)
 }
 

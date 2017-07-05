@@ -50,6 +50,8 @@
 \examples{
 if (require(topologyGSA)) {
   data(examples)
+  colnames(y1) <- paste("SYMBOL", colnames(y1), sep = ":")
+  colnames(y2) <- paste("SYMBOL", colnames(y2), sep = ":")
 
   k <- pathways("hsapiens", "kegg")
   p <- convertIdentifiers(k[["Fc epsilon RI signaling pathway"]], "symbol")
@@ -63,3 +65,4 @@ if (require(topologyGSA)) {
 \keyword{topology}
 \keyword{analysis}
 \keyword{topologyGSEA}
+
