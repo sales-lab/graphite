@@ -120,7 +120,7 @@ edgeData(g)[1]
 Gene annotations databases are widely used as public repositories of biological information. Our current knowledge on biological elements is spread out over a number of databases (such as: Entrez Gene , RefSeq, backed by the NCBI http://www.ncbi.nlm.nih.gov/, UniProt,  ENSEMBL backed by the EBI http://www.ebi.ac.uk/ to name just a few), specialised on a subset of specific biological entities (for instance, UniProt focuses on proteins while Entrez Gene focuses on genes).
 Key identifiers (IDs) in the internal structure of each database uniquely represent biological entities, thus biological entities can be identified by homogeneous IDs according to the selected database they refer to.
 Due to their different origins and specificity, switching from an ID to another is possible but not trivial: there could be either no correspondence between them or many-to-many relations.
-For detailed information about IDs, their structures and differences please consult those resources. 
+For detailed information about IDs, their structures and differences please consult those resources.
 
 The function \Rfunction{converterIdentifiers} allows the user to convert the pathway IDs into different types, to fit the user needs. This mapping process, however, may lead to the loss of some nodes (not all identifiers may be recognized) and has an impact on the topology of the network (one ID may correspond to multiple IDs in another annotation or vice versa). We based the function of ID conversion through the species-specific Bioconductor \Biocpkg{AnnotationDbi}, such as \Biocpkg{org.Hs.eg.db}. Since the version 1.14, all the conversion supported in the annotation packages can be used. \Rfunction{converterIdentifiers} needs a list of pathways or a single pathway and a string describing the type of the identifier as provided by an Annotation package (for example,‘"ENTREZID"’), the values ‘"entrez"’, ‘"symbol"’ remains for backward compatibility.
 
@@ -163,19 +163,19 @@ library(SPIA)
 data(colorectalcancer)
 
 library(hgu133plus2.db)
-x <- hgu133plus2ENTREZID
-top$ENTREZ <- unlist(as.list(x[top$ID]))
-top <- top[!is.na(top$ENTREZ), ]
-top <- top[!duplicated(top$ENTREZ), ]
+top$ENTREZ <- mapIds(hgu133plus2.db, top$ID, "ENTREZID", "PROBEID", multiVals = "first")
+top <- top[!is.na(top$ENTREZ) & !duplicated(top$ENTREZ), ]
+top$ENTREZ <- paste("ENTREZID", top$ENTREZ, sep = ":")
 tg1 <- top[top$adj.P.Val < 0.05, ]
 
 DE_Colorectal = tg1$logFC
-names(DE_Colorectal) <- as.vector(tg1$ENTREZ)
+names(DE_Colorectal) <- tg1$ENTREZ
 ALL_Colorectal <- top$ENTREZ
 
-prepareSPIA(biocarta[1:2], "biocartaEx")
-res <- runSPIA(de=DE_Colorectal, all=ALL_Colorectal, "biocartaEx")
-res
+biocarta <- pathways("hsapiens", "biocarta")[1:20]
+biocarta <- convertIdentifiers(biocarta, "ENTREZID")
+prepareSPIA(biocarta, "biocartaEx")
+runSPIA(de = DE_Colorectal, all = ALL_Colorectal, "biocartaEx")
 @
 
 For more details see the \Biocpkg{SPIA} package \cite{Tarca2009,Adi2009,Draghici2007}.

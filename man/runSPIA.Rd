@@ -51,19 +51,19 @@
 if (require(SPIA) && require(hgu133plus2.db)) {
   data(colorectalcancer)
 
-  x <- hgu133plus2ENTREZID
-  top$ENTREZ <- unlist(as.list(x[top$ID]))
-  top <- top[!is.na(top$ENTREZ), ]
-  top <- top[!duplicated(top$ENTREZ), ]
+  top$ENTREZ <- mapIds(hgu133plus2.db, top$ID, "ENTREZID", "PROBEID", multiVals = "first")
+  top <- top[!is.na(top$ENTREZ) & !duplicated(top$ENTREZ), ]
+  top$ENTREZ <- paste("ENTREZID", top$ENTREZ, sep = ":")
   tg1 <- top[top$adj.P.Val < 0.05, ]
 
   DE_Colorectal = tg1$logFC
-  names(DE_Colorectal) <- as.vector(tg1$ENTREZ)
+  names(DE_Colorectal) <- tg1$ENTREZ
   ALL_Colorectal <- top$ENTREZ
 
-  b <- pathways("hsapiens", "biocarta")
-  prepareSPIA(b[1:20], "biocartaEx")
-  runSPIA(de=DE_Colorectal, all=ALL_Colorectal, "biocartaEx")
+  biocarta <- pathways("hsapiens", "biocarta")[1:20]
+  biocarta <- convertIdentifiers(biocarta, "ENTREZID")
+  prepareSPIA(biocarta, "biocartaEx")
+  runSPIA(de = DE_Colorectal, all = ALL_Colorectal, "biocartaEx")
 }
 }
 \seealso{

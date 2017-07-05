@@ -10,7 +10,7 @@
   \code{\link[SPIA:spia]{spia}} for more details.
 }
 \usage{
-  prepareSPIA(db, pathwaySetName, print.names=FALSE)
+  prepareSPIA(db, pathwaySetName, print.names = FALSE)
 }
 \arguments{
   \item{db}{

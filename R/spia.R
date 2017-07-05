@@ -42,8 +42,6 @@ setMethod("prepareSPIA", "list",
     if (print.names)
       cat(p@title, "\n")
 
-    # TODO: what happens if the target species has no ENTREZID?
-    p <- convertIdentifiers(p, "ENTREZID")
     translated <- translateEdges(p)
     if (is.null(translated) || nrow(translated$edges) < 5) {
       return(NULL)
@@ -67,7 +65,9 @@ translateEdges <- function(pathway) {
   if (nrow(es) == 0)
     return(NULL)
 
-  # Drop src and dest types (we know they are all ENTREZID).
+  # Prefix all nodes with their type and drop the "_type" columns.
+  es$src <- paste(es$src_type, es$src, sep = ":")
+  es$dest <- paste(es$dest_type, es$dest, sep = ":")
   es <- es[, !(colnames(es) %in% c("src_type", "dest_type"))]
 
   # Convert edge types to the SPIA vocabulary.
