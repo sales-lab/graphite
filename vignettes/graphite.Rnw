@@ -32,10 +32,9 @@ library(graph)
 library(graphite)
 @
 
-
 \section{Introduction}
 
-{\it graphite} (GRAPH Interaction from pathway Topological Environment) an R package built to i) provide networks from six databases (KEGG, \cite{KEGG}; Biocarta, www.biocarta.com; Reactome, \cite{Reactome}; NCI/Nature Pathway Interaction Database, \cite{NCI}; HumanCyc, \cite{humancyc}; Panther, \cite{panther}) and, since the version 1.14, from 14 species; ii) discriminate between different types of gene groups; iii) propagate pathway connections through chemical compounds; iv) allow the selection of edge attributes and the conversion of nodes identifiers to EntrezGene IDs and HUGO Symbols; finally, v) to run {\it SPIA}, {\it DEGraph}, {\it CliPPER} and {\it topologyGSA} analyses directly on {\it graphite} networks.
+{\it graphite} (GRAPH Interaction from pathway Topological Environment) an R package built to i) provide networks from six databases (KEGG, \cite{KEGG}; Biocarta, www.biocarta.com; Reactome, \cite{Reactome}; NCI/Nature Pathway Interaction Database, \cite{NCI}; HumanCyc, \cite{humancyc}; Panther, \cite{panther}) and, since the version 1.14, from 14 species; ii) discriminate between different types of gene groups; iii) propagate gene connections through chemical compounds (or metabolites); iv) allow the selection of edge attributes and the conversion of nodes identifiers; finally, v) to run {\it SPIA}, {\it DEGraph}, {\it CliPPER} and {\it topologyGSA} analyses directly on {\it graphite} networks. Since version 1.24 {\it graphite} vi) provide pathway networks composed by genes and metabolites to support and foster metabolomic and transcriptomic integration analyses.
 
 \section{Pathway topology conversion to gene network}
 In order to gather curated information about human pathways, we have collected data from the four public databases that have emerged as reference points for the systems biology community.
@@ -47,27 +46,31 @@ Finally, Panther \cite{panther} data are a comprehensive, curated database of pa
 HumanCyc is part of the BioCyc database collection of pathways \cite{humancyc}.
 
 \subsection{Pathway definition}
-KEGG database provides separate {\tt xml} files, one for each pathway, thus, a pathway is defined by all the reactions defined within each file. For the other databases, we identify a pathway every time in the BioPax format is defined the  {\tt xml} tag  {\tt pathway}.
+KEGG database provides separate {\tt xml} files, one for each pathway, thus, a pathway is defined by all the reactions defined within each file. For the other databases, we identify a pathway every time in the BioPax format is defined the {\tt xml} tag {\tt pathway}.
+
 \subsection{Nodes with multiple elements}
-Within a pathway nodes often correspond to multiple gene products. These can be divided into protein complexes (proteins linked by protein-protein interactions) and the groups containing alternative members (genes generally with similar biochemical functions). Thus, when considering signal propagation these groups should be considered differently; the first (hereafter group AND) should be expanded into a clique (all proteins connected to the others), while the second (hereafter group OR) should be expanded without connection among the contained elements.
+Within a pathway, nodes often correspond to multiple gene products. These can be divided into protein complexes (proteins linked by protein-protein interactions) and the groups containing alternative members (genes generally with similar biochemical functions). Thus, when considering signal propagation these groups should be considered differently; the first (hereafter group AND) should be expanded into a clique (all proteins connected to the others), while the second (hereafter group OR) should be expanded without connection among the contained elements.
 
 In the KGML format there are two ways of defining nodes with multiple elements: protein complexes (group AND defined by entry {\tt type="group"}) and group with alternative members (group OR defined by entry {\tt type="gene"}).
 In the BioPax format only one type of group is allowed: protein complexes (group AND) with the {\tt owl} tag {\tt complex}. However, it often happened that {\tt protein} tag contains multiple {\tt xref} pointing to alternative elements of the process (group OR).
 
-\subsection{Compound mediated interactions}
-Compound mediated interactions are interactions for which a compound acts as a bridge between two elements. Since chemical compounds are generally not measured with high-throughput technology, they should be removed from the network. However, the trivial elimination of the compounds, without signal propagation, will strongly bias the topology interrupting the signals that pass through them. If element $A$ is linked to compound $c$ and compound $c$ is linked to element $B$, thus elements $A$ should be linked to elements $B$.
+\subsection{Metabolites mediated interactions}
+Metabolites mediated interactions are interactions for which a metabolite acts as a bridge between two genes. Since metabolites are not measured during gene expression analysis (using microarray or RNA-seq), they should be removed from the network. However, the trivial elimination of the metabolites, without signal propagation, will strongly bias the topology, interrupting the signals that pass through them. If element $A$ is linked to metabolite $c$ and metabolite $c$ is linked to element $B$, thus elements $A$ should be linked to elements $B$.
 
-Within the KGML format there are two different ways of describing a compound mediated interaction: i) direct interaction {\tt type="PPrel"} ($A$ interacts whit $B$ through compound $c$ ) and ii) indirect one {\tt type="PCrel"} ($A$ interacts whit compound $c$ and $c$ interacts whit $B$). In the BioPax {\tt owl} language, one the other hand, only a indirect way of defining compound mediated signals is available.
+Within the KGML format, there are two different ways of describing a metabolite mediated interaction: i) direct interaction {\tt type="PPrel"} ($A$ interacts whit $B$ through metabolite $c$) and ii) indirect one {\tt type="PCrel"} ($A$ interacts whit metabolite $c$ and $c$ interacts whit $B$).
 
-Since signal propagation reconstruction is crucial for topological gene set analysis we decide to include additional rules for the propagation reconstructing a connection between two genes connected through a series of chemical compounds.
-Not all compound are considered for the propagation because some of them, such as Hydrogen, H2O, ATP, ADP etc., are highly frequent in map descriptions and the signal propagation through them would lead to degenerate too long chains of compounds. The compounds not considered for propagation are not characteristic of a specific reaction but secondary substrates/products widely shared among different processes.
+Since signal propagation reconstruction is crucial for topological gene set analysis we decide to include additional rules for the propagation reconstructing a connection between two genes connected through a series of metabolites.
+Not all metabolites are considered for the propagation because some of them, such as Hydrogen, H2O, ATP, ADP etc., are highly frequent in map descriptions and the signal propagation through them would lead to degenerate too long chains of metabolites. The metabolites not considered for propagation are not characteristic of a specific reaction but secondary substrates/products widely shared among different processes.
+
+\subsection{Pathways with genes and metabolites}
+Since version 1.24, {\it graphite} provide, in addition to gene-gene networks useful for transcriptomic data analyses, mixed pathway networks containing both genes and metabolites allowing integrated pathway analyses of gene expression and metabolomic data.
 
 \subsection{Relation attributes}
 {\it graphite} allows the user to see the single/multiple relation types that characterized an edge.
-The type of edges have been conserved as much as possible to those annotated in the data formats. Some new types have been introduced due to topological conversion needs.
+The type of edges have been conserved as much as possible to those annotated in the data formats. Some new types have been introduced due to topological conversion needs, e.g. {\it Process(indirect)} introduced when the edge is generated propagating the signal from a gene to another gene passing through metabolites.
 
 \subsection{Pathway functions recovery}
-Human pathway data are natively distribuited with the package. But, since the version 1.14.0, non-human pathway data are also available and can be dowloaded using \Rfunction{pathways}
+Human pathway data are natively distribuited with the package. But, since the version 1.14.0, non-human pathway data are also available and can be dowloaded using \Rfunction{pathways}.
 
 \Rfunction{pathways} requires the name of the specie of interest and the name of the pathway database name as follow:
 
@@ -82,7 +85,7 @@ A pathway database is a list of pathways. We can access to a pathway through its
 
 <<base2>>=
 p <- humanReactome[[21]]
-p@title
+pathwayTitle(p)
 @
 
 In the pathway, nodes represent genes/proteins and the edges represent the functional relationships:
@@ -103,7 +106,6 @@ To know the pathway data available the user can use the \Rfunction{pathwayDataba
 pathwayDatabases()
 @
 
-
 \section{Graph}
 
 The function \Rfunction{pathwayGraph} builds a \Rclass{graphNEL} object from a pathway \Robject{p}:
@@ -113,6 +115,16 @@ g
 @
 
 <<graph2>>=
+edgeData(g)[1]
+@
+
+By default, the function \Rfunction{pathwayGraph} provide the pathway with only genes or proteins and the signals propagated through metabolites. Since version 1.24, using the option {\it which = "mixed"} we can access the pathway with metabolites and convert it into a \Rclass{graphNEL} object.
+<<graph3>>=
+g <- pathwayGraph(p, which = "mixed")
+g
+@
+
+<<graph4>>=
 edgeData(g)[1]
 @
 
@@ -134,6 +146,8 @@ head(nodes(pSymbol))
 reactomeSymbol <- convertIdentifiers(humanReactome[1:5], "SYMBOL")
 @
 
+At time of writing, no conversion for metabolite identifiers is provided. metabolites, after \Rfunction{converterIdentifiers} are keept as in the original data.
+
 \clearpage
 \section{Cytoscape Plot}
 
@@ -150,13 +164,14 @@ To this end \Biocpkg{graphite} uses the \Biocpkg{RCy3} package to export the net
 \end{center}
 
 \section{Topological pathway analysis}
-\Biocpkg{graphite} gives access to three types of topological pathway analyses recently proposed. For more details on the results obtained by these analyses see the corresponding R packages.
+\Biocpkg{graphite} gives access to three types of topological pathway analyses recently proposed. For more details on the results obtained by these analyses see the corresponding R packages. Since version 1.24, all the ID of expression data should be prefixed with type of identifier used (e.g. ENTREZID:7157 or SYMBOL:TP53).
 
 \subsection{SPIA}
 
-The analysis with \Biocpkg{SPIA} requires the conversion of the networks in a suitable format. This conversion is performed by the function \Rfunction{prepareSPIA} that must be executed before the analysis command \Rfunction{runSPIA}. The \Biocpkg{SPIA} data will be saved in the current working directory; every time you change it, you should also re-run \Rfunction{prepareSPIA}.
+The analysis with \Biocpkg{SPIA} requires the conversion of the gene-gene networks in a suitable format. This conversion is performed by the function \Rfunction{prepareSPIA} that must be executed before the analysis command \Rfunction{runSPIA}. The \Biocpkg{SPIA} data will be saved in the current working directory; every time you change it, you should also re-run \Rfunction{prepareSPIA}.
 Edges not included in SPIA have been coerced into the admitted SPIA types.
-Compound mediated interactions annotated in graphite with "indirect" type are mapped into the SPIA edge type "indirect effect" by default set to zero. To use the signal propagated through compounds type 1 in "indirect effect".
+Metabolite mediated interactions annotated in graphite with "indirect" type are mapped into the SPIA edge type "indirect effect" by default set to zero. To use the signal propagated through metabolites type 1 in "indirect effect". With this method the integrated analyses of genes and metabolites are not allowed.
+For more details see the \Biocpkg{SPIA} package \cite{Tarca2009,Adi2009,Draghici2007}.
 
 <<spia1>>=
 library(SPIA)
@@ -172,33 +187,28 @@ DE_Colorectal = tg1$logFC
 names(DE_Colorectal) <- tg1$ENTREZ
 ALL_Colorectal <- top$ENTREZ
 
-biocarta <- pathways("hsapiens", "biocarta")[1:20]
+biocarta <- pathways("hsapiens", "biocarta")[1:10]
 biocarta <- convertIdentifiers(biocarta, "ENTREZID")
 prepareSPIA(biocarta, "biocartaEx")
-runSPIA(de = DE_Colorectal, all = ALL_Colorectal, "biocartaEx")
+res <- runSPIA(de = DE_Colorectal, all = ALL_Colorectal, "biocartaEx")
+res[1:5,]
 @
-
-For more details see the \Biocpkg{SPIA} package \cite{Tarca2009,Adi2009,Draghici2007}.
-
 
 \subsection{DEGraph}
 
-\Biocpkg{DEGraph} implements recent hypothesis testing methods which directly assess whether a particular gene network is differentially expressed between two conditions.
+\Biocpkg{DEGraph} implements recent hypothesis testing methods which directly assess whether a particular gene network is differentially expressed between two conditions. With this method the integrated analyses of genes and metabolites are not allowed.
 
 In \Biocpkg{graphite}, \Biocpkg{DEGraph} has a dedicated function, called \Rfunction{runDEGraph}, which performs the analysis on a single pathway or on a pathway list.
 
-\begin{Schunk}
-\begin{Sinput}
-> library(DEGraph)
-> data("Loi2008_DEGraphVignette")
-
-> biocarta <- pathways("hsapiens", "biocarta")
-> p <- convertIdentifiers(biocarta[["actions of nitric oxide in the heart"]], "ENTREZID")
-> res <- runDEGraph(p, exprLoi2008, classLoi2008)
-> res$`1`
-> cytoscapePlot(convertIdentifiers(reactome$`Unwinding of DNA`, "symbol"))
-\end{Sinput}
-\end{Schunk}
+<<degg>>=
+library(DEGraph)
+data("Loi2008_DEGraphVignette")
+biocarta <- pathways("hsapiens", "biocarta")
+p <- convertIdentifiers(biocarta[["t cell receptor signaling pathway"]], "ENTREZID")
+rownames(exprLoi2008) <- paste("ENTREZID", rownames(exprLoi2008), sep = ":")
+res <- runDEGraph(p, exprLoi2008, classLoi2008)
+res$`1`
+@
 
 The function \Rfunction{runDEGraph}, which easily performs the analysis on the entire pathway database, provides as result a list of two elements: a list with the results of the pathway analyses and the list of generated errors.
 
@@ -213,6 +223,8 @@ In \Biocpkg{graphite}, \Biocpkg{topologyGSA} has a dedicated function, \Rfunctio
 <<tg1>>=
 library(topologyGSA)
 data(examples)
+colnames(y1) <- paste("SYMBOL", colnames(y1), sep = ":")
+colnames(y2) <- paste("SYMBOL", colnames(y2), sep = ":")
 
 kegg <- pathways("hsapiens", "kegg")
 p <- convertIdentifiers(kegg[["Fc epsilon RI signaling pathway"]], "SYMBOL")
@@ -242,21 +254,44 @@ samples <- unlist(lapply(c("NEG", "BCR/ABL"), function(t) {
 classes <- c(rep(1,10), rep(2,10))
 
 expr <- exprs(ALL)[,samples]
-rownames(expr) <- featureData(addGeneInfo(ALL))$ENTREZID
+rownames(expr) <- paste("ENTREZID",
+                        featureData(addGeneInfo(ALL))$ENTREZID,
+                        sep = ":")
 
 k <- as.list(pathways("hsapiens", "kegg"))
 selected <- k[c("Bladder cancer", "Cytosolic DNA-sensing pathway")]
 
 clipped <- runClipper(selected, expr, classes, "mean", pathThr = 0.1)
-
 resClip <- do.call(rbind, clipped$results)
-resClip[,1:5]
+resClip[, c("startIdx", "endIdx", "maxIdx", "lenght",
+           "maxScore", "aScore", "involvedGenes")]
 @
 
 The function \Rfunction{runClipper}, which easily performs the analysis on the entire pathway database, provides as result a list of two elements: the list with the results of the pathway analyses and the list of generated errors.
 
 For more details see the \Biocpkg{clipper} package \cite{Martini2013}.
 
+\subsection{Build Pathway}
+In \Biocpkg{graphite}, it is also possible build a Pathway object using \Rfunction{buildPathway}. This function creates a new object of type \Rclass{Pathway} given a data frame describing its edges.
+
+<<bldp>>=
+edges <- data.frame(src_type = "ENTREZID", src="672",
+                    dest_type = "ENTREZID", dest="7157",
+                    direction="undirected", type="binding")
+pathway <- buildPathway("#1", "example", "hsapiens", "database", edges)
+@
+
+Dataframe of edges should include only genes/protein data. In case of edges involving metabolites, they should be provided using metabolitesEdges parameter as a separate dataframe. This practice will guarantee the compatibility with \Rfunction{convertIdentifiers}.
+
+<<bldp2>>=
+edges <- data.frame(src_type = "ENTREZID", src="672",
+                    dest_type = "ENTREZID", dest="7157",
+                    direction="undirected", type="binding")
+edgemet <- data.frame(src_type = "CHEBI", src="77750",
+                    dest_type = "ENTREZID", dest="7157",
+                    direction="undirected", type="binding")
+pathway <- buildPathway("#1", "example", "hsapiens", "database", edges, metaboliteEdges = edgemet)
+@
 
 \begin{thebibliography}{9}
 
