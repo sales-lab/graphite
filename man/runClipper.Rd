@@ -16,7 +16,7 @@
   association with a specific phenotype.
 }
 \usage{
-runClipper(x, expr, classes, method, ...)
+runClipper(x, expr, classes, method, which = "proteins", ...)
 }
 \arguments{
   \item{x}{
@@ -34,12 +34,16 @@ runClipper(x, expr, classes, method, ...)
     the kind of test to perform on the cliques. It could be
     either \code{"mean"} or \code{"variance"}.
   }
+  \item{which}{the pathway variant you want.
+
+    See \code{\linkS4class{Pathway}} documentation for a list of the supported variants.
+  }
   \item{\dots}{
     Additional options; see for details
     \code{\link[clipper:easyClip]{easyClip}}.
 
     When invoked on a \code{\linkS4class{PathwayList}}, can use the named
-    option "maxNodes" to limit the analysis to those pathways having up to
+    option \code{maxNodes} to limit the analysis to those pathways having up to
     this given number of nodes.
   }
 }
@@ -62,7 +66,8 @@ if (require(clipper) & require(ALL) & require(a4Preproc)) {
   classes <- c(rep(1,10), rep(2,10))
 
   expr <- exprs(ALL)[,samples]
-  rownames(expr) <- featureData(addGeneInfo(ALL))$ENTREZID
+  rownames(expr) <- paste("ENTREZID", featureData(addGeneInfo(ALL))$ENTREZID,
+                          sep = ":")
 
   k <- as.list(pathways("hsapiens", "kegg"))
   selected <- k[c("Bladder cancer", "Cytosolic DNA-sensing pathway")]

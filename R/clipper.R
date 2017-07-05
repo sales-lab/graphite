@@ -1,4 +1,4 @@
-# Copyright 2013,2015 Gabriele Sales <gabriele.sales@unipd.it>
+# Copyright 2013-2017 Gabriele Sales <gabriele.sales@unipd.it>
 #
 #
 # This file is part of graphite.
@@ -18,47 +18,47 @@
 
 initClipper <- function() requirePkg("clipper")
 
-.clipper <- function(pathway, expr, classes, method, ...) {
+.clipper <- function(pathway, expr, classes, method, which, ...) {
   genes <- rownames(expr)
   if (insufficientCommonGenes(pathway, genes))
     return(NULL)
 
-  g <- buildGraphNEL(nodes(pathway), edges(pathway), FALSE)
+  g <- buildGraphNEL(edges(pathway, which), FALSE, NULL)
   clipper::easyClip(expr, classes, g, method=method, ...)
 }
 
-.clipperList <- function(l, expr, classes, method, maxNodes=150, ...) {
+.clipperList <- function(l, expr, classes, method, which, maxNodes=150, ...) {
   initClipper()
   lapplyCapturingErrors(filterPathwaysByNodeNum(l, maxNodes),
-    function(p) .clipper(p, expr, classes, method, ...))
+    function(p) .clipper(p, expr, classes, method, which, ...))
 }
 
 
 setGeneric("runClipper",
-  function(x, expr, classes, method, ...)
+  function(x, expr, classes, method, which = "proteins", ...)
     standardGeneric("runClipper"))
 
-setMethod("runClipper", "PathwayList",
-  function(x, expr, classes, method, maxNodes=150, ...) {
-    .clipperList(x@entries, expr, classes, method, maxNodes, ...)
+setMethod("runClipper", signature("PathwayList"),
+  function(x, expr, classes, method, which = "proteins", maxNodes=150, ...) {
+    .clipperList(x@entries, expr, classes, method, which, maxNodes, ...)
   })
 
-setMethod("runClipper", "DeprecatedPathwayList",
-  function(x, expr, classes, method, maxNodes=150, ...) {
+setMethod("runClipper", signature("DeprecatedPathwayList"),
+  function(x, expr, classes, method, which = "proteins", maxNodes=150, ...) {
     deprecatedObj(x@name)
-    runClipper(x@content, expr, classes, method, maxNodes, ...)
+    runClipper(x@content, expr, classes, method, which, maxNodes, ...)
   })
 
-setMethod("runClipper", "list",
-  function(x, expr, classes, method, maxNodes=150, ...) {
+setMethod("runClipper", signature("list"),
+  function(x, expr, classes, method, which = "proteins", maxNodes=150, ...) {
     checkPathwayList(x)
-    .clipperList(x, expr, classes, method, maxNodes, ...)
+    .clipperList(x, expr, classes, method, which, maxNodes, ...)
   })
 
-setMethod("runClipper", "Pathway",
-  function(x, expr, classes, method, ...) {
+setMethod("runClipper", signature("Pathway"),
+  function(x, expr, classes, method, which = "proteins", ...) {
     initClipper()
-    .clipper(x, expr, classes, method, ...)
+    .clipper(x, expr, classes, method, which, ...)
   })
 
 
