@@ -20,7 +20,7 @@ if (!isGeneric("plot"))
   setGeneric("plot", function(x, ...)
     standardGeneric("plot"))
 
-setMethod("plot", "Pathway",
+setMethod("plot", signature("Pathway"),
   function(x, ...) cytoscapePlot(x, ...))
 
 
@@ -33,10 +33,9 @@ cytoscapePlot <- function(pathway, ..., cy.ver=3) {
 }
 
 cytoscapePlot3 <- function(pathway, ...) {
-
   requirePkg("RCy3")
 
-  g <- buildGraphNEL(nodes(pathway), edges(pathway), FALSE, ...)
+  g <- buildGraphNEL(edges(pathway, ...), FALSE, NULL)
   g <- markMultiple(g)
   g <- RCy3::initEdgeAttribute(g, "edgeType", "char", "undefined")
   g <- RCy3::initEdgeAttribute(g, "weight", "numeric", 1)
