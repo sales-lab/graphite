@@ -158,12 +158,12 @@ At time of writing, no conversion for metabolite identifiers is provided. metabo
 \clearpage
 \section{Cytoscape Plot}
 
-Several pathways have a huge number of nodes and edges, thus there is the need of an efficient system of visualization.
-To this end \Biocpkg{graphite} uses the \Biocpkg{RCy3} package to export the network to Cytoscape. Cytoscape is a Java based software specifically built to manage biological network complexity and for this reason it is widely used by the biological community.
+Several pathways have a huge number of nodes and edges, thus there is the need of an efficient system of visualization. To this end \Biocpkg{graphite} uses the \Biocpkg{Rcy3} package to export the network to Cytoscape, through the function \Rfunction{cytoscapePlot}. Cytoscape is a Java based software specifically built to manage biological network complexity and for this reason it is widely used by the biological community.
+Since version 1.24, using the option {\it which} we can access the pathway with proteins and metabolites ({\it which = "mixed"}) or the pathway with only metabolites and edges propagated through proteins ({\it which} = "metabolites").
 
 \begin{Schunk}
 \begin{Sinput}
-> cytoscapePlot(convertIdentifiers(reactome$`Unwinding of DNA`, "symbol"))
+> cytoscapePlot(convertIdentifiers(reactome$`Unwinding of DNA`, "symbol"), which = )
 \end{Sinput}
 \end{Schunk}
 \begin{center}
@@ -275,6 +275,8 @@ resClip[, c("startIdx", "endIdx", "maxIdx", "lenght",
 @
 
 The function \Rfunction{runClipper}, which easily performs the analysis on the entire pathway database, provides as result a list of two elements: the list with the results of the pathway analyses and the list of eventually generated errors.
+
+Since version 1.24, using the option {\it which} we can access the pathway with proteins and metabolites ({\it which = "mixed"}) or the pathway with only metabolites and edges propagated through proteins ({\it which} = "metabolites").
 
 For more details see the \Biocpkg{clipper} package \cite{Martini2013}.
 
