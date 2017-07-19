@@ -57,7 +57,7 @@ pathwayDatabases <-function() {
   drerio=c("kegg", "reactome"),
   ecoli=c("kegg"),
   ggallus=c("kegg", "reactome"),
-  hsapiens=c("biocarta", "humancyc", "kegg", "nci", "panther", "reactome", "smpdb"),
+  hsapiens=c("biocarta", "humancyc", "kegg", "nci", "panther", "pharmgkb", "reactome", "smpdb"),
   mmusculus=c("kegg", "reactome"),
   rnorvegicus=c("kegg", "reactome"),
   scerevisiae=c("kegg", "reactome"),
