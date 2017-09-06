@@ -39,7 +39,7 @@ expect_identical_pathways <- function(x, y) {
 # Tests
 
 homP <- pathways("hsapiens", "kegg")[["Homologous recombination"]]
-pentP <- pathways("hsapiens", "kegg")[["Pentose phosphate pathway"]]
+valP <- pathways("hsapiens", "kegg")[["Valine, leucine and isoleucine biosynthesis"]]
 
 test_that("\"Homologous recombination\" pathway has protein-only edges", {
   expect_false(is.null(homP))
@@ -48,13 +48,13 @@ test_that("\"Homologous recombination\" pathway has protein-only edges", {
   expect_identical(edges(homP, "proteins"), edges(homP, "mixed"))
 })
 
-# test_that("\"Pentose phosphate pathway\" pathway has edges with metabolites, but no gene-only edge", {
-#   expect_false(is.null(pentP))
-#   expect_equal(nrow(pentP@coreEdges), 0)
-#   expect_count(nrow(pentP@metabolEdges), positive = TRUE)
-#   expect_count(nrow(pentP@propEdges), positive = TRUE)
-# })
-#
+test_that("\"Valine, leucine and isoleucine biosynthesis\" pathway has edges with metabolites, but no gene-only edge", {
+  expect_false(is.null(valP))
+  expect_equal(nrow(edges(valP, "proteins")), 0)
+  expect_count(nrow(edges(valP, "metabolites")), positive = TRUE)
+  expect_count(nrow(edges(valP, "mixed")), positive = TRUE)
+})
+
 test_that("protein conversion changes all node types", {
   before <- collectTypes(edges(homP, "proteins"))
   conv <- convertIdentifiers(homP, "UNIPROT")
@@ -118,37 +118,34 @@ test_that("conversion looses all edges with invalid nodes", {
   check_names(conv@protEdges, permutation.of = colnames(homP@protEdges))
 })
 
-# test_that("gene conversion leaves metabolites unchanged", {
-#   metabolTypes <- collectTypes(pentP@metabolEdges)
-#   propTypes <- collectTypes(pentP@propEdges)
-#   expect_true("ENTREZID" %in% metabolTypes)
-#   expect_true(length(metabolTypes) > 1)
-#   expect_equal(propTypes, "ENTREZID")
-#
-#   conv <- convertIdentifiers(pentP, "UNIPROT")
-#
-#   expect_true(nrow(conv@coreEdges) == 0)
-#   expect_equal(sort(collectTypes(conv@metabolEdges)),
-#                sort(sub("ENTREZID", "UNIPROT", metabolTypes, fixed = TRUE)))
-#   expect_equal(collectTypes(conv@propEdges), "UNIPROT")
-# })
-#
-# test_that("batch conversion of a PathwayList produces the same results of an lapply", {
-#   sub <- pathways("hsapiens", "kegg")[1:3]
-#   expect_equal(length(sub), 3)
-#
-#   convBatch <- convertIdentifiers(sub, "UNIPROT")
-#   convLapply <- lapply(sub, function(p) convertIdentifiers(p, "UNIPROT"))
-#
-#   expect_identical_pathways(convBatch, convLapply)
-# })
-#
-# test_that("batch conversion of a DeprecatedPathwayList produces the same results of an lapply", {
-#   expect_warning(sub <- kegg[1:3], "is deprecated")
-#   expect_equal(length(sub), 3)
-#
-#   convBatch <- convertIdentifiers(sub, "UNIPROT")
-#   convLapply <- lapply(sub, function(p) convertIdentifiers(p, "UNIPROT"))
-#
-#   expect_identical_pathways(convBatch, convLapply)
-# })
+test_that("gene conversion leaves metabolites unchanged", {
+  mixedTypes <- collectTypes(edges(valP, "mixed"))
+  expect_true("ENTREZID" %in% mixedTypes)
+  expect_true(length(mixedTypes) > 1)
+
+  conv <- convertIdentifiers(valP, "UNIPROT")
+
+  expect_true(nrow(edges(conv, "proteins")) == 0)
+  expect_equal(sort(collectTypes(edges(conv, "mixed"))),
+               sort(sub("ENTREZID", "UNIPROT", mixedTypes, fixed = TRUE)))
+})
+
+test_that("batch conversion of a PathwayList produces the same results of an lapply", {
+  sub <- pathways("hsapiens", "kegg")[1:3]
+  expect_equal(length(sub), 3)
+
+  convBatch <- convertIdentifiers(sub, "UNIPROT")
+  convLapply <- lapply(sub, function(p) convertIdentifiers(p, "UNIPROT"))
+
+  expect_identical_pathways(convBatch, convLapply)
+})
+
+test_that("batch conversion of a DeprecatedPathwayList produces the same results of an lapply", {
+  expect_warning(sub <- kegg[1:3], "is deprecated")
+  expect_equal(length(sub), 3)
+
+  convBatch <- convertIdentifiers(sub, "UNIPROT")
+  convLapply <- lapply(sub, function(p) convertIdentifiers(p, "UNIPROT"))
+
+  expect_identical_pathways(convBatch, convLapply)
+})
