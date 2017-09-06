@@ -1,0 +1,43 @@
+image: bioconductor/devel_core2:latest
+
+cache:
+  paths:
+    - cache/
+
+before_script:
+  - echo cache >>.Rbuildignore
+  - >
+    echo >~/.Rprofile '
+      .libPaths("'$PWD'/cache")
+      local({
+        r <- getOption("repos")
+        r["CRAN"] <- "https://cran.stat.unipd.it/"
+        r["omegahat"] <- "http://www.omegahat.net/R"
+        cores <- parallel::detectCores()
+        options(repos = r, Ncpus = cores)
+      })'
+
+stages:
+  - setup
+  - build
+  - test
+
+setup:
+  stage: setup
+  script:
+    - mkdir -p cache
+    - Rscript scripts/setup.R
+
+build:
+  stage: build
+  artifacts:
+    expire_in: 1 week
+    paths:
+      - graphite_*.tar.gz
+  script:
+    - R CMD build ./
+
+check:
+  stage: test
+  script:
+    - Rscript scripts/check.R graphite_*.tar.gz

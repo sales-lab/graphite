@@ -1,3 +1,5 @@
+.gitlab-ci.yml
 .travis.yml
+scripts
 ^.*\.Rproj$
 ^\.Rproj\.user$
