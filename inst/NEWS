@@ -34,3 +34,6 @@ Changes in version 1.19.3 (2016-10-07)
 
 Changes in version 1.21.1 (2017-04-24)
   - Updated all pathway data.
+
+Changes in version 1.23.3 (2017-09-10)
+  - Removed support for RCytoscape.

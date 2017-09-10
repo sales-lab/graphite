@@ -1,4 +1,4 @@
-# Copyright 2011-2012,2015-2016 Gabriele Sales <gabriele.sales@unipd.it>
+# Copyright 2011-2017 Gabriele Sales <gabriele.sales@unipd.it>
 #
 #
 # This file is part of graphite.
@@ -25,38 +25,11 @@ setMethod("plot", "Pathway",
 
 
 cytoscapePlot <- function(pathway, ..., cy.ver=3) {
-
   if (cy.ver == 3) {
     cytoscapePlot3(pathway, ...)
-  } else if (cy.ver == 2) {
-    cytoscapePlot2(pathway, ...)
   } else {
     stop("unsupported Cytoscape version")
   }
-}
-
-cytoscapePlot2 <- function(pathway, ...) {
-
-  requirePkg("RCytoscape")
-
-  g <- buildGraphNEL(nodes(pathway), edges(pathway), FALSE, ...)
-  g <- markMultiple(g)
-  g <- RCytoscape::initEdgeAttribute(g, "edgeType", "char", "undefined")
-  g <- RCytoscape::initEdgeAttribute(g, "weight", "numeric", 1)
-
-  cy <- RCytoscape::CytoscapeConnection()
-  if (pathway@title %in% as.character(RCytoscape::getWindowList(cy)))
-    RCytoscape::deleteWindow(cy, pathway@title)
-
-  w <- RCytoscape::new.CytoscapeWindow(pathway@title, g)
-  RCytoscape::displayGraph(w)
-
-  RCytoscape::setEdgeTargetArrowRule(w, "edgeType",
-                                     c(edgeTypes, "multiple"),
-                                     c(edgeArrows, "No Arrow"),
-                                     "No Arrow")
-  RCytoscape::layoutNetwork(w)
-  RCytoscape::redraw(w)
 }
 
 cytoscapePlot3 <- function(pathway, ...) {

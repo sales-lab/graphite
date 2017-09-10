@@ -138,8 +138,7 @@ reactomeSymbol <- convertIdentifiers(humanReactome[1:5], "SYMBOL")
 \section{Cytoscape Plot}
 
 Several pathways have a huge number of nodes and edges, thus there is the need of an efficient system of visualization.
-To this end \Biocpkg{graphite} uses the \Biocpkg{Rcytoscape} package to export the network to Cytoscape. Cytoscape is a Java based software specifically built to manage biological network complexity and for this reason it is widely used by the biological community.
-Unfortunately, since \Biocpkg{Rcytoscape} use CytoscapeRCP plugin, which is not available for the new Cytoscape 3.0 version, the use of \Rfunction{cytoscapePlot} is currently limited to Cytoscape 2.8 and lower versions.
+To this end \Biocpkg{graphite} uses the \Biocpkg{RCy3} package to export the network to Cytoscape. Cytoscape is a Java based software specifically built to manage biological network complexity and for this reason it is widely used by the biological community.
 
 \begin{Schunk}
 \begin{Sinput}
