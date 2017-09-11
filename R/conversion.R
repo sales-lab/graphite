@@ -16,6 +16,33 @@
 # License along with graphite. If not, see <http://www.gnu.org/licenses/>.
 
 
+setClass("MetaboliteDb", representation(table = "data.frame"))
+
+setMethod("columns", signature("MetaboliteDb"), function(x) colnames(x@table))
+
+setMethod("mapIds", signature("MetaboliteDb"),
+  function(x, keys, column, keytype, ..., multiVals) {
+    stopifnot(multiVals == "list")
+
+    table <- selectConvColumns(keytype, column, x@table)
+    lapply(keys, function(k) {
+      where <- which(table$source == k)
+      targets <- unique(na.omit(table[where, "target"]))
+      if (length(targets) == 0) NA else targets
+    })
+  })
+
+selectConvColumns <- function(from, to, table) {
+  if (!all(c(from, to) %in% colnames(table))) {
+    stop("Invalid conversion requested.")
+  }
+
+  sel <- table[, c(from, to)]
+  colnames(sel) <- c("source", "target")
+  sel
+}
+
+
 setGeneric("convertIdentifiers",
   function(x, to) standardGeneric("convertIdentifiers"))
 
@@ -36,13 +63,14 @@ setMethod("convertIdentifiers", "DeprecatedPathwayList",
 
 setMethod("convertIdentifiers", "Pathway",
   function(x, to) {
+    dbs <- loadDbs(x@species)
+    mapping <- selectMapping(to, dbs)
 
-    db <- loadDb(x@species)
-    to <- destIdentifier(to, db)
-
-    x@protEdges <- convertEdges(x@protEdges, db, to, TRUE)
-    x@protPropEdges <- convertEdges(x@protPropEdges, db, to, TRUE)
-    x@mixedEdges <- convertEdges(x@mixedEdges, db, to, FALSE)
+    x@protEdges <- convertEdges(x@protEdges, mapping)
+    x@protPropEdges <- convertEdges(x@protPropEdges, mapping)
+    x@metabolEdges <- convertEdges(x@metabolEdges, mapping)
+    x@metabolPropEdges <- convertEdges(x@metabolPropEdges, mapping)
+    x@mixedEdges <- convertEdges(x@mixedEdges, mapping)
 
     if (nrow(x@protEdges) + nrow(x@protPropEdges) + nrow(x@metabolEdges) +
         nrow(x@metabolPropEdges) + nrow(x@mixedEdges) == 0) {
@@ -52,7 +80,13 @@ setMethod("convertIdentifiers", "Pathway",
     return(x)
   })
 
-loadDb <- function(species) {
+loadDbs <- function(species) {
+  proteinDb <- loadProteinDb(species)
+  metabolDb <- loadMetaboliteDb()
+  list(proteinDb, metabolDb)
+}
+
+loadProteinDb <- function(species) {
   db <- selectDb(species)
 
   tryCatch(get(db),
@@ -64,7 +98,6 @@ loadDb <- function(species) {
 }
 
 selectDb <- function(species) {
-
   l <- list(athaliana="org.At.tair.db",
             btaurus="org.Bt.eg.db",
             celegans="org.Ce.eg.db",
@@ -87,40 +120,40 @@ selectDb <- function(species) {
   return(n)
 }
 
-destIdentifier <- function(to, db) {
+loadMetaboliteDb <- function() {
+  new("MetaboliteDb", table = metabolites())
+}
 
+selectMapping <- function(to, dbs) {
   if (to == "entrez")
     to <- "ENTREZID"
   else if (to == "symbol")
     to <- "SYMBOL"
 
-  checkIdentifier(to, db, TRUE)
-  return(to)
-}
-
-checkIdentifier <- function(id, db, strict) {
-  if (id %in% columns(db)) {
-    TRUE
-  } else if (strict) {
-    stop(id, " is not supported in this species")
-  } else {
-    FALSE
+  for (db in dbs) {
+    if (checkIdentifier(to, db)) {
+      return(list(to = to, db = db))
+    }
   }
+
+  stop(to, " is not supported in this species")
 }
 
-convertEdges <- function(edges, db, to, strict) {
-  convertSide(convertSide(edges, "src", db, to, strict),
-              "dest", db, to, strict)
+checkIdentifier <- function(id, db) id %in% columns(db)
+
+convertEdges <- function(edges, mapping) {
+  convertSide(convertSide(edges, "src", mapping),
+              "dest", mapping)
 }
 
-convertSide <- function(edges, column, db, to, strict) {
+convertSide <- function(edges, column, mapping) {
   if (nrow(edges) == 0) {
     return(edges)
   }
 
   typeColumn <- paste0(column, "_type")
   parts <- nameLapply(splitByType(edges, typeColumn),
-                      convertColumn(edges, column, typeColumn, db, to, strict))
+                      convertColumn(edges, column, typeColumn, mapping))
 
   merged <- do.call(rbind.data.frame, parts)
   row.names(merged) <- NULL
@@ -131,13 +164,13 @@ splitByType <- function(edges, typeColumn) {
   split(seq.int(nrow(edges)), edges[typeColumn], drop = TRUE)
 }
 
-convertColumn <- function(edges, column, typeColumn, db, to, strict) {
+convertColumn <- function(edges, column, typeColumn, mapping) {
   function(type, ixs) {
-    if (type == to || !checkIdentifier(type, db, strict)) {
+    if (type == mapping$to || !checkIdentifier(type, mapping$db)) {
       return(edges[ixs,])
     }
 
-    converted <- lookupKeys(db, edges[ixs, column], type, to)
+    converted <- lookupKeys(mapping, edges[ixs, column], type)
     if (is.null(converted)) {
       return(edges[0,])
     }
@@ -146,11 +179,11 @@ convertColumn <- function(edges, column, typeColumn, db, to, strict) {
     extended <- data.frame(lapply(edges[ixs,], function(x) rep.int(x, runLen)),
                            stringsAsFactors=FALSE)
     extended[column] <- unlist(converted)
-    extended[typeColumn] <- factor(to)
+    extended[typeColumn] <- factor(mapping$to)
     na.omit(extended)
   }
 }
 
-lookupKeys <- function(db, keys, from, to)
-  tryCatch(mapIds(db, keys, to, from, multiVals="list"),
+lookupKeys <- function(mapping, keys, from)
+  tryCatch(mapIds(mapping$db, keys, mapping$to, from, multiVals="list"),
            error=function(e) NULL)

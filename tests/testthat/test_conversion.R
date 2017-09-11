@@ -77,10 +77,11 @@ test_that("protein conversion to symbol does not increase the number of edges", 
               nrow(edges(conv, "proteins")))
 })
 
-test_that("conversion of proteins with an invalid type of identifier is rejected", {
+test_that("proteins with an invalid type of identifier are not converted", {
   mod <- homP
   mod@protEdges$src_type <- factor("INVALID")
-  expect_error(convertIdentifiers(mod, "ENTREZID"), "not supported in this species")
+  conv <- convertIdentifiers(mod, "ENTREZID")
+  expect_identical(edges(mod, "proteins"), edges(conv, "proteins"))
 })
 
 test_that("conversion of an unsupported species fails", {
@@ -90,7 +91,7 @@ test_that("conversion of an unsupported species fails", {
 })
 
 test_that("conversion to an invalid type of identifier is rejected", {
-  expect_error(convertIdentifiers(homP, "INVALID"))
+  expect_error(convertIdentifiers(homP, "INVALID"), "INVALID is not supported in this species")
 })
 
 test_that("conversion of empty pathway produces no edge", {
@@ -128,6 +129,15 @@ test_that("gene conversion leaves metabolites unchanged", {
   expect_true(nrow(edges(conv, "proteins")) == 0)
   expect_equal(sort(collectTypes(edges(conv, "mixed"))),
                sort(sub("ENTREZID", "UNIPROT", mixedTypes, fixed = TRUE)))
+})
+
+test_that("metabolite conversion changes all node types", {
+  before <- collectTypes(edges(valP, "metabolites"))
+  conv <- convertIdentifiers(valP, "CHEBI")
+  after <- collectTypes(edges(conv, "metabolites"))
+
+  expect_equal(before, "KEGGCOMP")
+  expect_equal(after, "CHEBI")
 })
 
 test_that("batch conversion of a PathwayList produces the same results of an lapply", {

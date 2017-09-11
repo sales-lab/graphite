@@ -27,14 +27,10 @@ pathways <- function(species, database) {
     stop("No such pathway database: ", database,
          call.=FALSE)
 
-  if (species == "hsapiens")
+  if (species == "hsapiens") {
     get(database, pos="package:graphite")@content
-  else {
-    f <- localArchive(species)
-    if (file.exists(f))
-      loadLocal(f, database)
-    else
-      loadRemote(species, database, f)
+  } else {
+    loadPathways(species, database)
   }
 }
 
@@ -67,9 +63,22 @@ pathwayDatabases <-function() {
 .version <- 6
 
 
-localArchive <- function(species) {
+loadPathways <- function(species, database) {
+  env <- loadEnv(species)
+  get(database, envir = env)
+}
+
+loadEnv <- function(name) {
+  path <- archivePath(name)
+  if (!file.exists(path))
+    fetchRemote(name, path)
+
+  loadLocal(path)
+}
+
+archivePath <- function(name) {
   d <- archiveDir()
-  paste0(d, "/", species, ".rda")
+  paste0(d, "/", name, ".rda")
 }
 
 archiveDir <- function() {
@@ -84,26 +93,30 @@ archiveDir <- function() {
   return(d)
 }
 
-loadLocal <- function(archive, database) {
+loadLocal <- function(archive) {
   env <- new.env(emptyenv())
   load(archive, env)
-  get(database, envir=env)
+  env
 }
 
-loadRemote <- function(species, database, archive) {
-  url <- remoteUrl(species, database)
+fetchRemote <- function(name, archive) {
+  url <- remoteUrl(name)
   tmp <- paste0(archive, ".tmp")
   res <- download.file(url, tmp)
   if (res != 0)
     stop("cannot download pathway data")
 
   file.rename(tmp, archive)
-  loadLocal(archive, database)
 }
 
-remoteUrl <- function(species, database) {
+remoteUrl <- function(name) {
   v <- as.character(.version)
-  paste0(.server, "/", v, "/", species, ".rda")
+  paste0(.server, "/", v, "/", name, ".rda")
+}
+
+
+metabolites <- function() {
+  get("table", (loadEnv("metabolites")))
 }
 
 purgeCache <- function() {
