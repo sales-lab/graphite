@@ -102,7 +102,7 @@ loadLocal <- function(archive) {
 fetchRemote <- function(name, archive) {
   url <- remoteUrl(name)
   tmp <- paste0(archive, ".tmp")
-  res <- download.file(url, tmp)
+  res <- download.file(url, tmp, quiet = TRUE)
   if (res != 0)
     stop("cannot download pathway data")
 
