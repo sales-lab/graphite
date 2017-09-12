@@ -19,4 +19,4 @@ Collate: pathway.R fetch.R conversion.R plot.R utils.R clipper.R degraph.R
          graph.R spia.R tables.R topologygsa.R build.R
 LazyData: yes
 biocViews: Pathways, ThirdPartyClient, GraphAndNetwork, Network,
-           Reactome, KEGG, BioCarta
+           Reactome, KEGG, BioCarta, Metabolomics
