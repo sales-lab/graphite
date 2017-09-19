@@ -16,6 +16,23 @@
 # License along with graphite. If not, see <http://www.gnu.org/licenses/>.
 
 
+nodeShape <- literalDataFrame(c("type", "shape"), c(
+  "CAS", "ELLIPSE",
+  "CHEBI", "ELLIPSE",
+  "ENSEMBL", "ROUND_RECTANGLE",
+  "ENSEMBLPROT", "ROUND_RECTANGLE",
+  "ENTREZID", "ROUND_RECTANGLE",
+  "FLYBASECG", "ROUND_RECTANGLE",
+  "KEGGCOMP", "ELLIPSE",
+  "KEGGDRUG", "ELLIPSE",
+  "KEGGGLYCAN", "ELLIPSE",
+  "ORF", "ROUND_RECTANGLE",
+  "PUBCHEM", "ELLIPSE",
+  "TAIR", "ROUND_RECTANGLE",
+  "UNIPROT", "ROUND_RECTANGLE"
+))
+
+
 edgeTypes <- c("Binding",
                "Control(In: ACTIVATION of BiochemicalReaction)",
                "Control(In: ACTIVATION of ComplexAssembly)",

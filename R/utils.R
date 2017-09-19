@@ -94,3 +94,11 @@ checkPkgVersion <- function(name, min_version) {
          min_version, ")",
          call.=FALSE)
 }
+
+
+literalDataFrame <- function(cnames, data) {
+  m <- matrix(data, ncol = length(cnames), byrow = TRUE)
+  df <- as.data.frame(m, stringsAsFactors = FALSE)
+  colnames(df) <- cnames
+  df
+}
