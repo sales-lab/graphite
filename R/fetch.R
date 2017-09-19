@@ -105,3 +105,7 @@ remoteUrl <- function(species, database) {
   v <- as.character(.version)
   paste0(.server, "/", v, "/", species, ".rda")
 }
+
+purgeCache <- function() {
+  unlink(archiveDir(), recursive = TRUE)
+}
