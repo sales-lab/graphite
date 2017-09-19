@@ -36,9 +36,12 @@ cytoscapePlot3 <- function(pathway, ...) {
   requirePkg("RCy3")
 
   g <- buildGraphNEL(edges(pathway, ...), FALSE, NULL)
-  g <- markMultiple(g)
+  g <- RCy3::initNodeAttribute(g, "label", "char", "undefined")
   g <- RCy3::initEdgeAttribute(g, "edgeType", "char", "undefined")
   g <- RCy3::initEdgeAttribute(g, "weight", "numeric", 1)
+
+  g <- nodeLabels(g)
+  g <- markMultipleEdges(g)
 
   cy <- RCy3::CytoscapeConnection()
   if (pathway@title %in% as.character(RCy3::getWindowList(cy)))
@@ -46,17 +49,26 @@ cytoscapePlot3 <- function(pathway, ...) {
 
   w <- RCy3::CytoscapeWindow(pathway@title, g)
   RCy3::displayGraph(w)
+  RCy3::layoutNetwork(w, "kamada-kawai")
 
+  RCy3::setNodeLabelRule(w, "label")
   RCy3::setEdgeTargetArrowRule(w, "edgeType",
                                c(edgeTypes, "multiple"),
                                c(edgeArrows, "No Arrow"),
                                "No Arrow")
 
-  RCy3::layoutNetwork(w, "kamada-kawai")
   RCy3::redraw(w)
 }
 
-markMultiple <- function(g) {
+nodeLabels <- function(g) {
+  for (n in names(nodeData(g))) {
+    nodeData(g, n, "label") <- sub("^[^:]*:", "", n)
+  }
+
+  g
+}
+
+markMultipleEdges <- function(g) {
   d <- edgeData(g)
   if (length(d) == 0)
     return(g)
