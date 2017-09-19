@@ -25,7 +25,8 @@ importFrom(stats, na.omit)
 importFrom(utils, download.file, installed.packages)
 
 importMethodsFrom(graph,
-  edgeData, "edgeData<-", "edgeDataDefaults<-", edges, nodes)
+  edgeData, "edgeData<-", "edgeDataDefaults<-", edges, nodeData, "nodeData<-",
+  nodes)
 
 importFrom(graphics, plot)
 

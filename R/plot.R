@@ -37,10 +37,11 @@ cytoscapePlot3 <- function(pathway, ...) {
 
   g <- buildGraphNEL(edges(pathway, ...), FALSE, NULL)
   g <- RCy3::initNodeAttribute(g, "label", "char", "undefined")
+  g <- RCy3::initNodeAttribute(g, "type", "char", "undefined")
   g <- RCy3::initEdgeAttribute(g, "edgeType", "char", "undefined")
   g <- RCy3::initEdgeAttribute(g, "weight", "numeric", 1)
 
-  g <- nodeLabels(g)
+  g <- nodeAttributes(g)
   g <- markMultipleEdges(g)
 
   cy <- RCy3::CytoscapeConnection()
@@ -60,9 +61,10 @@ cytoscapePlot3 <- function(pathway, ...) {
   RCy3::redraw(w)
 }
 
-nodeLabels <- function(g) {
+nodeAttributes <- function(g) {
   for (n in names(nodeData(g))) {
     nodeData(g, n, "label") <- sub("^[^:]*:", "", n)
+    nodeData(g, n, "type") <- sub(":.*", "", n)
   }
 
   g
