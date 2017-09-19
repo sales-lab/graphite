@@ -70,17 +70,15 @@ nodeLabels <- function(g) {
 
 markMultipleEdges <- function(g) {
   d <- edgeData(g)
-  if (length(d) == 0)
-    return(g)
-
   ns <- names(d)
-  for (i in 1:length(d)) {
+
+  for (i in seq_along(d)) {
     tp <- d[[i]]$edgeType
-    if (length(grep(";", tp, fixed=T)) > 0) {
-      nodes <- unlist(strsplit(ns[[i]], "|", fixed=T))
+    if (length(grep(";", tp, fixed = TRUE)) > 0) {
+      nodes <- unlist(strsplit(ns[[i]], "|", fixed = TRUE))
       edgeData(g, nodes[1], nodes[2], "edgeType") <- "multiple"
     }
   }
 
-  return(g)
+  g
 }
