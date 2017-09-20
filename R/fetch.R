@@ -102,11 +102,15 @@ loadLocal <- function(archive) {
 fetchRemote <- function(name, archive) {
   url <- remoteUrl(name)
   tmp <- paste0(archive, ".tmp")
-  res <- download.file(url, tmp, quiet = TRUE)
-  if (res != 0)
-    stop("cannot download pathway data")
 
-  file.rename(tmp, archive)
+  res <- try(GET(url, write_disk(tmp, overwrite = TRUE)))
+  if (class(res) != "response") {
+    stop("cannot download pathway data: are you offline?")
+  } else if (http_status(res)$category != "Success") {
+    stop("cannot download pathway data: are you using the latest graphite version?")
+  } else {
+    file.rename(tmp, archive)
+  }
 }
 
 remoteUrl <- function(name) {

@@ -17,6 +17,7 @@
 
 
 import(checkmate)
+import(httr)
 import(methods)
 
 importFrom(AnnotationDbi, columns, mapIds)
