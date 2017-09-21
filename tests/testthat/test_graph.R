@@ -105,3 +105,9 @@ test_that("graphNEL includes metabolites from pathway", {
   graph <- pathwayGraph(path, "mixed")
   expect_equal(sort(nodes(graph)), sort(nodes(path, "mixed")))
 })
+
+test_that("Selection of an invalid type of edge is rejected", {
+  path <- pathways("hsapiens", "kegg")[[1]]
+  expect_error(pathwayGraph(path, edge.types = "no_such_type"),
+               "the following edge types are missing: no_such_type")
+})
