@@ -40,7 +40,7 @@ buildGraphNEL <- function(edges, sym, edge.types) {
 }
 
 selectEdges <- function(m, types) {
-  missing <- setdiff(types, edgeTypes)
+  missing <- setdiff(types, edgeInfo$type)
   if (length(missing) > 0) {
     stop("the following edge types are missing: ",
          paste(sort(missing), collapse=", "))

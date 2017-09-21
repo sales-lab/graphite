@@ -71,7 +71,7 @@ translateEdges <- function(pathway) {
   es <- es[, !(colnames(es) %in% c("src_type", "dest_type"))]
 
   # Convert edge types to the SPIA vocabulary.
-  converted <- merge(es, spiaConv, all.x = TRUE)
+  converted <- merge(es, edgeInfo, all.x = TRUE)
   checkEdgeTypes(pathway@title, converted)
 
   # Drop the original "type" column.

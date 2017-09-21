@@ -55,8 +55,8 @@ cytoscapePlot3 <- function(pathway, ...) {
   RCy3::setNodeLabelRule(w, "label")
   RCy3::setNodeShapeRule(w, "type", nodeShape$type, nodeShape$shape)
   RCy3::setEdgeTargetArrowRule(w, "edgeType",
-                               c(edgeTypes, "multiple"),
-                               c(edgeArrows, "No Arrow"),
+                               c(edgeInfo$type, "multiple"),
+                               c(edgeInfo$arrow, "No Arrow"),
                                "No Arrow")
 
   RCy3::redraw(w)
