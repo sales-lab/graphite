@@ -1,6 +1,6 @@
 Package: graphite
-Version: 1.23.6
-Date: 2017-10-18
+Version: 1.23.7
+Date: 2017-10-19
 Title: GRAPH Interaction from pathway Topological Environment
 Author: Gabriele Sales <gabriele.sales@unipd.it>, Enrica Calura
         <enrica.calura@gmail.com>, Chiara Romualdi
@@ -11,11 +11,12 @@ Description: Graph objects from pathway topology derived from Biocarta,
 License: AGPL-3
 Depends: R (>= 2.10), methods
 Imports: AnnotationDbi, checkmate, graph, httr, rappdirs, stats, utils
-Suggests: a4Preproc, ALL, BiocStyle, clipper, hgu133plus2.db, hgu95av2.db,
-          org.Hs.eg.db, parallel, RCy3, SPIA (>= 2.2), testthat,
-          topologyGSA (>= 1.4.0)
+Suggests: a4Preproc, ALL, BiocStyle, clipper, codetools, hgu133plus2.db,
+          hgu95av2.db, impute, knitr, org.Hs.eg.db, parallel, R.rsp, RCy3,
+	  rmarkdown, SPIA (>= 2.2), testthat, topologyGSA (>= 1.4.0)
 Collate: pathway.R fetch.R conversion.R plot.R utils.R clipper.R graph.R spia.R
          tables.R topologygsa.R build.R
 LazyData: yes
+VignetteBuilder: R.rsp
 biocViews: Pathways, ThirdPartyClient, GraphAndNetwork, Network,
            Reactome, KEGG, BioCarta, Metabolomics

@@ -1,5 +1,11 @@
-Changes in version 1.23.5 (2017-10-18)
+Changes in version 1.23.7 (2017-10-19)
+  - New vignette describing pathway analysis of metabolic activities.
+
+Changes in version 1.23.6 (2017-10-18)
   - Removed DEGraph support.
+
+Changes in version 1.23.5 (2017-10-13)
+  - runClipper gains an option to set the seed for random number generation.
 
 Changes in version 1.23.3 (2017-10-12)
   - Metabolites in pathways.

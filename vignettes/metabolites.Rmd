@@ -1,0 +1,289 @@
+---
+title: "Pathway Analysis of Metabolic Activities"
+author: "Gabriele Sales"
+date: "`r Sys.Date()`"
+output:
+  rmarkdown::html_vignette:
+    toc: true
+vignette: >
+  %\VignetteIndexEntry{Pathway Analysis of Metabolic Activities}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+
+---
+
+In this tutorial we are going to analyze the dataset of metabolic activities published in [Terunuma et al (2017)](https://www.ncbi.nlm.nih.gov/pubmed/24316975). In this paper the Authors characterized the transcriptomic and metabolomic profile of several types of human breast tumors to uncovered metabolite signatures using an untargeted discovery approach. They found that the oncometabolite 2-hydroxyglutarate (2HG) accumulates at high levels in a subset of tumors and discovered an association between increased 2HG levels and MYC pathway activation in breast cancer. As an example of metabolites topological analyses here we are going to use only the dataset of metabolite abundances as reported in the [supplementary files](https://www.jci.org/articles/view/71180#sd) selecting only tumour samples and comparing ER+ and ER- breast cancers. We will use pathway information from the KEGG and Reactome databases to identify a set of metabolites whose activity changes significantly between the two sample classes. This result will hopefully hint at some specific biological activities that are pathologically altered in tumoral samples.
+
+## Data Preparation
+
+We start by loading the experimental data into R. The measurements are stored in a simple text file, in tabular form. Thanks to the utility functions provided by R, we can combine the download and the actual reading of the table in a single operation. We also specify the details of the file format: the first row of input represents the header of the table; the tabulation character `\t` separates values; we don't want R to change strings into factors. **TODO: change the URL**
+
+```{r metabolite_data, cache=TRUE}
+addr <- "http://romualdi.bio.unipd.it/wp-uploads/2017/10/metabolite_matrix_final.txt"
+expr <- read.table(url(addr), header = TRUE, sep = "\t", stringsAsFactors = FALSE)
+```
+
+The loaded table contains `r nrow(expr)` rows and `r ncol(expr)` columns, but not all of them actually correspond to measurements. We ask R to list the names of the columns:
+
+```{r}
+colnames(expr)
+```
+
+As you can see the first four columns actually contain metabolite identifiers. We store their indices in a variable for future reference.
+
+```{r}
+idcols <- 1:4
+```
+
+### Missing Values
+
+We display the first few rows of the table to get a feeling for its content. For the moment, we concentrate on the metabolite measurements.
+
+```{r}
+head(expr[,5:10])
+```
+
+It looks like there is a significant number of missing values. Let's plot a distribution of the fraction of NAs for each row.
+
+```{r, fig.width=6, fig.height=4}
+nas_by_row <- rowSums(is.na(data.matrix(expr[,-idcols]))) / (ncol(expr) - length(idcols))
+hist(nas_by_row, xlab = "Fraction of NA values", ylab = "Number of rows", main = NULL)
+```
+
+We cannot make good use of rows with too many missing values. We decide to drop them from our dataset. Specifically, we are going to remove anything with more than 50% of NAs.
+
+```{r}
+dexpr <- expr[nas_by_row < 0.5,]
+```
+
+This operation leaves us with `r nrow(dexpr)` of the original `r nrow(expr)` rows.
+
+We are not yet satisfied, though. The downstream analysis won't be able to cope with *any* NA. What would happen if we were to apply a more stringent procedure, removing any NA?
+
+```{r}
+sum(rowSums(is.na(dexpr[,-idcols])) == 0)
+```
+
+The above command is a little bit dense, so let's go through it in small steps. First we select all columns, except the identifiers. Then we check each value, testing if it's an NA. We tally how many NAs we have in each row and we consider only those in which the count is zero (meaning, no NA at all). The outer sum tells us how many rows would survive our filter.
+
+The final verdict is quite grim. Only `r sum(rowSums(is.na(dexpr[,-idcols])) == 0)` out of `r nrow(dexpr)` measurements would be used. We could do much better using a strategy that has become quite common in cases like this: *imputation*.
+
+Instead of implementing it ourselves, we are going to use the excellent BioConductor package [impute](http://www.bioconductor.org/packages/release/bioc/html/impute.html).
+
+```{r}
+library(impute)
+iexpr <- cbind(dexpr[,idcols],
+               impute.knn(data.matrix(dexpr[,-idcols]))$data,
+               stringsAsFactors = FALSE)
+head(iexpr[, 1:6])
+```
+
+We can explicitly check there are not NAs left:
+
+```{r}
+sum(is.na(iexpr[,-idcols]))
+```
+
+### Missing Identifiers
+
+We now concentrate on the metabolite identifiers. We start again from the first few rows.
+
+```{r}
+head(iexpr[,idcols])
+```
+
+The CAS identifiers have a trailing `;` we don't need and there are a number of empty strings, which really represent missing values. We fix both these issues.
+
+```{r}
+iexpr$CAS <- sub("\\s*;.*$", "", iexpr$CAS)
+iexpr[,idcols][iexpr[,idcols] == ""] <- NA
+head(iexpr[,idcols])
+```
+
+We get a measure of how many identifiers are present or missing:
+
+```{r}
+summary(is.na(iexpr[,idcols]))
+```
+
+We have a Metabolon ID for each metabolite in the matrix, while in the case of CAS identifiers we find only `r nrow(iexpr)-sum(is.na(iexpr$CAS))` usable rows.
+
+Unfortunately, at this point `graphite` does not support the Metabolon IDs. We do rely on CAS even if that means loosing a significant fraction of the rows.
+
+```{r}
+valid_cas <- !is.na(iexpr$CAS)
+cas_col <- which(names(iexpr) == "CAS")
+cexpr <- iexpr[valid_cas, c(cas_col, seq.int(5, ncol(iexpr)))]
+head(cexpr[,1:6])
+```
+
+There is no reason at this point to keep the identifiers as a column *inside* the dataset. We move such information to the row names and transform the `data.frame` into a numeric `matrix`.
+
+```{r}
+mexpr <- data.matrix(cexpr[,-1])
+rownames(mexpr) <- paste("CAS", cexpr$CAS, sep = ":")
+head(mexpr[,1:6])
+```
+
+## Pathway Analysis
+
+To make sense of the changes in metabolic activity recorded in the data we have just loaded, we are going to use pathway information from KEGG (via the [graphite](http://www.bioconductor.org/packages/release/bioc/html/graphite.html) package) and a statistical analysis capable of exploiting the topology of such pathways (here we'll rely on [clipper](http://www.bioconductor.org/packages/release/bioc/html/clipper.html)).
+
+We import the required packages:
+
+```{r, echo=FALSE, results="hide", warning=FALSE}
+suppressPackageStartupMessages({
+  library(graphite)
+  library(clipper)
+})
+```
+
+```{r}
+library(graphite)
+library(clipper)
+```
+
+`clipper` will need three pieces of information:
+
+1. a set of pathways
+1. the activity matrix (`mexpr` in our case)
+1. a vector representing the two sample groups we are going to compare
+
+### KEGG Pathways
+
+Getting pathways is quite easy thanks to `graphite`.
+
+```{r}
+kpaths <- pathways("hsapiens", "kegg")
+```
+
+The above command retrieves all KEGG pathways for *Homo sapiens* (`r length(kpaths)` in total). We take a peek at the first entry:
+
+```{r}
+kpaths[[1]]
+```
+
+This summary doesn't tell us which identifiers are used for the nodes in the pathway. We can get that from the list of edges.
+
+```{r}
+head(edges(kpaths[[1]], "metabolites"))
+```
+
+As we might expect, KEGG pathways are using KEGG compounds IDs. Since we're relying on CAS in our data, we should convert them. `convertIdentifiers` to the rescue!
+
+```{r, kegg_to_cas, cache=TRUE}
+rpaths <- convertIdentifiers(kpaths, "CAS")
+```
+
+The edges of the first pathway have been converted into:
+
+```{r}
+head(edges(rpaths[[1]], "metabolites"))
+```
+
+To make the rest of the analysis more robust, we are going to filter pathways requiring they have at least 10 edges whose metabolites appear in our data.
+
+```{r}
+filter_pathways <- function(pathways, expr, min_edge_num) {
+  node_names <- sub("^CAS:", "", rownames(expr))
+
+  pred <- function(p) {
+    es <- edges(p, "metabolites")
+    mask <- es$src %in% node_names & es$dest %in% node_names
+    sum(mask) > min_edge_num
+  }
+
+  Filter(pred, pathways)
+}
+
+fpaths <- filter_pathways(rpaths, mexpr, 10)
+```
+
+Now about sample classes. We are going to split our dataset into two: `POS.TUMOR` samples in the first group and `NEG.TUMOUR` samples in the other. `clipper` wants from us a vector with as many entries as there are samples. An entry should be `1` if the corresponding samples belongs to the first class, or `2` in the other case.
+
+```{r}
+pos_indices <- grep("^POS", colnames(mexpr))
+neg_indices <- grep("^NEG", colnames(mexpr))
+
+classes <- numeric(length = ncol(mexpr))
+classes[neg_indices] <- 1
+classes[pos_indices] <- 2
+classes
+```
+
+We use the helper function `runClipper` to start our analysis. Note that we explicitly require metabolites from the pathways.
+
+```{r clipper_over_kegg}
+out <- runClipper(fpaths, mexpr, classes, "mean", "metabolites", maxNodes = 150, seed = 42)
+```
+
+We check that there are no errors and the we extract the list of pathways which appears to be significantly altered between the two conditions according to `clipper`.
+
+```{r}
+stopifnot(length(out$errors) == 0)
+names(out$results)
+```
+
+```{r, fig.width=8, fig.height=6, out.width="800px", out.height="600px", dpi=300}
+plot_altered_path <- function(result, pathways, node_scale = 2) {
+  title <- names(result)
+  pathway <- pathways[[title]]
+
+  graph <- pathwayGraph(pathway, which = "metabolites")
+
+  labels <- sub("^CAS:", "", nodes(graph))
+  names(labels) <- nodes(graph)
+
+  altered <- unlist(strsplit(result[[1]][1, "pathGenes"], "[,;]"))
+  selected <- nodes(graph) %in% altered
+  node_colors <- ifelse(selected, "red", "black")
+  names(node_colors) <- nodes(graph)
+
+  base <- 0.75
+  heights <- ifelse(selected, base * node_scale, base)
+  names(heights) <- nodes(graph)
+  widths <- ifelse(selected, base * node_scale, base)
+  names(widths) <- nodes(graph)
+
+  base <- 14
+  fontsizes <- ifelse(selected, base * node_scale, base)
+  names(fontsizes) <- nodes(graph)
+
+  between_altered <- function(edge_names, altered) {
+    sapply(edge_names, function(edge_name) {
+      nodes <- unlist(strsplit(edge_name, "~", fixed = TRUE))
+      all(nodes %in% altered)
+    })
+  }
+
+  edge_colors <- ifelse(between_altered(edgeNames(graph), altered), "red", "black")
+
+  plot(graph,
+       attrs = list(edge = list(arrowsize = 0.5)),
+       nodeAttrs = list(label = labels, color = node_colors, width = widths,
+                        height = heights, fontsize = fontsizes),
+       edgeAttrs = list(color = edge_colors),
+       recipEdges = "combined", main = title)
+}
+
+plot_altered_path(out$results[1], fpaths)
+```
+
+As expected, within the significant path (highlighted in red) we found N-Acetyl-L-aspartic acid (NAA) (CAS:997-55-7) and L-Glutamic acid (CAS:56-85-9) identified by the Authors as two differential metabolites between ER+ and ER- patients. Previous studies demonstrate that a deleterious aspartoacylase (ASPA) gene mutations inhibit the hydrolysis of NAA  suggesting a possible cause for increased tumor-associated NAA. The Authors found NAA significantly elevated in ER- tumors and a reduced expression of aspartoacylase (ASPA) gene in ER- tumours.
+
+### Reactome Pathways
+
+In this section we repeat the previous analysis, but we use Reactome as a source of pathway information.
+
+```{r clipper_over_reactome, cache=TRUE}
+fpaths <- filter_pathways(convertIdentifiers(pathways("hsapiens", "reactome"), "CAS"),
+                          mexpr, 10)
+out <- runClipper(fpaths, mexpr, classes, "mean", "metabolites", maxNodes = 150, seed = 42)
+```
+
+```{r, fig.width=8, fig.height=6, out.width="800px", out.height="600px", dpi=300}
+stopifnot(length(out$errors) == 0)
+plot_altered_path(out$results[1], fpaths, 12)
+```
+
+Here we found a general pathway (nucleotide metabolism) within which the best significant path is composed by inosine, guanine, guanosine, adenosine and xanthine. It is worth to note that  [Terunuma et al (2017)](https://www.ncbi.nlm.nih.gov/pubmed/24316975) found guanine one of the highest significant metabolite between ER+ and ER- tumours.

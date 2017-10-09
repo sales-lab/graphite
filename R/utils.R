@@ -58,6 +58,9 @@ lapplyCapturingErrors <- function(l, f) {
 }
 
 filterByTag <- function(tag, l) {
+  if (length(l) == 0)
+    return(l)
+
   isTagged <- sapply(l, function(x) x[[1]] == tag)
   lapply(l[isTagged], function(x) x[[2]])
 }

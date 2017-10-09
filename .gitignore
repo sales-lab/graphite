@@ -3,3 +3,5 @@
 .Rhistory
 .RData
 .Ruserdata
+/inst/doc
+/vignettes/metabolites_*/
