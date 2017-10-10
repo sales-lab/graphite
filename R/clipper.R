@@ -19,8 +19,8 @@
 initClipper <- function() requirePkg("clipper")
 
 .clipper <- function(pathway, expr, classes, method, which, ...) {
-  genes <- rownames(expr)
-  if (insufficientCommonGenes(pathway, genes))
+  ns <- rownames(expr)
+  if (insufficientCommonNodes(pathway, ns, which))
     return(NULL)
 
   g <- buildGraphNEL(edges(pathway, which), FALSE, NULL)

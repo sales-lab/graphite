@@ -22,7 +22,7 @@ initDEGraph <- function() {
 }
 
 .degraph <- function(pathway, expr, classes) {
-  if (insufficientCommonGenes(pathway, rownames(expr)))
+  if (insufficientCommonNodes(pathway, rownames(expr), "proteins"))
     return(NULL)
 
   g <- buildGraphNEL(edges(pathway), FALSE, NULL)

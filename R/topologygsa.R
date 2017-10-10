@@ -29,7 +29,7 @@ switchTest <- function(name) {
 }
 
 .topologyGSA <- function(pathway, test, exp1, exp2, alpha, ...) {
-  if (insufficientCommonGenes(pathway, colnames(exp1)))
+  if (insufficientCommonNodes(pathway, colnames(exp1), "proteins"))
     return(NULL)
 
   g <- buildGraphNEL(edges(pathway), FALSE, NULL)

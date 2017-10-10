@@ -69,8 +69,8 @@ checkPathwayList <- function(l) {
 }
 
 
-insufficientCommonGenes <- function(pathway, exprGenes) {
-  commonNames <- intersect(nodes(pathway), exprGenes)
+insufficientCommonNodes <- function(pathway, exprNodes, which) {
+  commonNames <- intersect(nodes(pathway, which), exprNodes)
 
   if (length(commonNames) < 2) {
     warning("not enough genes in common between pathway \"",
