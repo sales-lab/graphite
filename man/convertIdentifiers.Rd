@@ -4,6 +4,10 @@
 \title{Convert the node identifiers of a pathway.}
 \description{
   Converts the node identifiers of pathways.
+
+  If the option \code{Ncpus} is set to a value larger than 1 and the package
+  \code{parallel} is installed, the conversion procedure will automatically
+  use multiple cores.
 }
 \usage{
 convertIdentifiers(x, to)

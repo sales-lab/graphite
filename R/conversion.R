@@ -49,9 +49,23 @@ setGeneric("convertIdentifiers",
 
 setMethod("convertIdentifiers", "PathwayList",
   function(x, to) {
-    # TODO: make this parallel?
-    x@entries <- lapply(x@entries,
-                   function(p) convertIdentifiers(p, to))
+    ncpus <- getOption("Ncpus")
+    parallel <- is.numeric(ncpus) && ncpus > 1 && length(x@entries) >= ncpus
+    batch <- lapply
+
+    if (parallel) {
+      if (!requireNamespace("parallel", quietly = TRUE)) {
+        message("Identifier conversion is running in serial mode. To use ",
+                "multiple cores in parallel please install the \"parallel\" ",
+                "package.")
+      } else {
+        cl <- parallel::makeForkCluster(ncpus)
+        on.exit(parallel::stopCluster(cl), add = TRUE)
+        batch <- function(...) parallel::parLapplyLB(cl, ...)
+      }
+    }
+
+    x@entries <- batch(x@entries, function(p) convertIdentifiers(p, to))
     return(x)
   })
 

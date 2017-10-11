@@ -12,7 +12,8 @@ License: AGPL-3
 Depends: R (>= 2.10), methods
 Imports: AnnotationDbi, checkmate, graph, httr, rappdirs, stats, utils
 Suggests: a4Preproc, ALL, BiocStyle, clipper, hgu133plus2.db, hgu95av2.db,
-          org.Hs.eg.db, RCy3, SPIA (>= 2.2), testthat, topologyGSA (>= 1.4.0)
+          org.Hs.eg.db, parallel, RCy3, SPIA (>= 2.2), testthat,
+          topologyGSA (>= 1.4.0)
 Enhances: DEGraph
 Collate: pathway.R fetch.R conversion.R plot.R utils.R clipper.R degraph.R
          graph.R spia.R tables.R topologygsa.R build.R
