@@ -1,9 +1,33 @@
-Changes in version 1.9.4 (2014-04-04)
-  - Updated Biocarta, KEGG, NCI and Reactome data.
-  - New databases: HumanCyc and Panther.
+Changes in version 1.23.3 (2017-10-12)
+  - Metabolites in pathways.
+  - Multiple views of each pathway: proteins only, metabolites only or both.
+  - New databases: SMPDB and PharmGKB.
+  - Removed support for RCytoscape (by default, use RCy3).
+  - Conversion of metabolite identifiers.
+  - Faster conversion of idenfiers on multicore systems.
 
-Changes in version 1.11.4 (2014-10-01)
-  - Updated Biocarta, KEGG, NCI, HumanCyc, Panther and Reactome data.
+Changes in version 1.21.1 (2017-04-24)
+  - Updated all pathway data.
+
+Changes in version 1.19.3 (2016-10-07)
+  - Updated all pathway data.
+
+Changes in version 1.17.6 (2016-04-26)
+  - Added celegans pathways from KEGG.
+
+Changes in version 1.17.5 (2016-04-25)
+  - Updated all pathway data.
+
+Changes in version 1.17.4 (2016-04-04)
+  - Cytoscape 3 support.
+
+Changes in version 1.17.3 (2016-04-04)
+  - Added the buildPathway function.
+
+Changes in version 1.15.3 (2015-10-07)
+  - Updated all pathway data.
+  - More descriptive edge types.
+  - Use the package "rappdirs" to select a directory for cached files.
 
 Changes in version 1.13.2 (2015-04-02)
   - Pathways for multiple species: see pathwayDatabases() output.
@@ -12,28 +36,14 @@ Changes in version 1.13.2 (2015-04-02)
   - Deprecated objects: biocarta, humancyc, kegg, nci, panther, reactome.
   - Deprecated functions: runClipperMulti, runDEGraphMulti, runTopologyGSAMulti.
 
+Changes in version 1.11.4 (2014-10-01)
+  - Updated Biocarta, KEGG, NCI, HumanCyc, Panther and Reactome data.
+
 Changes in version 1.15.3 (2015-10-07)
   - Updated all pathway data.
   - More descriptive edge types.
   - Use the package "rappdirs" to select a directory for cached files.
 
-Changes in version 1.17.3 (2016-04-04)
-  - Added the buildPathway function.
-
-Changes in version 1.17.4 (2016-04-04)
-  - Cytoscape 3 support.
-
-Changes in version 1.17.5 (2016-04-25)
-  - Updated all pathway data.
-
-Changes in version 1.17.6 (2016-04-26)
-  - Added celegans pathways from KEGG.
-
-Changes in version 1.19.3 (2016-10-07)
-  - Updated all pathway data.
-
-Changes in version 1.21.1 (2017-04-24)
-  - Updated all pathway data.
-
-Changes in version 1.23.3 (2017-09-10)
-  - Removed support for RCytoscape.
+Changes in version 1.9.4 (2014-04-04)
+  - Updated Biocarta, KEGG, NCI and Reactome data.
+  - New databases: HumanCyc and Panther.
