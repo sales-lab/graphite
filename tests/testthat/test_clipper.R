@@ -24,8 +24,6 @@ suppressPackageStartupMessages({
 context("Clipper analysis")
 
 test_that("pathway \"Cytosolic DNA-sensing pathway\" is altered in the ALL dataset", {
-  set.seed(42)
-
   data(ALL)
   pheno <- as(phenoData(ALL), "data.frame")
   samples <- unlist(lapply(c("NEG", "BCR/ABL"), function(t) {
@@ -39,7 +37,7 @@ test_that("pathway \"Cytosolic DNA-sensing pathway\" is altered in the ALL datas
 
   k <- as.list(pathways("hsapiens", "kegg"))
   selected <- k[c("Bladder cancer", "Cytosolic DNA-sensing pathway")]
-  x <- runClipper(selected, expr, classes, "mean", pathThr = 0.1)
+  x <- runClipper(selected, expr, classes, "mean", pathThr = 0.1, seed = 42)
 
   expect_named(x, c("results", "errors"))
   expect_length(x$errors, 0)

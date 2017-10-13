@@ -27,36 +27,38 @@ initClipper <- function() requirePkg("clipper")
   clipper::easyClip(expr, classes, g, method=method, ...)
 }
 
-.clipperList <- function(l, expr, classes, method, which, maxNodes=150, ...) {
+.clipperList <- function(l, expr, classes, method, which, maxNodes = 150, seed = NULL, ...) {
   initClipper()
+  if (!is.null(seed)) set.seed(seed)
   lapplyCapturingErrors(filterPathwaysByNodeNum(l, maxNodes),
     function(p) .clipper(p, expr, classes, method, which, ...))
 }
 
 
 setGeneric("runClipper",
-  function(x, expr, classes, method, which = "proteins", ...)
+  function(x, expr, classes, method, which = "proteins", seed = NULL, ...)
     standardGeneric("runClipper"))
 
 setMethod("runClipper", signature("PathwayList"),
-  function(x, expr, classes, method, which = "proteins", maxNodes=150, ...) {
-    .clipperList(x@entries, expr, classes, method, which, maxNodes, ...)
+  function(x, expr, classes, method, which = "proteins", seed = NULL, ...) {
+    .clipperList(x@entries, expr, classes, method, which, seed = seed, ...)
   })
 
 setMethod("runClipper", signature("DeprecatedPathwayList"),
-  function(x, expr, classes, method, which = "proteins", maxNodes=150, ...) {
+  function(x, expr, classes, method, which = "proteins", seed = NULL, ...) {
     deprecatedObj(x@name)
-    runClipper(x@content, expr, classes, method, which, maxNodes, ...)
+    runClipper(x@content, expr, classes, method, which, seed, ...)
   })
 
 setMethod("runClipper", signature("list"),
-  function(x, expr, classes, method, which = "proteins", maxNodes=150, ...) {
+  function(x, expr, classes, method, which = "proteins", seed = NULL, ...) {
     checkPathwayList(x)
-    .clipperList(x, expr, classes, method, which, maxNodes, ...)
+    .clipperList(x, expr, classes, method, which, seed = seed, ...)
   })
 
 setMethod("runClipper", signature("Pathway"),
-  function(x, expr, classes, method, which = "proteins", ...) {
+  function(x, expr, classes, method, which = "proteins", seed = NULL, ...) {
     initClipper()
+    if (!is.null(seed)) set.seed(seed)
     .clipper(x, expr, classes, method, which, ...)
   })

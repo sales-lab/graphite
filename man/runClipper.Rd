@@ -17,7 +17,7 @@
   association with a specific phenotype.
 }
 \usage{
-runClipper(x, expr, classes, method, which = "proteins", ...)
+runClipper(x, expr, classes, method, which = "proteins", seed = NULL, ...)
 }
 \arguments{
   \item{x}{
@@ -35,21 +35,27 @@ runClipper(x, expr, classes, method, which = "proteins", ...)
     the kind of test to perform on the cliques. It could be
     either \code{"mean"} or \code{"variance"}.
   }
-  \item{which}{the pathway variant you want.
+  \item{which}{
+    the pathway variant you want.
 
-    See \code{\linkS4class{Pathway}} documentation for a list of the supported variants.
+    See \code{\linkS4class{Pathway}} documentation for a list of the supported
+    variants.
+  }
+  \item{seed}{
+    if not \code{NULL}, set the seed for the random number generator used by
+    clipper.
   }
   \item{\dots}{
-    Additional options; see for details
-    \code{\link[clipper:easyClip]{easyClip}}.
+    additional options: see for details \code{\link[clipper:easyClip]{easyClip}}.
 
-    When invoked on a \code{\linkS4class{PathwayList}}, can use the named
-    option \code{maxNodes} to limit the analysis to those pathways having up to
-    this given number of nodes.
+    When invoked on a \code{\linkS4class{PathwayList}}, you can use the named
+    option \code{maxNodes} to limit the analysis to those pathways with at most
+    a given number of nodes.
   }
 }
 \details{
-  The expression data and the pathway have to be annotated in the same set of identifiers.
+  The expression data and the pathway have to be annotated in the same set of
+  identifiers.
 }
 \references{
   Martini P, Sales G, Massa MS, Chiogna M, Romualdi C. Along signal paths: an
