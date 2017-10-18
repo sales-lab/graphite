@@ -3,7 +3,6 @@
 %\VignetteDepends{graphite}
 %\VignetteDepends{SPIA}
 %\VignetteDepends{hgu133plus2.db}
-%\VignetteDepends{DEGraph}
 %\VignetteDepends{topologyGSA}
 
 \documentclass{article}
@@ -38,11 +37,11 @@ library(graphite)
 
 The pathway databases available in \Biocpkg{graphite} are:
 
-KEGG \cite{KEGG}; Biocarta (www.biocarta.com); Reactome \cite{Reactome}; NCI/Nature Pathway Interaction Database \cite{NCI}; HumanCyc \cite{humancyc}; Panther \cite{panther}; smpdb (www.smpdb.ca) \cite{smpdb}; PharmGKB 
-(www.pharmgkb.org) \cite{pharmgkb}. 
+KEGG \cite{KEGG}; Biocarta (www.biocarta.com); Reactome \cite{Reactome}; NCI/Nature Pathway Interaction Database \cite{NCI}; HumanCyc \cite{humancyc}; Panther \cite{panther}; smpdb (www.smpdb.ca) \cite{smpdb}; PharmGKB
+(www.pharmgkb.org) \cite{pharmgkb}.
 All the pathways provided are annotated in human and, since the version 1.14, pathways from other 13 species are available.
 
-The topological pathway analyses directly available in the package are: \Biocpkg{SPIA} \cite{Tarca2009,Adi2009,Draghici2007}, {\it DEGraph} \cite{Jacob2010}, \Biocpkg{clipper} \cite{Martini2013} and \Biocpkg{topologyGSA} \cite{Massa2010}.
+The topological pathway analyses directly available in the package are: \Biocpkg{SPIA} \cite{Tarca2009,Adi2009,Draghici2007}, \Biocpkg{clipper} \cite{Martini2013} and \Biocpkg{topologyGSA} \cite{Massa2010}.
 
 Since version 1.24, \Biocpkg{graphite} pathways are composed by: i) only genes, where metabolites nodes have been removed and edges have been propagated through the metabolites; ii) only metabolites, where protein nodes have been removed and edges have been propagated through the proteins; iii) both genes and metabolites to support and foster metabolomic and transcriptomic data integration analyses.
 
@@ -165,7 +164,7 @@ head(nodes(pSymbol))
 reactomeSymbol <- convertIdentifiers(humanReactome[1:5], "SYMBOL")
 @
 
-Since the introduction of metabolites in \Biocpkg{graphite} pathways (version 1.24), also the metabolite ID conversion is possible. 
+Since the introduction of metabolites in \Biocpkg{graphite} pathways (version 1.24), also the metabolite ID conversion is possible.
 The metabolite conversion is performed for the following identifiers:''PUBCHEM'', ''KEGGLYCAN'', ''KEGGDRUG'', ''KEGGCOMP'', ''CHEBI'', ''CAS''.
 
 \clearpage
@@ -215,26 +214,6 @@ prepareSPIA(biocarta, "biocartaEx")
 res <- runSPIA(de = DE_Colorectal, all = ALL_Colorectal, "biocartaEx")
 res[1:5,]
 @
-
-\subsection{DEGraph}
-
-\Biocpkg{DEGraph} implements recent hypothesis testing methods which directly assess whether a particular gene network is differentially expressed between two conditions. With this method the integrated analyses of genes and metabolites are not allowed.
-
-In \Biocpkg{graphite}, \Biocpkg{DEGraph} has a dedicated function, called \Rfunction{runDEGraph}, which performs the analysis on a single pathway or on a pathway list.
-
-<<degg>>=
-library(DEGraph)
-data("Loi2008_DEGraphVignette")
-biocarta <- pathways("hsapiens", "biocarta")
-p <- convertIdentifiers(biocarta[["t cell receptor signaling pathway"]], "ENTREZID")
-rownames(exprLoi2008) <- paste("ENTREZID", rownames(exprLoi2008), sep = ":")
-res <- runDEGraph(p, exprLoi2008, classLoi2008)
-res$`1`
-@
-
-The function \Rfunction{runDEGraph}, which easily performs the analysis on the entire pathway database, provides as result a list of two elements: a list with the results of the pathway analyses and the list of generated errors.
-
-For more details see the \Biocpkg{DEGraph} package \cite{Jacob2010}.
 
 \subsection{topologyGSA}
 
@@ -301,7 +280,7 @@ In \Biocpkg{graphite}, it is also possible build a pathway object using \Rfuncti
 edges <- data.frame(src_type = "ENTREZID", src="672",
                     dest_type = "ENTREZID", dest="7157",
                     direction="undirected", type="binding")
-pathway <- buildPathway("#1", "example", "hsapiens", "database", 
+pathway <- buildPathway("#1", "example", "hsapiens", "database",
                         proteinEdges = edges)
 @
 
@@ -315,9 +294,9 @@ edgemix <- data.frame(src_type = "CHEBI", src="77750",
 edgemet <- data.frame(src_type = "CHEBI", src="15351",
                     dest_type = "CHEBI", dest="77750",
                     direction="undirected", type="biochemicalReaction")
-pathway <- buildPathway("#1", "example", "hsapiens", "database",  
-                        proteinEdges = edges, 
-                        mixedEdges = edgemix, 
+pathway <- buildPathway("#1", "example", "hsapiens", "database",
+                        proteinEdges = edges,
+                        mixedEdges = edgemix,
                         metaboliteEdges = edgemet)
 @
 
@@ -353,11 +332,6 @@ pathway <- buildPathway("#1", "example", "hsapiens", "database",
   A Signaling Pathway Impact Analysis for Microarray Experiments.
   Bioinformatics, 2009, 25(1):75-82.
 
-\bibitem{Jacob2010}
-  L. Jacob, P. Neuvial, and S. Dudoit.
-  Gains in power from structured two-sample tests of means on graphs.
-  Technical Report arXiv:q-bio/1009.5173v1, arXiv, 2010.
-
 \bibitem{Massa2010}
   Massa MS, Chiogna M, Romualdi C. Gene set analysis exploiting the topology of a pathway.
   BMC System Biol. 2010 Sep 1;4:121.
@@ -376,17 +350,17 @@ pathway <- buildPathway("#1", "example", "hsapiens", "database",
   PANTHER in 2013: modeling the evolution of gene function, and other gene attributes, in the context of phylogenetic trees.
   Huaiyu Mi, Anushya Muruganujan and Paul D. Thomas
   Nucl. Acids Res. (2012) doi: 10.1093/nar/gks1118
-  
+
 \bibitem{pharmgkb}
-  Whirl-Carrillo M, McDonagh EM, Hebert JM, Gong L, Sangkuhl K, Thorn CF, Altman RB, Klein TE. 
+  Whirl-Carrillo M, McDonagh EM, Hebert JM, Gong L, Sangkuhl K, Thorn CF, Altman RB, Klein TE.
   Pharmacogenomics knowledge for personalized medicine.
   Clin Pharmacol Ther. 2012 Oct;92(4):414-7. doi: 10.1038/clpt.2012.96. Review. PubMed
-  
+
 \bibitem{smpdb}
-  Jewison T, Su Y, Disfany FM, Liang Y, Knox C, Maciejewski A, Poelzer J, Huynh J, Zhou Y, Arndt D, Djoumbou Y, Liu Y, Deng L, Guo AC, Han B, Pon A, Wilson M, Rafatnia S, Liu P, Wishart DS. 
+  Jewison T, Su Y, Disfany FM, Liang Y, Knox C, Maciejewski A, Poelzer J, Huynh J, Zhou Y, Arndt D, Djoumbou Y, Liu Y, Deng L, Guo AC, Han B, Pon A, Wilson M, Rafatnia S, Liu P, Wishart DS.
   SMPDB 2.0: big improvements to the Small Molecule
-  Pathway Database. Nucleic Acids Res. 
-  2014 Jan;42(Database issue):D478-84. doi:10.1093/nar/gkt1067. Epub 2013 Nov 6. 
+  Pathway Database. Nucleic Acids Res.
+  2014 Jan;42(Database issue):D478-84. doi:10.1093/nar/gkt1067. Epub 2013 Nov 6.
 
 \end{thebibliography}
 

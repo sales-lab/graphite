@@ -1,3 +1,6 @@
+Changes in version 1.23.5 (2017-10-18)
+  - Removed DEGraph support.
+
 Changes in version 1.23.3 (2017-10-12)
   - Metabolites in pathways.
   - Multiple views of each pathway: proteins only, metabolites only or both.

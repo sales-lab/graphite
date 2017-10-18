@@ -10,7 +10,6 @@
 \alias{names,DeprecatedPathwayList-method}
 \alias{prepareSPIA,DeprecatedPathwayList-method}
 \alias{runClipper,DeprecatedPathwayList-method}
-\alias{runDEGraph,DeprecatedPathwayList-method}
 \alias{runTopologyGSA,DeprecatedPathwayList-method}
 
 \title{Class \code{"DeprecatedPathwayList"}}
@@ -54,10 +53,6 @@
     \item{}{
       \code{runClipper(l, expr, classes, method, maxNodes=150, ...)}
       Runs a \code{clipper} analysis over all the pathways in the list.
-    }
-    \item{}{
-      \code{runDEGraph(l, expr, classes, maxNodes=150, ...)}
-      Runs a \code{DEGraph} analysis over all the pathways in the list.
     }
     \item{}{
       \code{runTopologyGSA(l, test, exp1, exp2, alpha, maxNodes=150, ...)}

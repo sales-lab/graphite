@@ -8,7 +8,6 @@
 \alias{nodes,Pathway-method}
 \alias{plot,Pathway,ANY-method}
 \alias{runClipper,Pathway-method}
-\alias{runDEGraph,Pathway-method}
 \alias{runTopologyGSA,Pathway-method}
 \alias{pathwayId}
 \alias{pathwayTitle}
@@ -68,9 +67,6 @@
     }
     \item{\code{runClipper(p, expr, classes, method, ...)}:}{
       Runs a \code{clipper} analysis over the pathway.
-    }
-    \item{\code{runDEGraph(p, expr, classes, ...)}:}{
-      Runs a \code{DEGraph} analysis over the pathway.
     }
     \item{\code{runTopologyGSA(p, test, exp1, exp2, alpha, ...)}:}{
       Runs a \code{topologyGSA} analysis over the pathway.

@@ -10,7 +10,6 @@
 \alias{names,PathwayList-method}
 \alias{prepareSPIA,PathwayList-method}
 \alias{runClipper,PathwayList-method}
-\alias{runDEGraph,PathwayList-method}
 \alias{runTopologyGSA,PathwayList-method}
 
 \title{Class \code{"PathwayList"}}
@@ -54,10 +53,6 @@
     \item{}{
       \code{runClipper(l, expr, classes, method, maxNodes=150, ...)}
       Runs a \code{clipper} analysis over all the pathways in the list.
-    }
-    \item{}{
-      \code{runDEGraph(l, expr, classes, maxNodes=150, ...)}
-      Runs a \code{DEGraph} analysis over all the pathways in the list.
     }
     \item{}{
       \code{runTopologyGSA(l, test, exp1, exp2, alpha, maxNodes=150, ...)}
