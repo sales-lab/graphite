@@ -14,6 +14,7 @@
 \alias{pathwayDatabase}
 \alias{pathwaySpecies}
 \alias{pathwayTimestamp}
+\alias{pathwayURL}
 
 \title{Class \code{"Pathway"}}
 \description{
@@ -45,6 +46,9 @@
     }
     \item{\code{pathwayTimestamp(p)}:}{
       Returns the date of pathway data retrieval.
+    }
+    \item{\code{pathwayURL(p)}:}{
+      Returns the URL of the pathway in its original database, if available.
     }
     \item{\code{convertIdentifiers(p, to)}:}{
       Returns a new pathway using a different type of node identifiers.

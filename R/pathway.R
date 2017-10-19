@@ -126,6 +126,62 @@ pathwayTimestamp <- function(p) {
   p@timestamp
 }
 
+
+pathwayURL <- function(object) {
+  f <- switch(object@database,
+              biocarta = biocartaURL,
+              humancyc = humancycURL,
+              KEGG = keggURL,
+              nci = nciURL,
+              panther = pantherURL,
+              PharmGKB = pharmgkbURL,
+              Reactome = reactomeURL,
+              SMPDB = smpdbURL,
+              NULL)
+
+  if (is.null(f)) {
+    NULL
+  } else {
+    f(object)
+  }
+}
+
+biocartaURL <- function(p) {
+  paste0("https://cgap.nci.nih.gov/Pathways/PathwaysByKeyword?PATH_KEY=",
+         gsub("\\s", "+", p@title))
+}
+
+humancycURL <- function(p) {
+  paste0("https://humancyc.org/HUMAN/NEW-IMAGE?type=PATHWAY&object=", p@id)
+}
+
+keggURL <- function(p) {
+  parts <- unlist(strsplit(p@id, ":", fixed = TRUE))
+  paste0("http://www.kegg.jp/kegg-bin/show_pathway?org_name=", parts[1],
+         "&mapno=", parts[2])
+}
+
+nciURL <- function(p) {
+  query <- gsub("\\s+", "%20", gsub("[^a-zA-Z0-9-]", " ", p@title))
+  paste0("http://www.ndexbio.org/#/search?searchType=Networks&searchString=",
+         query, "&searchTermExpansion=false")
+}
+
+pantherURL <- function(p) p@id
+
+pharmgkbURL <- function(p) {
+  paste0("https://www.pharmgkb.org/pathway/", sub("^.*\\.", "", p@id))
+}
+
+reactomeURL <- function(p) {
+  paste0("http://reactome.org/PathwayBrowser/#/", p@id)
+}
+
+smpdbURL <- function(p) {
+  paste0("http://smpdb.ca/pathwhiz/pathways/", sub("^.*/", "", p@id))
+}
+
+
 setMethod("nodes", signature("Pathway"),
   function(object, which = c("proteins", "metabolites", "mixed")) {
     es <- edges(object, which = which, stringsAsFactors = FALSE)
@@ -163,14 +219,21 @@ setMethod("show", signature("Pathway"),
                 nrow(object@metabolEdges) + nrow(object@metabolPropEdges) +
                 nrow(object@mixedEdges)
 
-    cat('"', object@title, '" pathway\n',
-        "Native ID       = ", object@id, "\n",
-        "Database        = ", object@database, "\n",
-        "Species         = ", object@species, "\n",
-        "Number of nodes = ", node_num, "\n",
-        "Number of edges = ", edge_num, "\n",
-        "Retrieved on    = ", prettyDate(object@timestamp), "\n",
-        sep="")
+    fmt <- c('"', object@title, '" pathway\n',
+             "Native ID       = ", object@id, "\n",
+             "Database        = ", object@database, "\n",
+             "Species         = ", object@species, "\n",
+             "Number of nodes = ", node_num, "\n",
+             "Number of edges = ", edge_num, "\n",
+             "Retrieved on    = ", prettyDate(object@timestamp), "\n")
+
+    url <- pathwayURL(object)
+    if (!is.null(url)) {
+      fmt <- c(fmt,
+               "URL             = ", url, "\n")
+    }
+
+    cat(fmt, sep="")
   })
 
 prettyDate <- function(d) format(d, "%d-%m-%Y")
