@@ -19,19 +19,18 @@ suppressPackageStartupMessages(library(httr))
 
 context("Pathway URLs")
 
-test_that("each pathway database links to valid pathway URLs", {
-  dbs <- pathwayDatabases()
-  species <- "hsapiens"
-  dbs <- as.character(dbs[dbs$species == species, "database"])
-
-  # NOTE (19/10/2017): The smpdb website is signaling a lot of internal
-  #                    errors. We temporarily exclude it from the test.
-  dbs <- setdiff(dbs, "smpdb")
-
-  for (db in dbs) {
-    p <- sample(pathways(species, db), 1)[[1]]
-    r <- HEAD(pathwayURL(p), timeout(30))
-    expect_equal(http_status(r)$category, "Success",
-                 info = paste0(db, "(", pathwayId(p), ")"))
-  }
-})
+# NOTE (22/10/2017)
+# Disabled as it generates too many false positive errors.
+#
+# test_that("each pathway database links to valid pathway URLs", {
+#   dbs <- pathwayDatabases()
+#   species <- "hsapiens"
+#   dbs <- as.character(dbs[dbs$species == species, "database"])
+# 
+#   for (db in dbs) {
+#     p <- sample(pathways(species, db), 1)[[1]]
+#     r <- HEAD(pathwayURL(p), timeout(30))
+#     expect_equal(http_status(r)$category, "Success",
+#                  info = paste0(db, "(", pathwayId(p), ")"))
+#   }
+# })
