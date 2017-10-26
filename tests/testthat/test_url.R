@@ -19,18 +19,17 @@ suppressPackageStartupMessages(library(httr))
 
 context("Pathway URLs")
 
-# NOTE (22/10/2017)
-# Disabled as it generates too many false positive errors.
-#
-# test_that("each pathway database links to valid pathway URLs", {
-#   dbs <- pathwayDatabases()
-#   species <- "hsapiens"
-#   dbs <- as.character(dbs[dbs$species == species, "database"])
-# 
-#   for (db in dbs) {
-#     p <- sample(pathways(species, db), 1)[[1]]
-#     r <- HEAD(pathwayURL(p), timeout(30))
-#     expect_equal(http_status(r)$category, "Success",
-#                  info = paste0(db, "(", pathwayId(p), ")"))
-#   }
-# })
+test_that("each pathway database links to valid pathway URLs", {
+  skip_on_bioc()
+
+  dbs <- pathwayDatabases()
+  species <- "hsapiens"
+  dbs <- as.character(dbs[dbs$species == species, "database"])
+
+  for (db in dbs) {
+    p <- sample(pathways(species, db), 1)[[1]]
+    r <- HEAD(pathwayURL(p), timeout(30))
+    expect_equal(http_status(r)$category, "Success",
+                 info = paste0(db, "(", pathwayId(p), ")"))
+  }
+})
