@@ -1,3 +1,6 @@
+Changes in version 1.25.1 (2017-12-13)
+  - Export the pathwayURL function.
+
 Changes in version 1.23.7 (2017-10-19)
   - Provide the URL of each pathway in its original database.
   - New vignette describing pathway analysis of metabolic activities.
