@@ -60,12 +60,6 @@ setMethod("runTopologyGSA", "list",
     .topologyGSAList(x, test, exp1, exp2, alpha, maxNodes)
   })
 
-setMethod("runTopologyGSA", "DeprecatedPathwayList",
-  function(x, test, exp1, exp2, alpha, maxNodes=150, ...) {
-    deprecatedObj(x@name)
-    runTopologyGSA(x@content, test, exp1, exp2, alpha, maxNodes, ...)
-  })
-
 
 setMethod("runTopologyGSA", "Pathway",
   function(x, test, exp1, exp2, alpha, ...) {

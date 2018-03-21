@@ -1,4 +1,4 @@
-# Copyright 2011-2017 Gabriele Sales <gabriele.sales@unipd.it>
+# Copyright 2011-2018 Gabriele Sales <gabriele.sales@unipd.it>
 #
 #
 # This file is part of graphite.
@@ -15,13 +15,6 @@
 # You should have received a copy of the GNU Affero General Public
 # License along with graphite. If not, see <http://www.gnu.org/licenses/>.
 
-
-deprecatedObj <- function(name) {
-  warning("Object \"", name, "\" is deprecated and will be removed from ",
-          "the next release.\n",
-          "Use the pathways() function instead.",
-          call.=FALSE)
-}
 
 deprecatedFn <- function(name, repl) {
   warning("Function \"", name, "\" is deprecated and will be removed from ",

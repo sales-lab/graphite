@@ -1,4 +1,4 @@
-# Copyright 2013-2017 Gabriele Sales <gabriele.sales@unipd.it>
+# Copyright 2013-2018 Gabriele Sales <gabriele.sales@unipd.it>
 #
 #
 # This file is part of graphite.
@@ -42,12 +42,6 @@ setGeneric("runClipper",
 setMethod("runClipper", signature("PathwayList"),
   function(x, expr, classes, method, which = "proteins", seed = NULL, ...) {
     .clipperList(x@entries, expr, classes, method, which, seed = seed, ...)
-  })
-
-setMethod("runClipper", signature("DeprecatedPathwayList"),
-  function(x, expr, classes, method, which = "proteins", seed = NULL, ...) {
-    deprecatedObj(x@name)
-    runClipper(x@content, expr, classes, method, which, seed, ...)
   })
 
 setMethod("runClipper", signature("list"),

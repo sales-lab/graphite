@@ -25,12 +25,6 @@ setMethod("prepareSPIA", "PathwayList",
   function(db, pathwaySetName, print.names)
     .prepareSPIA(db@entries, pathwaySetName, print.names))
 
-setMethod("prepareSPIA", "DeprecatedPathwayList",
-  function(db, pathwaySetName, print.names) {
-    deprecatedObj(db@name)
-    .prepareSPIA(db@content, pathwaySetName, print.names)
-  })
-
 setMethod("prepareSPIA", "list",
   function(db, pathwaySetName, print.names) {
     checkPathwayList(db)

@@ -1,4 +1,4 @@
-# Copyright 2011-2017 Gabriele Sales <gabriele.sales@unipd.it>
+# Copyright 2011-2018 Gabriele Sales <gabriele.sales@unipd.it>
 #
 #
 # This file is part of graphite.
@@ -67,12 +67,6 @@ setMethod("convertIdentifiers", "PathwayList",
 
     x@entries <- batch(x@entries, function(p) convertIdentifiers(p, to))
     return(x)
-  })
-
-setMethod("convertIdentifiers", "DeprecatedPathwayList",
-  function(x, to) {
-    deprecatedObj(x@name)
-    convertIdentifiers(x@content, to)
   })
 
 setMethod("convertIdentifiers", "Pathway",

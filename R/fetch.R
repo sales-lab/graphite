@@ -1,4 +1,4 @@
-# Copyright 2015-2017 Gabriele Sales <gabriele.sales@unipd.it>
+# Copyright 2015-2018 Gabriele Sales <gabriele.sales@unipd.it>
 #
 #
 # This file is part of graphite.
@@ -28,7 +28,7 @@ pathways <- function(species, database) {
          call.=FALSE)
 
   if (species == "hsapiens") {
-    get(database, pos="package:graphite")@content
+    get(database, .hsapiens)
   } else {
     loadPathways(species, database)
   }

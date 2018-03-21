@@ -1,5 +1,6 @@
-Changes in version 1.25.2 (2018-03-22)
+Changes in version 1.25.2 (2018-03-23)
   - Documentation fixes.
+  - Removed deprecated objects biocarta, humancyc, kegg, nci, panther, reactome.
 
 Changes in version 1.25.1 (2017-12-13)
   - Export the pathwayURL function.

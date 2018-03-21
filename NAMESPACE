@@ -32,9 +32,7 @@ importMethodsFrom(graph,
 importFrom(graphics, plot)
 
 
-exportClasses(
-  Pathways, PathwayList, DeprecatedPathwayList,
-  Pathway)
+exportClasses(Pathways, PathwayList, Pathway)
 
 # Re-exports
 exportMethods(edgeData, "edgeData<-", "edgeDataDefaults<-", edges, nodes)
@@ -49,4 +47,3 @@ export(
   pathwayGraph, runSPIA)
 
 S3method(as.list, PathwayList)
-S3method(as.list, DeprecatedPathwayList)

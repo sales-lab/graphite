@@ -1,4 +1,4 @@
-# Copyright 2017 Gabriele Sales <gabriele.sales@unipd.it>
+# Copyright 2017-2018 Gabriele Sales <gabriele.sales@unipd.it>
 #
 #
 # This file is part of graphite.
@@ -142,16 +142,6 @@ test_that("metabolite conversion changes all node types", {
 
 test_that("batch conversion of a PathwayList produces the same results of an lapply", {
   sub <- pathways("hsapiens", "kegg")[1:3]
-  expect_equal(length(sub), 3)
-
-  convBatch <- convertIdentifiers(sub, "UNIPROT")
-  convLapply <- lapply(sub, function(p) convertIdentifiers(p, "UNIPROT"))
-
-  expect_identical_pathways(convBatch, convLapply)
-})
-
-test_that("batch conversion of a DeprecatedPathwayList produces the same results of an lapply", {
-  expect_warning(sub <- kegg[1:3], "is deprecated")
   expect_equal(length(sub), 3)
 
   convBatch <- convertIdentifiers(sub, "UNIPROT")

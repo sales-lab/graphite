@@ -1,4 +1,4 @@
-# Copyright 2011-2017 Gabriele Sales <gabriele.sales@unipd.it>
+# Copyright 2011-2018 Gabriele Sales <gabriele.sales@unipd.it>
 #
 #
 # This file is part of graphite.
@@ -53,44 +53,6 @@ setMethod("[[", signature("PathwayList"),
   function(x, i) x@entries[[i]])
 
 as.list.PathwayList <- function(x, ...) as.list(x@entries, ...)
-
-
-setClass("DeprecatedPathwayList",
-  representation(name="character",
-                 content="PathwayList"),
-  contains="Pathways")
-
-setMethod("length", signature("DeprecatedPathwayList"),
-  function(x) length(x@content))
-
-setMethod("names", signature("DeprecatedPathwayList"),
-  function(x) names(x@content))
-
-setMethod("show", signature("DeprecatedPathwayList"),
-  function(object) show(object@content))
-
-setMethod("$", signature("DeprecatedPathwayList"),
-  function(x, name) {
-    deprecatedObj(x@name)
-    x@content[[name]]
-  })
-
-setMethod("[", signature("DeprecatedPathwayList"),
-  function(x, i, ...) {
-    deprecatedObj(x@name)
-    x@content[i, ...]
-  })
-
-setMethod("[[", signature("DeprecatedPathwayList"),
-  function(x, i) {
-    deprecatedObj(x@name)
-    x@content[[i]]
-  })
-
-as.list.DeprecatedPathwayList <- function(x, ...) {
-  deprecatedObj(x@name)
-  as.list(x@content, ...)
-}
 
 
 setClass("Pathway",
