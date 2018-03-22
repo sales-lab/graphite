@@ -3,5 +3,6 @@
 .Rhistory
 .RData
 .Ruserdata
+/TODO.md
 /inst/doc
 /vignettes/metabolites_*/
