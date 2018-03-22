@@ -19,7 +19,7 @@
     should contain all names of the 'de' argument.
   }
   \item{pathwaySetName}{
-    A list of pathways like \link{kegg}, \link{nci} or \link{reactome}.
+    The name of a pathway set created with \code{\link{prepareSPIA}}.
   }
   \item{\dots}{
     Additional options to pass to \code{\link[SPIA:spia]{spia}}.
