@@ -24,5 +24,5 @@
   \code{\linkS4class{PathwayList}}
 }
 \examples{
-  as.list(kegg)
+  as.list(pathways("hsapiens", "kegg"))
 }
