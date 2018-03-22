@@ -1,3 +1,6 @@
+Changes in version 1.25.2 (2018-03-22)
+  - Documentation fixes.
+
 Changes in version 1.25.1 (2017-12-13)
   - Export the pathwayURL function.
 
