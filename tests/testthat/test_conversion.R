@@ -149,3 +149,19 @@ test_that("batch conversion of a PathwayList produces the same results of an lap
 
   expect_identical_pathways(convBatch, convLapply)
 })
+
+test_that("parallel and serial conversion of a PathwayList produce the same results", {
+  sub <- pathways("hsapiens", "kegg")[1:10]
+  expect_equal(length(sub), 10)
+  
+  ncpus <- getOption("Ncpus")
+  on.exit(options(Ncpus = ncpus), add = TRUE)
+  
+  options(Ncpus = 1)
+  convSerial <- convertIdentifiers(sub, "SYMBOL")
+  
+  options(Ncpus = 2)
+  convParallel <- convertIdentifiers(sub, "SYMBOL")
+
+  expect_identical_pathways(convSerial, convParallel)
+})

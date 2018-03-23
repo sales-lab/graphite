@@ -49,44 +49,59 @@ setGeneric("convertIdentifiers",
 
 setMethod("convertIdentifiers", "PathwayList",
   function(x, to) {
+    species <- x@species
     ncpus <- getOption("Ncpus")
     parallel <- is.numeric(ncpus) && ncpus > 1 && length(x@entries) >= ncpus
-    batch <- lapply
-
+    
+    if (parallel && !requireNamespace("parallel", quietly = TRUE)) {
+      message("Identifier conversion is running in serial mode. To use ",
+              "multiple cores in parallel please install the \"parallel\" ",
+              "package.")
+      parallel <- FALSE
+    }
+    
     if (parallel) {
-      if (!requireNamespace("parallel", quietly = TRUE)) {
-        message("Identifier conversion is running in serial mode. To use ",
-                "multiple cores in parallel please install the \"parallel\" ",
-                "package.")
-      } else {
-        cl <- parallel::makeForkCluster(ncpus)
-        on.exit(parallel::stopCluster(cl), add = TRUE)
-        batch <- function(...) parallel::parLapplyLB(cl, ...)
-      }
+      cl <- parallel::makeForkCluster(ncpus)
+      on.exit(parallel::stopCluster(cl), add = TRUE)
+      
+      parallel::clusterExport(cl, "species", envir = environment())
+      parallel::clusterEvalQ(cl, dbs <- loadDbs(species))
+      conv <- function(elts) parallel::parLapplyLB(cl, elts, convertFromEnv, to)
+      
+    } else {
+      dbs <- loadDbs(species)
+      conv <- function(elts) lapply(elts, convertWithDbs, to, dbs)
     }
 
-    x@entries <- batch(x@entries, function(p) convertIdentifiers(p, to))
+    x@entries <- conv(x@entries)
     return(x)
   })
 
-setMethod("convertIdentifiers", "Pathway",
-  function(x, to) {
-    dbs <- loadDbs(x@species)
-    mapping <- selectMapping(to, dbs)
+setMethod("convertIdentifiers", "Pathway", function(x, to) {
+  dbs <- loadDbs(x@species)
+  convertWithDbs(x, to, dbs)
+})
 
-    x@protEdges <- convertEdges(x@protEdges, mapping)
-    x@protPropEdges <- convertEdges(x@protPropEdges, mapping)
-    x@metabolEdges <- convertEdges(x@metabolEdges, mapping)
-    x@metabolPropEdges <- convertEdges(x@metabolPropEdges, mapping)
-    x@mixedEdges <- convertEdges(x@mixedEdges, mapping)
+convertFromEnv <- function(x, to) {
+  convertWithDbs(x, to, dbs)
+}
 
-    if (nrow(x@protEdges) + nrow(x@protPropEdges) + nrow(x@metabolEdges) +
-        nrow(x@metabolPropEdges) + nrow(x@mixedEdges) == 0) {
-        warning("the conversion lost all edges of pathway \"", x@title, "\"")
-    }
+convertWithDbs <- function(x, to, dbs) {
+  mapping <- selectMapping(to, dbs)
 
-    return(x)
-  })
+  x@protEdges <- convertEdges(x@protEdges, mapping)
+  x@protPropEdges <- convertEdges(x@protPropEdges, mapping)
+  x@metabolEdges <- convertEdges(x@metabolEdges, mapping)
+  x@metabolPropEdges <- convertEdges(x@metabolPropEdges, mapping)
+  x@mixedEdges <- convertEdges(x@mixedEdges, mapping)
+
+  if (nrow(x@protEdges) + nrow(x@protPropEdges) + nrow(x@metabolEdges) +
+      nrow(x@metabolPropEdges) + nrow(x@mixedEdges) == 0) {
+    warning("the conversion lost all edges of pathway \"", x@title, "\"")
+  }
+
+  return(x)
+}
 
 loadDbs <- function(species) {
   proteinDb <- loadProteinDb(species)
