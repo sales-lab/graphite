@@ -19,12 +19,27 @@
 setClass("Pathways", contains="VIRTUAL")
 
 
+checkPathwayList <- function(object) {
+  errors <- character()
+  
+  if (length(object@entries) > 0) {
+    if (any(sapply(object@entries, function(p) p@species != object@species))) {
+      errors <- c(errors,
+                  paste("All pathways should belong to the species",
+                        object@species))
+    }
+  }
+
+  if (length(errors) == 0) TRUE else errors
+}
+
 setClass("PathwayList",
   representation(name="character",
                  species="character",
                  entries="list",
                  timestamp="Date"),
-  contains="Pathways")
+  contains="Pathways",
+  validity = checkPathwayList)
 
 setMethod("length", signature("PathwayList"),
   function(x) length(x@entries))
