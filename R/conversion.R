@@ -52,22 +52,22 @@ setMethod("convertIdentifiers", "PathwayList",
     species <- x@species
     ncpus <- getOption("Ncpus")
     parallel <- is.numeric(ncpus) && ncpus > 1 && length(x@entries) >= ncpus
-    
+
     if (parallel && !requireNamespace("parallel", quietly = TRUE)) {
       message("Identifier conversion is running in serial mode. To use ",
               "multiple cores in parallel please install the \"parallel\" ",
               "package.")
       parallel <- FALSE
     }
-    
+
     if (parallel) {
       cl <- parallel::makeForkCluster(ncpus)
       on.exit(parallel::stopCluster(cl), add = TRUE)
-      
+
       parallel::clusterExport(cl, "species", envir = environment())
-      parallel::clusterEvalQ(cl, dbs <- loadDbs(species))
+      parallel::clusterEvalQ(cl, dbs <- graphite:::loadDbs(species))
       conv <- function(elts) parallel::parLapplyLB(cl, elts, convertFromEnv, to)
-      
+
     } else {
       dbs <- loadDbs(species)
       conv <- function(elts) lapply(elts, convertWithDbs, to, dbs)
