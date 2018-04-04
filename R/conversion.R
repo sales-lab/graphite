@@ -51,7 +51,8 @@ setMethod("convertIdentifiers", "PathwayList",
   function(x, to) {
     species <- x@species
     ncpus <- getOption("Ncpus")
-    parallel <- is.numeric(ncpus) && ncpus > 1 && length(x@entries) >= ncpus
+    parallel <- is.numeric(ncpus) && ncpus > 1 &&
+                length(x@entries) >= ncpus
 
     if (parallel && !requireNamespace("parallel", quietly = TRUE)) {
       message("Identifier conversion is running in serial mode. To use ",
@@ -61,12 +62,15 @@ setMethod("convertIdentifiers", "PathwayList",
     }
 
     if (parallel) {
-      cl <- parallel::makeForkCluster(ncpus)
+      cl <- parallel::makePSOCKcluster(ncpus)
       on.exit(parallel::stopCluster(cl), add = TRUE)
 
       parallel::clusterExport(cl, "species", envir = environment())
-      parallel::clusterEvalQ(cl, dbs <- graphite:::loadDbs(species))
-      conv <- function(elts) parallel::parLapplyLB(cl, elts, convertFromEnv, to)
+      parallel::clusterEvalQ(cl, {
+        dbs <- graphite:::loadDbs(species)
+        convertCluster <- function(x, to) graphite:::convertWithDbs(x, to, dbs)
+      })
+      conv <- function(elts) parallel::parLapply(cl, elts, quote(convertCluster), to)
 
     } else {
       dbs <- loadDbs(species)
@@ -81,10 +85,6 @@ setMethod("convertIdentifiers", "Pathway", function(x, to) {
   dbs <- loadDbs(x@species)
   convertWithDbs(x, to, dbs)
 })
-
-convertFromEnv <- function(x, to) {
-  convertWithDbs(x, to, dbs)
-}
 
 convertWithDbs <- function(x, to, dbs) {
   mapping <- selectMapping(to, dbs)
@@ -199,7 +199,7 @@ convertColumn <- function(edges, column, typeColumn, mapping) {
     }
 
     runLen <- sapply(converted, length)
-    extended <- data.frame(lapply(edges[ixs,], function(x) rep.int(x, runLen)),
+    extended <- data.frame(lapply(edges[ixs,], rep.int, runLen),
                            stringsAsFactors=FALSE)
     extended[column] <- unlist(converted)
     extended[typeColumn] <- factor(mapping$to)

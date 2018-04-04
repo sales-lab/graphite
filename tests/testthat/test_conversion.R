@@ -27,11 +27,13 @@ collectTypes <- function(edges) {
         unique(as.character(edges$dest_type)))
 }
 
-expect_identical_pathways <- function(x, y) {
-  expect_equal(names(x), names(y))
+expect_identical_pathways <- function(left, right) {
+  left_names <- names(left)
+  expect_named(right, left_names, ignore.order = TRUE)
 
-  for (i in seq_along(x)) {
-    expect_identical(x[[i]], y[[i]])
+  for (i in seq_along(left_names)) {
+    name <- left_names[i]
+    expect_identical(left[[name]], right[[name]])
   }
 }
 
@@ -153,15 +155,15 @@ test_that("batch conversion of a PathwayList produces the same results of an lap
 test_that("parallel and serial conversion of a PathwayList produce the same results", {
   sub <- pathways("hsapiens", "kegg")[1:10]
   expect_equal(length(sub), 10)
-  
+
   ncpus <- getOption("Ncpus")
   on.exit(options(Ncpus = ncpus), add = TRUE)
-  
+
   options(Ncpus = 1)
   convSerial <- convertIdentifiers(sub, "SYMBOL")
-  
+
   options(Ncpus = 2)
   convParallel <- convertIdentifiers(sub, "SYMBOL")
 
-  expect_identical_pathways(convSerial, convParallel)
+  expect_identical(convSerial, convParallel)
 })
