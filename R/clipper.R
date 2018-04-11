@@ -18,10 +18,12 @@
 
 initClipper <- function() requirePkg("clipper")
 
-.clipper <- function(pathway, expr, classes, method, which, ...) {
+.clipper <- function(pathway, expr, classes, method, which, seed, ...) {
   ns <- rownames(expr)
   if (insufficientCommonNodes(pathway, ns, which))
     return(NULL)
+
+  if (!is.null(seed)) set.seed(seed)
 
   g <- buildGraphNEL(edges(pathway, which), FALSE, NULL)
   clipper::easyClip(expr, classes, g, method=method, ...)
@@ -29,9 +31,8 @@ initClipper <- function() requirePkg("clipper")
 
 .clipperList <- function(l, expr, classes, method, which, maxNodes = 150, seed = NULL, ...) {
   initClipper()
-  if (!is.null(seed)) set.seed(seed)
-  lapplyCapturingErrors(filterPathwaysByNodeNum(l, maxNodes),
-    function(p) .clipper(p, expr, classes, method, which, ...))
+  pathways <- filterPathwaysByNodeNum(l, maxNodes)
+  adaptiveLapply(pathways, .clipper, expr, classes, method, which, seed, ...)
 }
 
 
@@ -53,6 +54,5 @@ setMethod("runClipper", signature("list"),
 setMethod("runClipper", signature("Pathway"),
   function(x, expr, classes, method, which = "proteins", seed = NULL, ...) {
     initClipper()
-    if (!is.null(seed)) set.seed(seed)
-    .clipper(x, expr, classes, method, which, ...)
+    .clipper(x, expr, classes, method, which, seed, ...)
   })

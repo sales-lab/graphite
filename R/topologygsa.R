@@ -39,8 +39,8 @@ switchTest <- function(name) {
 .topologyGSAList <- function(l, test, exp1, exp2, alpha, maxNodes=150, ...) {
   initTopologyGSA()
   test <- switchTest(test)
-  lapplyCapturingErrors(filterPathwaysByNodeNum(l, maxNodes),
-    function(p) .topologyGSA(p, test, exp1, exp2, alpha, ...))
+  pathways <- filterPathwaysByNodeNum(l, maxNodes)
+  adaptiveLapply(pathways, .topologyGSA, test, exp1, exp2, alpha, ...)
 }
 
 

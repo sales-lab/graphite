@@ -16,35 +16,28 @@
 # License along with graphite. If not, see <http://www.gnu.org/licenses/>.
 
 suppressPackageStartupMessages({
-  library(clipper)
-  library(ALL)
-  library(a4Preproc)
+  library(topologyGSA)
 })
 
-context("Clipper analysis")
+context("topologyGSA analysis")
 
 
 # Utility functions
 
 load_data <- function() {
-  data(ALL)
-  pheno <- as(phenoData(ALL), "data.frame")
-  samples <- unlist(lapply(c("NEG", "BCR/ABL"), function(t) {
-    which(grepl("^B\\d*", pheno$BT) & (pheno$mol.biol == t))[1:10]
-  }))
-  classes <- c(rep(1,10), rep(2,10))
-
-  expr <- exprs(ALL)[,samples]
-  rownames(expr) <- paste("ENTREZID", featureData(addGeneInfo(ALL))$ENTREZID,
-                          sep = ":")
-
-  list(classes = classes,
-       expr = expr)
+  data(examples)
+  colnames(y1) <- paste("SYMBOL", colnames(y1), sep = ":")
+  colnames(y2) <- paste("SYMBOL", colnames(y2), sep = ":")
+  
+  list(y1 = y1,
+       y2 = y2)
 }
 
 load_pathways <- function() {
-  k <- as.list(pathways("hsapiens", "kegg"))
-  k[c("Bladder cancer", "Cytosolic DNA-sensing pathway")]
+  k <- pathways("hsapiens", "kegg")
+  convertIdentifiers(k[c("Glycolysis / Gluconeogenesis",
+                         "Fc epsilon RI signaling pathway")],
+                     "SYMBOL")
 }
 
 
@@ -53,13 +46,13 @@ load_pathways <- function() {
 dat <- load_data()
 paths <- load_pathways()
 
-test_that("pathway \"Cytosolic DNA-sensing pathway\" is altered in the ALL dataset", {
-  x <- runClipper(paths, dat$expr, dat$classes, "mean", pathThr = 0.1, seed = 42)
+test_that("pathway \"Fc epsilon RI signaling pathway\" is significantly altered", {
+  x <- runTopologyGSA(paths, "var", dat$y1, dat$y2, 0.05)
 
   expect_named(x, c("results", "warnings", "errors"))
   expect_length(x$errors, 0)
   expect_gte(length(x$results), 1)
-  expect_equal("Cytosolic DNA-sensing pathway" %in% names(x$results), TRUE)
+  expect_equal("Fc epsilon RI signaling pathway" %in% names(x$results), TRUE)
 })
 
 test_that("parallel and serial analyses of a PathwayList produce the same results", {
@@ -68,8 +61,7 @@ test_that("parallel and serial analyses of a PathwayList produce the same result
   ncpus <- getOption("Ncpus")
   on.exit(options(Ncpus = ncpus), add = TRUE)
 
-  run <- function() runClipper(paths, dat$expr, dat$classes, "mean",
-                               pathThr = 0.1, seed = 42)
+  run <- function() runTopologyGSA(paths, "var", dat$y1, dat$y2, 0.05)
 
   options(Ncpus = 1)
   serial <- run()

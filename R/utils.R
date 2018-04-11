@@ -16,67 +16,7 @@
 # License along with graphite. If not, see <http://www.gnu.org/licenses/>.
 
 
-deprecatedFn <- function(name, repl) {
-  warning("Function \"", name, "\" is deprecated and will be removed from ",
-          "the next release.\n",
-          "Use the \"", repl, "\" function instead.",
-          call.=FALSE)
-}
-
-
-filterPathwaysByNodeNum <- function(pathways, maxNodes) {
-  if (!is.null(maxNodes))
-    pathways <- Filter(function(p) length(nodes(p)) <= maxNodes, pathways)
-
-  return(pathways)
-}
-
-
-nameLapply <- function(l, f) {
-  ns <- names(l)
-  for (i in seq_along(ns)) {
-    l[[i]] <- f(ns[i], l[[i]])
-  }
-  return(l)
-}
-
-lapplyCapturingErrors <- function(l, f) {
-  log <- lapply(l, function(x) {
-    tryCatch(list("ok", f(x)),
-             error = function(e) list("err", e))
-  })
-
-  list(results = Filter(Negate(is.null), filterByTag("ok", log)),
-       errors  = sapply(filterByTag("err", log), gettext))
-}
-
-filterByTag <- function(tag, l) {
-  if (length(l) == 0)
-    return(l)
-
-  isTagged <- sapply(l, function(x) x[[1]] == tag)
-  lapply(l[isTagged], function(x) x[[2]])
-}
-
-
-checkPathwayList <- function(l) {
-  if (!all(sapply(l, function(e) is(e, "Pathway"))))
-    stop("can only process a list of Pathways")
-}
-
-
-insufficientCommonNodes <- function(pathway, exprNodes, which) {
-  commonNames <- intersect(nodes(pathway, which), exprNodes)
-
-  if (length(commonNames) < 2) {
-    warning("not enough genes in common between pathway \"",
-            pathway@title,
-            "\" and expression data (mismatched identifiers?)")
-    return(TRUE)
-  } else
-    return(FALSE)
-}
-
+# Packages
 
 requirePkg <- function(name) {
   if (!requireNamespace(name, quietly=TRUE))
@@ -92,9 +32,110 @@ checkPkgVersion <- function(name, min_version) {
 }
 
 
+# Checks & filters
+
+filterPathwaysByNodeNum <- function(pathways, maxNodes) {
+  if (!is.null(maxNodes))
+    pathways <- Filter(function(p) length(nodes(p)) <= maxNodes, pathways)
+
+  return(pathways)
+}
+
+insufficientCommonNodes <- function(pathway, exprNodes, which) {
+  commonNames <- intersect(nodes(pathway, which), exprNodes)
+
+  if (length(commonNames) < 2) {
+    warning("not enough genes in common between pathway \"",
+            pathway@title,
+            "\" and expression data (mismatched identifiers?)")
+    return(TRUE)
+  } else
+    return(FALSE)
+}
+
+checkPathwayList <- function(l) {
+  if (!all(sapply(l, function(e) is(e, "Pathway"))))
+    stop("can only process a list of Pathways")
+}
+
+
+# Parallelism
+
+parallelCluster <- function(tasks) {
+  ncpus <- getOption("Ncpus")
+  parallel <- is.numeric(ncpus) && ncpus > 1 &&
+    length(tasks) >= ncpus
+
+  if (parallel) {
+    if (requireNamespace("parallel", quietly = TRUE)) {
+      message("Spawning ", ncpus, " workers.")
+      # return(parallel::makeForkCluster(ncpus))
+      return(parallel::makePSOCKcluster(ncpus))
+    } else {
+      message("This task could run in parallel. To use multiple cores in ",
+              "parallel, please install the \"parallel\" package.")
+    }
+  }
+
+  NULL
+}
+
+
+adaptiveLapply <- function(tasks, f, ...) {
+  cl <- parallelCluster(tasks)
+  if (is.null(cl)) {
+    log <- lapply(tasks, wrapFun(f), ...)
+  } else {
+    on.exit(parallel::stopCluster(cl), add = TRUE)
+    log <- parallel::parLapply(cl, tasks, wrapFun(f), ...)
+  }
+
+  succeeded <- sapply(log, function(x) x$success)
+  list(results  = viewNonNull(log[succeeded], function(x) x$value),
+       warnings = viewNonNull(log[succeeded], function(x) x$warnings),
+       errors   = sapply(log[!succeeded], function(x) gettext(x$error)))
+}
+
+wrapFun <- function(f) {
+  function(...) {
+    tryCatch({
+      warns <- NULL
+      value <- withCallingHandlers(
+        f(...),
+        warning = function(w) {
+          warns <<- c(warns, w)
+          invokeRestart("muffleWarning")
+        })
+
+      list(success = TRUE,
+           value = value,
+           warnings = warns)
+    },
+    error = function(e) {
+      list(success = FALSE,
+           error = e)
+    })
+  }
+}
+
+viewNonNull <- function(items, f) {
+  Filter(Negate(is.null), lapply(items, f))
+}
+
+
+# Others
+
 literalDataFrame <- function(cnames, data) {
   m <- matrix(data, ncol = length(cnames), byrow = TRUE)
   df <- as.data.frame(m, stringsAsFactors = FALSE)
   colnames(df) <- cnames
   df
+}
+
+nameLapply <- function(l, f) {
+  ns <- names(l)
+  for (i in seq_along(ns)) {
+    l[[i]] <- f(ns[i], l[[i]])
+  }
+  return(l)
 }

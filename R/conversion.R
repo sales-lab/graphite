@@ -50,19 +50,9 @@ setGeneric("convertIdentifiers",
 setMethod("convertIdentifiers", "PathwayList",
   function(x, to) {
     species <- x@species
-    ncpus <- getOption("Ncpus")
-    parallel <- is.numeric(ncpus) && ncpus > 1 &&
-                length(x@entries) >= ncpus
 
-    if (parallel && !requireNamespace("parallel", quietly = TRUE)) {
-      message("Identifier conversion is running in serial mode. To use ",
-              "multiple cores in parallel please install the \"parallel\" ",
-              "package.")
-      parallel <- FALSE
-    }
-
-    if (parallel) {
-      cl <- parallel::makePSOCKcluster(ncpus)
+    cl <- parallelCluster(x@entries)
+    if (!is.null(cl)) {
       on.exit(parallel::stopCluster(cl), add = TRUE)
 
       parallel::clusterExport(cl, "species", envir = environment())
