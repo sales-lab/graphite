@@ -60,6 +60,8 @@ cytoscapePlot3 <- function(pathway, ...) {
                                "No Arrow")
 
   RCy3::redraw(w)
+
+  invisible(list(graph = g, window = w))
 }
 
 nodeAttributes <- function(g) {
