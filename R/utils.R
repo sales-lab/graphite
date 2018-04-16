@@ -61,16 +61,20 @@ checkPathwayList <- function(l) {
 
 # Parallelism
 
-parallelCluster <- function(tasks) {
+parallelCluster <- function(tasks, type = c("auto", "psock")) {
+  type <- match.arg(type)
+
   ncpus <- getOption("Ncpus")
   parallel <- is.numeric(ncpus) && ncpus > 1 &&
     length(tasks) >= ncpus
 
   if (parallel) {
     if (requireNamespace("parallel", quietly = TRUE)) {
-      message("Spawning ", ncpus, " workers.")
-      # return(parallel::makeForkCluster(ncpus))
-      return(parallel::makePSOCKcluster(ncpus))
+      if (type == "psock" || .Platform$OS.type != "unix") {
+        return(parallel::makePSOCKcluster(ncpus))
+      } else {
+        return(parallel::makeForkCluster(ncpus))
+      }
     } else {
       message("This task could run in parallel. To use multiple cores in ",
               "parallel, please install the \"parallel\" package.")

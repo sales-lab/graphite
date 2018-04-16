@@ -51,7 +51,7 @@ setMethod("convertIdentifiers", "PathwayList",
   function(x, to) {
     species <- x@species
 
-    cl <- parallelCluster(x@entries)
+    cl <- parallelCluster(x@entries, "psock")
     if (!is.null(cl)) {
       on.exit(parallel::stopCluster(cl), add = TRUE)
 
