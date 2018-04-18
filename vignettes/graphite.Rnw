@@ -8,15 +8,16 @@
 \documentclass{article}
 \usepackage[utf8]{inputenc}
 
-<<style, eval=TRUE, echo=FALSE, results=tex>>=
+<<style-Sweave, eval=TRUE, echo=FALSE, results=tex>>=
 BiocStyle::latex()
 @
 
-\title{GRAPH Interaction from pathway Topological Environment}
+\title{graphite}
 \author{
-  Gabriele Sales (gabriele.sales@unipd.it) \\
-  Enrica Calura (enrica.calura@gmail.com) \\
-  Chiara Romualdi (chiara.romualdi@unipd.it)
+  Gabriele Sales\thanks{\email{gabriele.sales@unipd.it}},
+  Enrica Calura\thanks{\email{enrica.calura@unipd.it}} and
+  Chiara Romualdi\thanks{\email{chiara.romualdi@unipd.it}} \\
+  Department of Biology, University of Padua
 }
 
 \begin{document}
@@ -33,17 +34,42 @@ library(graphite)
 
 \section{Introduction}
 
-\Biocpkg{graphite} (GRAPH Interaction from pathway Topological Environment) is an R package built to i) provide networks derived from eight pathway public databases, ii) allowing the conversion of nodes identifiers; and finally, iv) to easily run topological pathway analyses directly on \Biocpkg{graphite} networks.
+\Biocpkg{graphite} (GRAPH Interaction from pathway Topological Environment) was designed to:
+\begin{itemize}
+\item provide networks derived from eight public pathway databases,
+\item automate the conversion of node identifiers (e.g. from Entrez IDs to gene symbols),
+\item facilitate the execution of topological pathway analyses on the provided networks.
+\end{itemize}
 
-The pathway databases available in \Biocpkg{graphite} are:
+The pathway databases available in this version are:
+\begin{itemize}
+\item KEGG \cite{KEGG}
+\item Biocarta
+\item Reactome \cite{Reactome}
+\item NCI/Nature Pathway Interaction Database \cite{NCI}
+\item HumanCyc \cite{humancyc}
+\item Panther \cite{panther}
+\item smpdb \cite{smpdb}
+\item PharmGKB \cite{pharmgkb}
+\end{itemize}
 
-KEGG \cite{KEGG}; Biocarta (www.biocarta.com); Reactome \cite{Reactome}; NCI/Nature Pathway Interaction Database \cite{NCI}; HumanCyc \cite{humancyc}; Panther \cite{panther}; smpdb (www.smpdb.ca) \cite{smpdb}; PharmGKB
-(www.pharmgkb.org) \cite{pharmgkb}.
-All the pathways provided are annotated in human and, since the version 1.14, pathways from other 13 species are available.
+All provided pathways are annotated in human and, since version 1.14, other 13 species are available.
 
-The topological pathway analyses directly available in the package are: \Biocpkg{SPIA} \cite{Tarca2009,Adi2009,Draghici2007}, \Biocpkg{clipper} \cite{Martini2013} and \Biocpkg{topologyGSA} \cite{Massa2010}.
+\Biocpkg{graphite} pathways are collected and pre-processed at every BioConductor release (roughly every 6 months). This guarantees the synchronization of the provided data with all other BioConductor annotation packages.
 
-Since version 1.24, \Biocpkg{graphite} pathways are composed by: i) only genes, where metabolites nodes have been removed and edges have been propagated through the metabolites; ii) only metabolites, where protein nodes have been removed and edges have been propagated through the proteins; iii) both genes and metabolites to support and foster metabolomic and transcriptomic data integration analyses.
+The topological pathway analyses directly supported are:
+\begin{itemize}
+\item \Biocpkg{SPIA} \cite{Tarca2009,Adi2009,Draghici2007}
+\item \Biocpkg{topologyGSA} \cite{Massa2010}
+\item \Biocpkg{clipper} \cite{Martini2013}
+\end{itemize}
+
+Since version 1.24, every \Biocpkg{graphite} pathway can be accessed through three separate views:
+\begin{description}
+\item [gene-only network] where metabolite nodes have been removed and edges have been propagated through them;
+\item [metabolite-only network] where protein nodes have been removed and edges have been propagated through them;
+\item [mixed network] containing both proteins and metabolites, useful for metabolomic and transcriptomic data integration.
+\end{description}
 
 \section{Pathway topology conversion to gene network}
 In order to gather curated information about pathways, we have collected data from different public databases that have emerged as reference points for the systems biology community.
@@ -116,7 +142,7 @@ head(nodes(p), which = "mixed")
 head(edges(p), which = "mixed")
 @
 
-These same steps can be used to access the KEGG, Biocarta, Panther, HumanCyc, NCI, SMPDB and PharmGKB databases for Homo sapiens pathways (through the \Robject{kegg}, \Robject{biocarta}, \Robject{panther}, \Robject{humancyc} and \Robject{nci}  \Robject{smpdb}, \Robject{pharmgkb} lists, respectively), but not all the databases are present for all the species.
+These same steps can be used to access the KEGG, Biocarta, Panther, HumanCyc, NCI, SMPDB and PharmGKB databases for Homo sapiens pathways (through the \Robject{kegg}, \Robject{biocarta}, \Robject{panther}, \Robject{humancyc} and \Robject{nci} \Robject{smpdb}, \Robject{pharmgkb} lists, respectively), but not all the databases are present for all the species.
 To know the pathway data available the user can use the \Rfunction{pathwayDatabases}.
 
 <<base6>>=
@@ -199,7 +225,8 @@ library(SPIA)
 data(colorectalcancer)
 
 library(hgu133plus2.db)
-top$ENTREZ <- mapIds(hgu133plus2.db, top$ID, "ENTREZID", "PROBEID", multiVals = "first")
+top$ENTREZ <- mapIds(hgu133plus2.db, 
+                     top$ID, "ENTREZID", "PROBEID", multiVals = "first")
 top <- top[!is.na(top$ENTREZ) & !duplicated(top$ENTREZ), ]
 top$ENTREZ <- paste("ENTREZID", top$ENTREZ, sep = ":")
 tg1 <- top[top$adj.P.Val < 0.05, ]
@@ -260,7 +287,10 @@ rownames(expr) <- paste("ENTREZID",
                         sep = ":")
 
 k <- as.list(pathways("hsapiens", "kegg"))
-selected <- k[c("Chronic myeloid leukemia", "Bladder cancer", "Cytosolic DNA-sensing pathway")]
+selected <- k[c("Chronic myeloid leukemia", 
+                "Bladder cancer", 
+                "Cytosolic DNA-sensing pathway")]
+
 clipped <- runClipper(selected, expr, classes, "mean", pathThr = 0.1)
 resClip <- do.call(rbind, clipped$results)
 resClip[, c("startIdx", "endIdx", "maxIdx", "lenght",
@@ -273,7 +303,8 @@ Since version 1.24, using the option {\it which} we can access the pathway with 
 
 For more details see the \Biocpkg{clipper} package \cite{Martini2013}.
 
-section{Build pathway}
+\section{Build pathway}
+
 In \Biocpkg{graphite}, it is also possible build a pathway object using \Rfunction{buildPathway}. This function creates a new object of type \Rclass{Pathway} given a data frame describing its edges. The edges should be divided in three dataframes containing edges between proteins, edges between proteins and metabolites, and edges between metabolites, and the should be included in the new pathway using {\it proteinEdges}, {\it mixedEdges} and {\it metaboliteEdges} respectively. This practice will guarantee the compatibility with \Rfunction{convertIdentifiers}, this only works with the types of identifiers that are provided in the Annotation package (for example using the string,‘"ENTREZID"’).
 
 <<bldp>>=
@@ -299,6 +330,40 @@ pathway <- buildPathway("#1", "example", "hsapiens", "database",
                         mixedEdges = edgemix,
                         metaboliteEdges = edgemet)
 @
+
+\section{Parallelism}
+
+Some of \Biocpkg{graphite} operations can be made significantly faster by exploiting the parallelism offered by recent hardware. Here is a list of the functions providing this option:
+\begin{itemize}
+\item \Rfunction{convertIdentifiers}
+\item \Rfunction{runClipper}
+\item \Rfunction{runTopologyGSA}
+\end{itemize}
+
+To exploit parallel processing you are going to need two ingredients. First, you have to specify the maximum number of cores that the package can use. For instance, if you have 6 cores on your computer you can set:
+
+<<para1, eval = FALSE>>=
+options(Ncpus = 6)
+@
+
+Your code, then, should try to call \Biocpkg{graphite} functions passing entire lists of pathways; you should not loop manually.
+
+<<para1, eval = FALSE>>=
+original <- pathways("hsapiens", "reactome")
+
+# Do (will exploit parallelism)
+converted <- convertIdentifiers(original, "SYMBOL")
+
+# Don't (no parallelism here)
+converted <- lapply(original, convertIdentifiers, "SYMBOL")
+@
+
+\warning{Parallelism is not guaranteed to reduce run times.} Splitting a given operation over multiple cores requires some coordination, and that has its own costs. In certain situations (small number of pathways / small number of cores) the overhead may actually make run times worse. Our suggestion is thus to:
+\begin{itemize}
+\item always set \Rcode{Ncpus} to a value smaller or equal to the actual number of hardware cores (see \Rfunction{parallel::detectCores} for an indication);
+\item in any case, start from a small number like 2 or 4, and then work your way up measuring the actual speedups on your own hardware.
+\end{itemize}
+
 
 \begin{thebibliography}{9}
 
