@@ -15,6 +15,10 @@
   matrices of the graphs derived from pathway topologies. Then, it "clips"
   the whole pathway identifying the signal paths having the greatest
   association with a specific phenotype.
+
+  If the option \code{Ncpus} is set to a value larger than 1 and the package
+  \code{parallel} is installed, the conversion procedure will automatically
+  use multiple cores.
 }
 \usage{
 runClipper(x, expr, classes, method, which = "proteins", seed = NULL, ...)
