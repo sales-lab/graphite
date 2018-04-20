@@ -3,6 +3,9 @@ title: "Pathway Analysis of Metabolic Activities"
 author: "Gabriele Sales"
 date: "`r Sys.Date()`"
 output:
+  rmarkdown::pdf_document:
+    toc: true
+    toc_depth: 3
   rmarkdown::html_vignette:
     toc: true
 vignette: >
@@ -12,21 +15,42 @@ vignette: >
 
 ---
 
-In this tutorial we are going to analyze the dataset of metabolic activities published in [Terunuma et al (2017)](https://www.ncbi.nlm.nih.gov/pubmed/24316975). In this paper the Authors characterized the transcriptomic and metabolomic profile of several types of human breast tumors to uncovered metabolite signatures using an untargeted discovery approach. They found that the oncometabolite 2-hydroxyglutarate (2HG) accumulates at high levels in a subset of tumors and discovered an association between increased 2HG levels and MYC pathway activation in breast cancer. As an example of metabolites topological analyses here we are going to use only the dataset of metabolite abundances as reported in the [supplementary files](https://www.jci.org/articles/view/71180#sd) selecting only tumour samples and comparing ER+ and ER- breast cancers. We will use pathway information from the KEGG and Reactome databases to identify a set of metabolites whose activity changes significantly between the two sample classes. This result will hopefully hint at some specific biological activities that are pathologically altered in tumoral samples.
+```{r, echo=FALSE, results="hide", message=FALSE, warning=FALSE, error=FALSE}
+suppressPackageStartupMessages(
+  suppressWarnings({
+  library(impute)
+  library(graphite)
+  library(clipper)
+  library(org.Hs.eg.db)
+}))
+```
+
+## Introduction
+
+In this tutorial we are going to analyze the dataset of metabolic activities published in [Terunuma et al (2017)](https://www.ncbi.nlm.nih.gov/pubmed/24316975). In this paper the Authors characterized the transcriptomic and metabolomic profile of several types of human breast tumors to uncovered metabolite signatures using an untargeted discovery approach. They found that the oncometabolite 2-hydroxyglutarate (2HG) accumulates at high levels in a subset of tumors and discovered an association between increased 2HG levels and MYC pathway activation in breast cancer. As an example of mixed metabolites and genes topological analyses here we are going to use both the dataset of metabolite abundances and gene expression as reported in the [supplementary files](https://www.jci.org/articles/view/71180#sd) selecting only tumour samples and comparing ER+ and ER- breast cancers. We will use pathway information from the KEGG and SMPDB databases to identify a set of features whose activity changes significantly between the two sample classes. This result will hopefully hint at some specific biological activities that are pathologically altered in tumoral samples.
 
 ## Data Preparation
 
-We start by loading the experimental data into R. The measurements are stored in a simple text file, in tabular form. Thanks to the utility functions provided by R, we can combine the download and the actual reading of the table in a single operation. We also specify the details of the file format: the first row of input represents the header of the table; the tabulation character `\t` separates values; we don't want R to change strings into factors. **TODO: change the URL**
+We start by loading the experimental data into R. The measurements are stored in two simple text files, one for the genes and one for the metabolites. Thanks to the utility functions provided by R, we can combine the download and the actual reading of a table in a single operation. We also specify the details of the file format: the first row of input represents the header of the table; the tabulation character `\t` separates values; we don't want R to change strings into factors.
 
-```{r metabolite_data, cache=TRUE}
-addr <- "http://romualdi.bio.unipd.it/wp-uploads/2017/10/metabolite_matrix_final.txt"
-expr <- read.table(url(addr), header = TRUE, sep = "\t", stringsAsFactors = FALSE)
+```{r gene_data, cache=TRUE}
+gene_url <-
+  url("https://romualdi.bio.unipd.it/wp-uploads/2018/04/Terunuma_gene_expr.txt")
+gexpr <- read.table(gene_url, header = TRUE, sep = "\t", row.names = 1,
+                    stringsAsFactors = FALSE)
 ```
 
-The loaded table contains `r nrow(expr)` rows and `r ncol(expr)` columns, but not all of them actually correspond to measurements. We ask R to list the names of the columns:
+```{r metabolite_data, cache=TRUE}
+metab_url <-
+  url("https://romualdi.bio.unipd.it/wp-uploads/2018/04/Terunuma_metabolite_expr.txt")
+mexpr <- read.table(metab_url, header = TRUE, sep = "\t", row.names = NULL,
+                    stringsAsFactors = FALSE)
+```
+
+The loaded table for the metabolites contains `r nrow(mexpr)` rows and `r ncol(mexpr)` columns, but not all of them actually correspond to measurements. We ask R to list the names of the columns:
 
 ```{r}
-colnames(expr)
+colnames(mexpr)
 ```
 
 As you can see the first four columns actually contain metabolite identifiers. We store their indices in a variable for future reference.
@@ -40,23 +64,26 @@ idcols <- 1:4
 We display the first few rows of the table to get a feeling for its content. For the moment, we concentrate on the metabolite measurements.
 
 ```{r}
-head(expr[,5:10])
+head(mexpr[,5:10])
 ```
 
 It looks like there is a significant number of missing values. Let's plot a distribution of the fraction of NAs for each row.
 
 ```{r, fig.width=6, fig.height=4}
-nas_by_row <- rowSums(is.na(data.matrix(expr[,-idcols]))) / (ncol(expr) - length(idcols))
-hist(nas_by_row, xlab = "Fraction of NA values", ylab = "Number of rows", main = NULL)
+nas_by_row <-
+  rowSums(is.na(data.matrix(mexpr[,-idcols]))) /
+  (ncol(mexpr) - length(idcols))
+hist(nas_by_row, xlab = "Fraction of NA values", ylab = "Number of rows",
+     main = NULL)
 ```
 
 We cannot make good use of rows with too many missing values. We decide to drop them from our dataset. Specifically, we are going to remove anything with more than 50% of NAs.
 
 ```{r}
-dexpr <- expr[nas_by_row < 0.5,]
+dexpr <- mexpr[nas_by_row < 0.5,]
 ```
 
-This operation leaves us with `r nrow(dexpr)` of the original `r nrow(expr)` rows.
+This operation leaves us with `r nrow(dexpr)` of the original `r nrow(dexpr)` rows.
 
 We are not yet satisfied, though. The downstream analysis won't be able to cope with *any* NA. What would happen if we were to apply a more stringent procedure, removing any NA?
 
@@ -122,21 +149,21 @@ There is no reason at this point to keep the identifiers as a column *inside* th
 ```{r}
 mexpr <- data.matrix(cexpr[,-1])
 rownames(mexpr) <- paste("CAS", cexpr$CAS, sep = ":")
+colnames(mexpr) <- colnames(gexpr)
 head(mexpr[,1:6])
+```
+
+Finally, we convert the metabolite levels by taking the logarithm and we merge the two matrices (one for the genes and one for the metabolites) together.
+
+```{r}
+fexpr <- rbind(data.matrix(gexpr), log(mexpr))
 ```
 
 ## Pathway Analysis
 
-To make sense of the changes in metabolic activity recorded in the data we have just loaded, we are going to use pathway information from KEGG (via the [graphite](http://www.bioconductor.org/packages/release/bioc/html/graphite.html) package) and a statistical analysis capable of exploiting the topology of such pathways (here we'll rely on [clipper](http://www.bioconductor.org/packages/release/bioc/html/clipper.html)).
+To make sense of the changes in metabolic activity recorded in the data we have just loaded, we are going to use pathway information from KEGG (via the [graphite](http://www.bioconductor.org/packages/release/bioc/html/graphite.html) package) and a statistical analysis capable of exploiting the topology of such pathways (here we'll rely on [clipper](http://www.bioconductor.org/packages/release/bioc/html/clipper.html)). `clipper` performs a test on means and covariances between two conditions and it is able to deal with variables of heterogeneous nature.
 
 We import the required packages:
-
-```{r, echo=FALSE, results="hide", warning=FALSE}
-suppressPackageStartupMessages({
-  library(graphite)
-  library(clipper)
-})
-```
 
 ```{r}
 library(graphite)
@@ -166,46 +193,57 @@ kpaths[[1]]
 This summary doesn't tell us which identifiers are used for the nodes in the pathway. We can get that from the list of edges.
 
 ```{r}
-head(edges(kpaths[[1]], "metabolites"))
+head(edges(kpaths[[1]], "mixed"))
 ```
 
 As we might expect, KEGG pathways are using KEGG compounds IDs. Since we're relying on CAS in our data, we should convert them. `convertIdentifiers` to the rescue!
 
-```{r, kegg_to_cas, cache=TRUE}
-rpaths <- convertIdentifiers(kpaths, "CAS")
+```{r, kegg_conversion, cache=TRUE, message=FALSE}
+rpaths <- convertIdentifiers(convertIdentifiers(kpaths, "ENSEMBL"), "CAS")
 ```
 
 The edges of the first pathway have been converted into:
 
 ```{r}
-head(edges(rpaths[[1]], "metabolites"))
+head(edges(rpaths[[1]], "mixed"))
 ```
 
-To make the rest of the analysis more robust, we are going to filter pathways requiring they have at least 10 edges whose metabolites appear in our data.
+To make the rest of the analysis more robust, we are going to filter pathways requiring that 1) metabolites represent at least 30% of the nodes and 2) at least 10 edges connect genes or metabolites for which we have experimental measurements.
 
 ```{r}
 filter_pathways <- function(pathways, expr, min_edge_num) {
-  node_names <- sub("^CAS:", "", rownames(expr))
+  node_names <- rownames(expr)
 
   pred <- function(p) {
-    es <- edges(p, "metabolites")
-    mask <- es$src %in% node_names & es$dest %in% node_names
-    sum(mask) > min_edge_num
+    ns <- nodes(p, "mixed")
+    if (length(ns) == 0) {
+      return(FALSE)
+    }
+
+    frac <- length(grep("^CAS:", ns)) / length(ns)
+    if (frac < 0.3) {
+      return(FALSE)
+    }
+
+    es <- edges(p, "mixed")
+    mask <- (paste(es$src_type, es$src, sep = ":") %in% node_names) &
+            (paste(es$dest_type, es$dest, sep = ":") %in% node_names)
+    sum(mask) >= min_edge_num
   }
 
   Filter(pred, pathways)
 }
 
-fpaths <- filter_pathways(rpaths, mexpr, 10)
+fpaths <- filter_pathways(rpaths, fexpr, 10)
 ```
 
-Now about sample classes. We are going to split our dataset into two: `POS.TUMOR` samples in the first group and `NEG.TUMOUR` samples in the other. `clipper` wants from us a vector with as many entries as there are samples. An entry should be `1` if the corresponding samples belongs to the first class, or `2` in the other case.
+Now about sample classes. We are going to split our dataset into two: `POS TUMOR` samples in the first group and `NEG TUMOUR` samples in the other. `clipper` wants from us a vector with as many entries as there are samples. An entry should be `1` if the corresponding samples belongs to the first class, or `2` in the other case.
 
 ```{r}
-pos_indices <- grep("^POS", colnames(mexpr))
-neg_indices <- grep("^NEG", colnames(mexpr))
+pos_indices <- grep("^POS", colnames(fexpr))
+neg_indices <- grep("^NEG", colnames(fexpr))
 
-classes <- numeric(length = ncol(mexpr))
+classes <- numeric(length = ncol(fexpr))
 classes[neg_indices] <- 1
 classes[pos_indices] <- 2
 classes
@@ -213,25 +251,41 @@ classes
 
 We use the helper function `runClipper` to start our analysis. Note that we explicitly require metabolites from the pathways.
 
-```{r clipper_over_kegg}
-out <- runClipper(fpaths, mexpr, classes, "mean", "metabolites", maxNodes = 150, seed = 42)
+```{r clipper_over_kegg, cache=TRUE}
+out <- runClipper(fpaths, fexpr, classes, "mean", "mixed",
+                  maxNodes = 150, seed = 42)
 ```
 
 We check that there are no errors and the we extract the list of pathways which appears to be significantly altered between the two conditions according to `clipper`.
 
+```{r, echo=FALSE}
+stopifnot(length(out$results) == 10)
+```
+
 ```{r}
-stopifnot(length(out$errors) == 0)
 names(out$results)
 ```
 
-```{r, fig.width=8, fig.height=6, out.width="800px", out.height="600px", dpi=300}
+We use an helper function to visualize the results.
+
+```{r}
+library(org.Hs.eg.db)
+
 plot_altered_path <- function(result, pathways, node_scale = 2) {
   title <- names(result)
   pathway <- pathways[[title]]
 
-  graph <- pathwayGraph(pathway, which = "metabolites")
+  graph <- pathwayGraph(pathway, which = "mixed")
 
-  labels <- sub("^CAS:", "", nodes(graph))
+  labels <- sapply(nodes(graph), function(n) {
+    n2 <- sub("^CAS:", "", n)
+    if (n != n2) {
+      n2
+    } else {
+      mapIds(org.Hs.eg.db, sub("^ENSEMBL:", "", n), "SYMBOL", "ENSEMBL",
+             multiVas = "first")
+    }
+  })
   names(labels) <- nodes(graph)
 
   altered <- unlist(strsplit(result[[1]][1, "pathGenes"], "[,;]"))
@@ -256,7 +310,8 @@ plot_altered_path <- function(result, pathways, node_scale = 2) {
     })
   }
 
-  edge_colors <- ifelse(between_altered(edgeNames(graph), altered), "red", "black")
+  edge_colors <- ifelse(between_altered(edgeNames(graph), altered),
+                        "red", "black")
 
   plot(graph,
        attrs = list(edge = list(arrowsize = 0.5)),
@@ -265,25 +320,50 @@ plot_altered_path <- function(result, pathways, node_scale = 2) {
        edgeAttrs = list(color = edge_colors),
        recipEdges = "combined", main = title)
 }
-
-plot_altered_path(out$results[1], fpaths)
 ```
 
-As expected, within the significant path (highlighted in red) we found N-Acetyl-L-aspartic acid (NAA) (CAS:997-55-7) and L-Glutamic acid (CAS:56-85-9) identified by the Authors as two differential metabolites between ER+ and ER- patients. Previous studies demonstrate that a deleterious aspartoacylase (ASPA) gene mutations inhibit the hydrolysis of NAA  suggesting a possible cause for increased tumor-associated NAA. The Authors found NAA significantly elevated in ER- tumors and a reduced expression of aspartoacylase (ASPA) gene in ER- tumours.
-
-### Reactome Pathways
-
-In this section we repeat the previous analysis, but we use Reactome as a source of pathway information.
-
-```{r clipper_over_reactome, cache=TRUE}
-fpaths <- filter_pathways(convertIdentifiers(pathways("hsapiens", "reactome"), "CAS"),
-                          mexpr, 10)
-out <- runClipper(fpaths, mexpr, classes, "mean", "metabolites", maxNodes = 150, seed = 42)
+```{r message=FALSE}
+selection <- c(
+  "Alanine, aspartate and glutamate metabolism",
+  "Arginine biosynthesis",
+  "D-Glutamine and D-glutamate metabolism"
+)
+for (idx in seq_along(out$results)) {
+  res <- out$results[idx]
+  if (names(res) %in% selection) {
+    plot_altered_path(res, fpaths)
+  }
+}
 ```
 
-```{r, fig.width=8, fig.height=6, out.width="800px", out.height="600px", dpi=300}
-stopifnot(length(out$errors) == 0)
-plot_altered_path(out$results[1], fpaths, 12)
+graphite analyses highlight "Alanine, aspartate and glutamate metabolism" and "Arginine biosynthesis". These pathways enclose most of the genes and metabolites discussed in Terunuma et al. that follow the abundance pattern of 2HG such as N-acetyl amino acids, especially the mitochondrial N-acetyl-aspartate (NAA), the glutaminase (GLS1) protein, and the aspartoacylase (ASPA), which is generally reduced in breast tumors but most significantly within the ER-negative tumor group which suggests a possible cause for increased tumor-associated NAA.
+Another graphite pathway worthy of note is "D-Glutamine and D-glutamate metabolism" reported also in Terunuma et al. because it contains L-Glutamine (CAS:56-85-9) and L-Glutamic Acid (CAS:56-86-0), two of the most altered metabolites between ER+ and ER- breast tumours.
+
+
+### SMPDB Pathways
+
+```{r}
+spaths <- pathways("hsapiens", "smpdb")
 ```
 
-Here we found a general pathway (nucleotide metabolism) within which the best significant path is composed by inosine, guanine, guanosine, adenosine and xanthine. It is worth to note that  [Terunuma et al (2017)](https://www.ncbi.nlm.nih.gov/pubmed/24316975) found guanine one of the highest significant metabolite between ER+ and ER- tumours.
+```{r smpdb_conversion, cache=TRUE, message=FALSE, warning=FALSE}
+fpaths <- filter_pathways(
+  convertIdentifiers(convertIdentifiers(spaths, "ENSEMBL"), "CAS"),
+  fexpr,
+  10)
+```
+
+```{r clipper_over_smpdb, cache=TRUE}
+out <- runClipper(fpaths, fexpr, classes, "mean", "mixed",
+                  maxNodes = 150, seed = 42)
+```
+
+```{r, echo=FALSE}
+stopifnot(length(out$results) == 190)
+```
+
+```{r}
+names(out$results)
+```
+
+Using the SMPDB database we obtained 190 significant pathways among which we found "The oncogenic action of 2-hydroxyglutarate" that is the pathway describing the role of 2HG in tumour environment.

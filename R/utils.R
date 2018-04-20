@@ -86,6 +86,10 @@ parallelCluster <- function(tasks, type = c("auto", "psock")) {
 
 
 adaptiveLapply <- function(tasks, f, ...) {
+  if (length(tasks) == 0) {
+    return(tasks)
+  }
+
   cl <- parallelCluster(tasks)
   if (is.null(cl)) {
     log <- lapply(tasks, wrapFun(f), ...)
