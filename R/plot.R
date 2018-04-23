@@ -1,4 +1,4 @@
-# Copyright 2011-2017 Gabriele Sales <gabriele.sales@unipd.it>
+# Copyright 2011-2018 Gabriele Sales <gabriele.sales@unipd.it>
 #
 #
 # This file is part of graphite.
@@ -35,55 +35,50 @@ cytoscapePlot <- function(pathway, ..., cy.ver=3) {
 cytoscapePlot3 <- function(pathway, ...) {
   requirePkg("RCy3")
 
+  try(RCy3::deleteNetwork(pathway@title), silent = TRUE)
+
   g <- buildGraphNEL(edges(pathway, ...), FALSE, NULL)
-  g <- RCy3::initNodeAttribute(g, "label", "char", "undefined")
-  g <- RCy3::initNodeAttribute(g, "type", "char", "undefined")
-  g <- RCy3::initEdgeAttribute(g, "edgeType", "char", "undefined")
-  g <- RCy3::initEdgeAttribute(g, "weight", "numeric", 1)
+  suid <- RCy3::createNetworkFromGraph(g, pathway@title)
+  setNodeAttributes(g)
+  markMultipleEdges(g)
 
-  g <- nodeAttributes(g)
-  g <- markMultipleEdges(g)
+  RCy3::setNodeLabelMapping("label")
+  RCy3::setNodeShapeMapping("type", nodeShape$type, nodeShape$shape)
+  RCy3::setEdgeTargetArrowMapping("edgeType",
+                                  c(edgeInfo$type, "multiple"),
+                                  c(edgeInfo$arrow, "NONE"),
+                                  "NONE")
 
-  cy <- RCy3::CytoscapeConnection()
-  if (pathway@title %in% as.character(RCy3::getWindowList(cy)))
-    RCy3::deleteWindow(cy, pathway@title)
-
-  w <- RCy3::CytoscapeWindow(pathway@title, g)
-  RCy3::displayGraph(w)
-  RCy3::layoutNetwork(w, "kamada-kawai")
-
-  RCy3::setNodeLabelRule(w, "label")
-  RCy3::setNodeShapeRule(w, "type", nodeShape$type, nodeShape$shape)
-  RCy3::setEdgeTargetArrowRule(w, "edgeType",
-                               c(edgeInfo$type, "multiple"),
-                               c(edgeInfo$arrow, "No Arrow"),
-                               "No Arrow")
-
-  RCy3::redraw(w)
-
-  invisible(list(graph = g, window = w))
+  invisible(list(graph = g, suid = suid))
 }
 
-nodeAttributes <- function(g) {
-  for (n in names(nodeData(g))) {
-    nodeData(g, n, "label") <- sub("^[^:]*:", "", n)
-    nodeData(g, n, "type") <- sub(":.*", "", n)
-  }
+setNodeAttributes <- function(g) {
+  ns <- nodes(g)
 
-  g
+  attrs <- data.frame(
+    id = ns,
+    label =  sub("^[^:]*:", "", ns),
+    type = sub(":.*", "", ns),
+    stringsAsFactors = FALSE)
+
+  RCy3::loadTableData(attrs, "id", "node")
 }
 
 markMultipleEdges <- function(g) {
-  d <- edgeData(g)
-  ns <- names(d)
-
-  for (i in seq_along(d)) {
-    tp <- d[[i]]$edgeType
-    if (length(grep(";", tp, fixed = TRUE)) > 0) {
-      nodes <- unlist(strsplit(ns[[i]], "|", fixed = TRUE))
-      edgeData(g, nodes[1], nodes[2], "edgeType") <- "multiple"
-    }
+  isMultiple <- sapply(edgeData(g), function(e) {
+    type <- e$edgeType
+    length(grep(";", type, fixed = TRUE)) > 0
+  })
+  
+  edgeName <- function(nodes) {
+    ns <- unlist(strsplit(nodes, "|", fixed = TRUE))
+    paste(ns[1], "(interacts with)", ns[2])
   }
 
-  g
+  ns <- names(isMultiple[isMultiple])
+  attrs <- data.frame(id = sapply(ns, edgeName),
+                      edgeType = "multiple",
+                      stringsAsFactors = FALSE)
+
+  RCy3::loadTableData(attrs, "id", "edge")
 }

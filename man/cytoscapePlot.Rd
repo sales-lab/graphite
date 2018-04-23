@@ -19,7 +19,7 @@ cytoscapePlot(pathway, ..., cy.ver = 3)
 \value{
   An invisible list with two items:
   \item{graph}{the \code{\linkS4class{graphNEL}} object sent to Cytoscape.}
-  \item{window}{the RCy3 window handle.}
+  \item{suid}{the RCy3 network SUID.}
 }
 \seealso{
   \code{\linkS4class{Pathway}}
