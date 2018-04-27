@@ -45,22 +45,22 @@ pathwayDatabases <-function() {
 .server <- "http://graphiteweb.bio.unipd.it/pathways/"
 
 .dbs <- list(
-  athaliana=c("kegg", "reactome"),
+  athaliana=c("kegg", "reactome", "smpdb"),
   btaurus=c("kegg", "reactome"),
   celegans=c("kegg", "reactome"),
   cfamiliaris=c("kegg", "reactome"),
   dmelanogaster=c("kegg", "reactome"),
   drerio=c("kegg", "reactome"),
-  ecoli=c("kegg"),
+  ecoli=c("kegg", "smpdb"),
   ggallus=c("kegg", "reactome"),
   hsapiens=c("biocarta", "humancyc", "kegg", "nci", "panther", "pharmgkb", "reactome", "smpdb"),
-  mmusculus=c("kegg", "reactome"),
+  mmusculus=c("kegg", "reactome", "smpdb"),
   rnorvegicus=c("kegg", "reactome"),
-  scerevisiae=c("kegg", "reactome"),
+  scerevisiae=c("kegg", "reactome", "smpdb"),
   sscrofa=c("kegg", "reactome"),
   xlaevis=c("kegg"))
 
-.version <- 7
+.version <- 8
 
 
 loadPathways <- function(species, database) {
