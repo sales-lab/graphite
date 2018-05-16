@@ -40,7 +40,7 @@ cytoscapePlot3 <- function(pathway, ...) {
   g <- buildGraphNEL(edges(pathway, ...), FALSE, NULL)
   suid <- RCy3::createNetworkFromGraph(g, pathway@title)
   setNodeAttributes(g)
-  markMultipleEdges(g)
+  setEdgeAttributes(g)
 
   RCy3::setNodeLabelMapping("label")
   RCy3::setNodeShapeMapping("type", nodeShape$type, nodeShape$shape)
@@ -64,6 +64,11 @@ setNodeAttributes <- function(g) {
   RCy3::loadTableData(attrs, "id", "node")
 }
 
+setEdgeAttributes <- function(g) {
+  attrs <- markMultipleEdges(g)
+  RCy3::loadTableData(attrs, "id", "edge")
+}
+
 markMultipleEdges <- function(g) {
   isMultiple <- sapply(edgeData(g), function(e) {
     type <- e$edgeType
@@ -76,9 +81,7 @@ markMultipleEdges <- function(g) {
   }
 
   ns <- names(isMultiple[isMultiple])
-  attrs <- data.frame(id = sapply(ns, edgeName),
-                      edgeType = "multiple",
-                      stringsAsFactors = FALSE)
-
-  RCy3::loadTableData(attrs, "id", "edge")
+  data.frame(id = vapply(ns, edgeName, ""),
+             edgeType = rep.int("multiple", length(ns)),
+             stringsAsFactors = FALSE)
 }
