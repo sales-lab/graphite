@@ -30,13 +30,13 @@ for (pkg in pkgs) {
   }
 }
 
-library(BiocInstaller)
-biocLite(NULL, ask = FALSE)
+library(BiocManager)
+BiocManager::install(NULL, ask = FALSE)
 
 pkgs <- c("clipper", "SPIA", "topologyGSA")
 for (pkg in pkgs) {
   if (!suppressWarnings(require(pkg, character.only = TRUE, quietly = TRUE))) {
-    biocLite(pkg, ask = FALSE)
+    BiocManager::install(pkg, ask = FALSE)
   }
 }
 
