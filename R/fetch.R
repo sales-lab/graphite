@@ -60,7 +60,7 @@ pathwayDatabases <-function() {
   sscrofa=c("kegg", "reactome"),
   xlaevis=c("kegg"))
 
-.version <- 8
+.version <- 9
 
 
 loadPathways <- function(species, database) {
