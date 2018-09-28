@@ -42,7 +42,7 @@ pathwayDatabases <-function() {
 }
 
 
-.server <- "http://graphiteweb.bio.unipd.it/pathways/"
+.server <- "https://graphiteweb.bio.unipd.it/pathways/"
 
 .dbs <- list(
   athaliana=c("kegg", "reactome", "smpdb"),
