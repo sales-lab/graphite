@@ -1,4 +1,4 @@
-image: bioconductor/devel_core2:latest
+image: $IMAGE_NAME
 
 cache:
   paths:
@@ -8,36 +8,32 @@ before_script:
   - echo cache >>.Rbuildignore
   - >
     echo >~/.Rprofile '
-      .libPaths("'$PWD'/cache")
       local({
-        r <- getOption("repos")
-        r["CRAN"] <- "https://cran.stat.unipd.it/"
-        r["omegahat"] <- "http://www.omegahat.net/R"
         cores <- parallel::detectCores()
-        options(repos = r, Ncpus = cores)
+        options(Ncpus = cores)
       })'
 
 stages:
   - setup
-  - build
   - test
+  - build
 
 setup:
   stage: setup
   script:
     - mkdir -p cache
-    - Rscript scripts/setup.R
-
-build:
-  stage: build
-  artifacts:
-    expire_in: 1 week
-    paths:
-      - graphite_*.tar.gz
-  script:
-    - R CMD build ./
+    - R_LIBS_USER="$PWD/cache" Rscript -e 'devtools::install_deps(".", TRUE)'
 
 check:
   stage: test
   script:
-    - Rscript scripts/check.R graphite_*.tar.gz
+    - R_LIBS_USER="$PWD/cache" Rscript -e 'devtools::check(".")'
+
+build:
+  stage: build
+  artifacts:
+    expire_in: 1 year
+    paths:
+      - graphite_*.tar.gz
+  script:
+    - R_LIBS_USER="$PWD/cache" Rscript -e 'devtools::build(".", dest_path = ".")'
