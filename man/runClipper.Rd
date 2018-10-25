@@ -81,7 +81,7 @@ if (require(clipper) & require(ALL) & require(a4Preproc)) {
                           sep = ":")
 
   k <- as.list(pathways("hsapiens", "kegg"))
-  selected <- k[c("Bladder cancer", "Cytosolic DNA-sensing pathway")]
+  selected <- k[c("Bladder cancer", "Hippo signaling pathway - multiple species")]
 
   runClipper(selected, expr, classes, "mean", pathThr = 0.1)
 }

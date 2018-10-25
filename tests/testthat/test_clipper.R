@@ -44,7 +44,7 @@ load_data <- function() {
 
 load_pathways <- function() {
   k <- as.list(pathways("hsapiens", "kegg"))
-  k[c("Bladder cancer", "Cytosolic DNA-sensing pathway")]
+  k[c("Bladder cancer", "Hippo signaling pathway - multiple species")]
 }
 
 
@@ -53,13 +53,13 @@ load_pathways <- function() {
 dat <- load_data()
 paths <- load_pathways()
 
-test_that("pathway \"Cytosolic DNA-sensing pathway\" is altered in the ALL dataset", {
+test_that("pathway \"Hippo signaling pathway - multiple species\" is altered in the ALL dataset", {
   x <- runClipper(paths, dat$expr, dat$classes, "mean", pathThr = 0.1, seed = 42)
 
   expect_named(x, c("results", "warnings", "errors"))
   expect_length(x$errors, 0)
   expect_gte(length(x$results), 1)
-  expect_equal("Cytosolic DNA-sensing pathway" %in% names(x$results), TRUE)
+  expect_equal("Hippo signaling pathway - multiple species" %in% names(x$results), TRUE)
 })
 
 test_that("parallel and serial analyses of a PathwayList produce the same results", {

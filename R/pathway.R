@@ -111,6 +111,7 @@ pathwayURL <- function(object) {
               KEGG = keggURL,
               nci = nciURL,
               panther = pantherURL,
+              PathBank = pathbankURL,
               PharmGKB = pharmgkbURL,
               Reactome = reactomeURL,
               SMPDB = smpdbURL,
@@ -144,7 +145,13 @@ nciURL <- function(p) {
          query, "&searchTermExpansion=false")
 }
 
-pantherURL <- function(p) p@id
+pantherURL <- function(p) {
+  paste0("http://identifiers.org/panther.pathway/", p@id)
+}
+
+pathbankURL <- function(p) {
+  paste0("http://pathbank.org/view/", p@id)
+}
 
 pharmgkbURL <- function(p) {
   paste0("https://www.pharmgkb.org/pathway/", sub("^.*\\.", "", p@id))

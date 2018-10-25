@@ -1,3 +1,7 @@
+Changes in version 1.27.6 (2018-10-25)
+  - Updated all pathway data.
+  - Added PathBank database.
+
 Changes in version 1.27.2 (2018-05-22)
   - Vignette describing mixed analysis with genes and metabolites.
 
