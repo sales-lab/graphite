@@ -1,0 +1,18 @@
+bibentry(bibtype = "Article",
+         title = "{graphite} - a Bioconductor package to convert pathway topology to gene network",
+         author = c(person("Gabriele", "Sales"),
+                    person("Enrica", "Calura"),
+                    person("Duccio", "Cavalieri"),
+                    person("Chiara", "Romualdi")),
+         journal = "BMC Bioinformatics",
+         year = "2012",
+         url = "https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-13-20")
+         
+bibentry(bibtype = "Article",
+         title = "{metaGraphite} - a new layer of pathway annotation to get metabolite networks",
+         author = c(person("Gabriele", "Sales"),
+                    person("Enrica", "Calura"),
+                    person("Chiara", "Romualdi")),
+                    journal = "Bioinformatics",
+                    year = "2018",
+                    url = "https://academic.oup.com/bioinformatics/advance-article/doi/10.1093/bioinformatics/bty719/5090451")
