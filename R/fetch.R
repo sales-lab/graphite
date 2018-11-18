@@ -27,11 +27,7 @@ pathways <- function(species, database) {
     stop("No such pathway database: ", database,
          call.=FALSE)
 
-  if (species == "hsapiens") {
-    get(database, .hsapiens)
-  } else {
-    loadPathways(species, database)
-  }
+  loadPathways(species, database)
 }
 
 pathwayDatabases <-function() {
