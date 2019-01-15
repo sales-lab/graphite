@@ -1,4 +1,4 @@
-# Copyright 2015-2018 Gabriele Sales <gabriele.sales@unipd.it>
+# Copyright 2015-2019 Gabriele Sales <gabriele.sales@unipd.it>
 #
 #
 # This file is part of graphite.
@@ -64,12 +64,22 @@ loadPathways <- function(species, database) {
   get(database, envir = env)
 }
 
-loadEnv <- function(name) {
+loadEnv <- function(name, retry = TRUE) {
   path <- archivePath(name)
   if (!file.exists(path))
     fetchRemote(name, path)
 
-  loadLocal(path)
+  env <- loadLocal(path)
+  if (!is.null(env)) {
+    env
+  } else {
+    if (!retry) {
+      stop("Error loading pathway data. Please retry the operation at a later time.")
+    } else {
+      unlink(path)
+      loadEnv(name, FALSE)
+    }
+  }
 }
 
 archivePath <- function(name) {
@@ -91,8 +101,8 @@ archiveDir <- function() {
 
 loadLocal <- function(archive) {
   env <- new.env(emptyenv())
-  load(archive, env)
-  env
+  res <- try(load(archive, env), silent = TRUE)
+  if (class(res) == "try-error") NULL else env
 }
 
 fetchRemote <- function(name, archive) {
