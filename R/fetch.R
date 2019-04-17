@@ -17,14 +17,13 @@
 
 
 pathways <- function(species, database) {
-
   ds <- .dbs[[species]]
   if (is.null(ds))
-    stop("Unsupported species: ", species,
+    stop("unsupported species: ", species,
          call.=FALSE)
 
   if (!(database %in% ds))
-    stop("No such pathway database: ", database,
+    stop("no database \"", database, "\" for species \"", species, "\"",
          call.=FALSE)
 
   loadPathways(species, database)
