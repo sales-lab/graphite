@@ -41,7 +41,7 @@ pathwayDatabases <-function() {
 .server <- "https://graphiteweb.bio.unipd.it/pathways/"
 
 .dbs <- list(
-  athaliana=c("kegg", "pathbank", "reactome"),
+  athaliana=c("kegg", "pathbank"),
   btaurus=c("kegg", "reactome"),
   celegans=c("kegg", "reactome"),
   cfamiliaris=c("kegg", "reactome"),
@@ -56,7 +56,7 @@ pathwayDatabases <-function() {
   sscrofa=c("kegg", "reactome"),
   xlaevis=c("kegg"))
 
-.version <- 11
+.version <- 12
 
 
 loadPathways <- function(species, database) {
