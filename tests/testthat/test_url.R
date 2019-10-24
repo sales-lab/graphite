@@ -1,4 +1,4 @@
-# Copyright 2017 Gabriele Sales <gabriele.sales@unipd.it>
+# Copyright 2017-2019 Gabriele Sales <gabriele.sales@unipd.it>
 #
 #
 # This file is part of graphite.
@@ -24,12 +24,17 @@ test_that("each pathway database links to valid pathway URLs", {
 
   dbs <- pathwayDatabases()
   species <- "hsapiens"
+
   dbs <- as.character(dbs[dbs$species == species, "database"])
+
+  # NCI pathways are now hosted on www.ndexbio.org, which uses JavaScript to
+  # load network.s We cannot reliably test such URLs here.
+  dbs <- setdiff(dbs, "nci")
 
   for (db in dbs) {
     p <- sample(pathways(species, db), 1)[[1]]
     r <- HEAD(pathwayURL(p), timeout(30))
     expect_equal(http_status(r)$category, "Success",
-                 info = paste0(db, "(", pathwayId(p), ")"))
+                 info = paste0(db, "(", pathwayTitle(p), ")"))
   }
 })
