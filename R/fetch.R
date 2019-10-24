@@ -26,7 +26,7 @@ pathways <- function(species, database) {
     stop("no database \"", database, "\" for species \"", species, "\"",
          call.=FALSE)
 
-  loadPathways(species, database)
+  loadData(paste(species, database, sep = "-"))
 }
 
 pathwayDatabases <-function() {
@@ -37,53 +37,49 @@ pathwayDatabases <-function() {
 }
 
 
-.server <- "https://graphiteweb.bio.unipd.it/pathways/"
+.server <- "https://graphiteweb.bio.unipd.it/pathways"
 
 .dbs <- list(
   athaliana=c("kegg", "pathbank"),
-  btaurus=c("kegg", "reactome"),
-  celegans=c("kegg", "reactome"),
+  btaurus=c("kegg", "pathbank", "reactome"),
+  celegans=c("kegg", "pathbank", "reactome"),
   cfamiliaris=c("kegg", "reactome"),
-  dmelanogaster=c("kegg", "reactome"),
+  dmelanogaster=c("kegg", "pathbank", "reactome"),
   drerio=c("kegg", "reactome"),
   ecoli=c("kegg", "pathbank"),
   ggallus=c("kegg", "reactome"),
-  hsapiens=c("biocarta", "humancyc", "kegg", "nci", "panther", "pathbank", "pharmgkb", "reactome", "smpdb"),
+  hsapiens=c("biocarta", "kegg", "nci", "panther", "pathbank", "pharmgkb", "reactome", "smpdb"),
   mmusculus=c("kegg", "pathbank", "reactome"),
   rnorvegicus=c("kegg", "pathbank", "reactome"),
   scerevisiae=c("kegg", "pathbank", "reactome"),
   sscrofa=c("kegg", "reactome"),
   xlaevis=c("kegg"))
 
-.version <- 12
+.version <- 13
 
 
-loadPathways <- function(species, database) {
-  env <- loadEnv(species)
-  get(database, envir = env)
-}
-
-loadEnv <- function(name, retry = TRUE) {
+loadData <- function(name, retry = TRUE) {
   path <- archivePath(name)
-  if (!file.exists(path))
+  if (!file.exists(path)) {
     fetchRemote(name, path)
+  }
 
-  env <- loadLocal(path)
-  if (!is.null(env)) {
-    env
+  ps <- loadLocal(path)
+  if (!is.null(ps)) {
+    ps
   } else {
     if (!retry) {
       stop("Error loading pathway data. Please retry the operation at a later time.")
     } else {
       unlink(path)
-      loadEnv(name, FALSE)
+      loadData(name, FALSE)
     }
   }
 }
 
 archivePath <- function(name) {
   d <- archiveDir()
-  paste0(d, "/", name, ".rda")
+  paste0(d, "/", name, ".rds")
 }
 
 archiveDir <- function() {
@@ -99,9 +95,8 @@ archiveDir <- function() {
 }
 
 loadLocal <- function(archive) {
-  env <- new.env(emptyenv())
-  res <- try(load(archive, env), silent = TRUE)
-  if (class(res) == "try-error") NULL else env
+  res <- try(readRDS(archive), silent = TRUE)
+  if (class(res) == "try-error") NULL else res
 }
 
 fetchRemote <- function(name, archive) {
@@ -120,12 +115,12 @@ fetchRemote <- function(name, archive) {
 
 remoteUrl <- function(name) {
   v <- as.character(.version)
-  paste0(.server, "/", v, "/", name, ".rda")
+  paste0(.server, "/", v, "/", name, ".rds")
 }
 
 
 metabolites <- function() {
-  get("table", (loadEnv("metabolites")))
+  loadData("metabolites")
 }
 
 purgeCache <- function() {

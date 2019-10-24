@@ -1,3 +1,7 @@
+Changes in version 1.31.1 (2019-10-24)
+  - Updated all pathway data.
+  - Removed HumanCyc pathways (database now requires subscription).
+
 Changes in version 1.29.3 (2019-04-17)
   - Updated all pathway data.
 
