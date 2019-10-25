@@ -1,4 +1,4 @@
-# Copyright 2011-2018 Gabriele Sales <gabriele.sales@unipd.it>
+# Copyright 2011-2019 Gabriele Sales <gabriele.sales@unipd.it>
 #
 #
 # This file is part of graphite.
@@ -70,11 +70,7 @@ parallelCluster <- function(tasks, type = c("auto", "psock")) {
 
   if (parallel) {
     if (requireNamespace("parallel", quietly = TRUE)) {
-      if (type == "psock" || .Platform$OS.type != "unix") {
-        return(parallel::makePSOCKcluster(ncpus))
-      } else {
-        return(parallel::makeForkCluster(ncpus))
-      }
+      return(parallel::makeCluster(ncpus))
     } else {
       message("This task could run in parallel. To use multiple cores in ",
               "parallel, please install the \"parallel\" package.")
