@@ -89,6 +89,7 @@ edgeInfo <- literalDataFrame(c("type", "arrow", "spiaType"), c(
 ))
 
 
+
 spiaAttributes <- c("activation",
                     "compound",
                     "binding/association",
