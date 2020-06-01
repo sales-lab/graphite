@@ -174,11 +174,16 @@ setMethod("nodes", signature("Pathway"),
     unique(typed)
   })
 
-setMethod("edges", signature("Pathway", "character"),
+setMethod("edges", signature("Pathway"),
   function(object, which = c("proteins", "metabolites", "mixed"),
            stringsAsFactors = TRUE) {
 
-    es <- switch(match.arg(which),
+    if (missing(which)) {
+      which <- "proteins"
+    } else {
+      which <- match.arg(which)
+    }
+    es <- switch(which,
       proteins = rbind(object@protEdges, object@protPropEdges),
       metabolites = rbind(object@metabolEdges, object@metabolPropEdges),
       mixed = rbind(object@protEdges, object@metabolEdges, object@mixedEdges),
@@ -191,9 +196,6 @@ setMethod("edges", signature("Pathway", "character"),
 
     return(es)
   })
-
-setMethod("edges", signature("Pathway", "missing"),
-  function(object, stringsAsFactors = TRUE) edges(object, "proteins", stringsAsFactors))
 
 setMethod("show", signature("Pathway"),
   function(object) {

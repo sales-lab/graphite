@@ -3,8 +3,7 @@
 \docType{class}
 \alias{Pathway-class}
 \alias{convertIdentifiers,Pathway-method}
-\alias{edges,Pathway,character-method}
-\alias{edges,Pathway,missing-method}
+\alias{edges,Pathway-method}
 \alias{nodes,Pathway-method}
 \alias{plot,Pathway,ANY-method}
 \alias{runClipper,Pathway-method}
