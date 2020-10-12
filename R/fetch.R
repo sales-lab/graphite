@@ -1,4 +1,4 @@
-# Copyright 2015-2019 Gabriele Sales <gabriele.sales@unipd.it>
+# Copyright 2015-2020 Gabriele Sales <gabriele.sales@unipd.it>
 #
 #
 # This file is part of graphite.
@@ -55,7 +55,7 @@ pathwayDatabases <-function() {
   sscrofa=c("kegg", "reactome"),
   xlaevis=c("kegg"))
 
-.version <- 14
+.version <- 15
 
 
 loadData <- function(name, retry = TRUE) {
