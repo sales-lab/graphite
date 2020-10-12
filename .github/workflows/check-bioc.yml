@@ -82,7 +82,7 @@ jobs:
         - /home/runner/work/_temp/Library:/usr/local/lib/R/host-site-library
 
     steps:
-      - name: Install latest git
+      - name: Install system dependencies
         run: |
           ## git version provided
           git --version
@@ -97,6 +97,8 @@ jobs:
           sudo apt-get update -y
           ## Upgrade git and other tools
           sudo apt-get upgrade -y
+          ## Install texinfo
+          sudo apt-get install -y texinfo
           ## latest git version
           git --version
         shell: bash {0}
