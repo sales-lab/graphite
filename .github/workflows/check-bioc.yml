@@ -98,7 +98,7 @@ jobs:
           ## Upgrade git and other tools
           sudo apt-get upgrade -y
           ## Install texinfo
-          sudo apt-get install -y texinfo
+          sudo apt-get install -y texinfo texlive
           ## latest git version
           git --version
         shell: bash {0}
