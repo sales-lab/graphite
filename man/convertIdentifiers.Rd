@@ -29,5 +29,5 @@ convertIdentifiers(x, to)
 }
 \examples{
   r <- pathways("hsapiens", "reactome")
-  convertIdentifiers(r$`mTOR signalling`, "symbol")
+  convertIdentifiers(r$`mTORC1-mediated signalling`, "symbol")
 }

@@ -25,5 +25,5 @@
 }
 \examples{
   r <- pathways("hsapiens", "reactome")
-  pathwayGraph(r$`mTOR signalling`, edge.types="Binding")
+  pathwayGraph(r$`mTORC1-mediated signalling`, edge.types="Binding")
 }
