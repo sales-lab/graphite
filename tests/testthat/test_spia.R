@@ -35,8 +35,8 @@ test_that("analysis result contains one row for each pathway", {
   names(DE_Colorectal) <- tg1$ENTREZ
   ALL_Colorectal <- top$ENTREZ
 
-  k <- as.list(pathways("hsapiens", "kegg"))
-  selected <- k[c("Bladder cancer", "Cytosolic DNA-sensing pathway")]
+  kegg <- pathways("hsapiens", "kegg")
+  selected <- kegg[c("Bladder cancer", "Cytosolic DNA-sensing pathway")]
 
   on.exit(file.remove("spiaTestExSPIA.RData"), add = TRUE)
   prepareSPIA(selected, "spiaTestEx")

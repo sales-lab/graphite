@@ -1,4 +1,4 @@
-# Copyright 2011-2017 Gabriele Sales <gabriele.sales@unipd.it>
+# Copyright 2011-2021 Gabriele Sales <gabriele.sales@unipd.it>
 #
 #
 # This file is part of graphite.
@@ -27,7 +27,12 @@ setMethod("prepareSPIA", "PathwayList",
 
 setMethod("prepareSPIA", "list",
   function(db, pathwaySetName, print.names) {
-    checkPathwayList(db)
+    errors <- checkPathwayList(db)
+    if (length(errors)) 
+      stop(paste("There was an error with the list of pathways you provided:",
+                 errors[[1]],
+                 sep = " "))
+
     .prepareSPIA(db, pathwaySetName, print.names)
   })
 
@@ -48,9 +53,15 @@ setMethod("prepareSPIA", "list",
     l$NumberOfReactions <- 0
     return(l)
   })
-
-  names(path.info) <- sapply(db, pathwayTitle)
+  
   path.info <- Filter(Negate(is.null), path.info)
+  if (length(path.info) == 0)
+    stop("Your pathway list does not include at least one pathway with 5 edges or more.")
+
+  # Add a fake pathway containing at least one activation.
+  path.info <- c(path.info, list(spiaFakePathway(path.info[[1]]$nodes[1:2])))
+
+  names(path.info) <- sapply(path.info, function(i) i[["title"]])
   save(path.info, file = datasetName(pathwaySetName))
 }
 
@@ -59,10 +70,9 @@ translateEdges <- function(pathway) {
   if (nrow(es) == 0)
     return(NULL)
 
-  # Prefix all nodes with their type and drop the "_type" columns.
+  # Prefix all nodes with their type.
   es$src <- paste(es$src_type, es$src, sep = ":")
   es$dest <- paste(es$dest_type, es$dest, sep = ":")
-  es <- es[, !(colnames(es) %in% c("src_type", "dest_type"))]
 
   # Convert edge types to the SPIA vocabulary.
   converted <- merge(es, edgeInfo, all.x = TRUE)
@@ -108,6 +118,17 @@ edgeMatrix <- function(nodes, edges) {
   }
 }
 
+spiaFakePathway <- function(nodes) {
+  edges <- data.frame(src = 1, dest = 2, type = "activation")
+  l <- sapply(spiaAttributes, edgeMatrix(nodes, edges),
+              simplify = FALSE, USE.NAMES = TRUE)
+  l$title <- "<graphite_placeholder>"
+  l$nodes <- nodes
+  l$NumberOfReactions <- 0
+  
+  return(l)
+}
+
 
 runSPIA <- function(de, all, pathwaySetName, ...) {
   requirePkg("SPIA")
@@ -127,7 +148,8 @@ runSPIA <- function(de, all, pathwaySetName, ...) {
   optArgs$organism <- pathwaySetName
   optArgs$data.dir <- paste0(dirname(pathwaySetName), "/")
 
-  do.call(SPIA::spia, c(list(de, all), optArgs))[,c(-2,-12)]
+  out <- do.call(SPIA::spia, c(list(de, all), optArgs))
+  out[out$Name != "<graphite_placeholder>", c(-2,-12)]
 }
 
 datasetName <- function(pathwaySetName)
