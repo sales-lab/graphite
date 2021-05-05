@@ -60,10 +60,10 @@ if (require(SPIA) && require(hgu133plus2.db)) {
   names(DE_Colorectal) <- tg1$ENTREZ
   ALL_Colorectal <- top$ENTREZ
 
-  biocarta <- pathways("hsapiens", "biocarta")[1:20]
-  biocarta <- convertIdentifiers(biocarta, "ENTREZID")
-  prepareSPIA(biocarta, "biocartaEx")
-  runSPIA(de = DE_Colorectal, all = ALL_Colorectal, "biocartaEx")
+  kegg <- pathways("hsapiens", "kegg")[1:20]
+  kegg <- convertIdentifiers(kegg, "ENTREZID")
+  prepareSPIA(kegg, "keggEx")
+  runSPIA(de = DE_Colorectal, all = ALL_Colorectal, "keggEx")
 }
 }
 \seealso{

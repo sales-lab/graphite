@@ -1,4 +1,4 @@
-# Copyright 2011-2017 Gabriele Sales <gabriele.sales@unipd.it>
+# Copyright 2011-2021 Gabriele Sales <gabriele.sales@unipd.it>
 #
 #
 # This file is part of graphite.
@@ -35,6 +35,7 @@ nodeShape <- literalDataFrame(c("type", "shape"), c(
 
 edgeInfo <- literalDataFrame(c("type", "arrow", "spiaType"), c(
   "Binding", "NONE", "binding/association",
+  "Control(In)", "ARROW", "indirect effect",
   "Control(In: ACTIVATION of BiochemicalReaction)", "ARROW", "activation",
   "Control(In: ACTIVATION of ComplexAssembly)", "ARROW", "activation",
   "Control(In: ACTIVATION of Degradation)", "ARROW", "activation",
@@ -46,6 +47,7 @@ edgeInfo <- literalDataFrame(c("type", "arrow", "spiaType"), c(
   "Control(In: unknown of BiochemicalReaction)", "ARROW", "indirect effect",
   "Control(In: unknown of Process)", "ARROW", "indirect effect",
   "Control(In: unknown of Transport)", "ARROW", "activation",
+  "Control(Out)", "ARROW", "indirect effect",
   "Control(Out: ACTIVATION of ACTIVATION)", "ARROW", "activation",
   "Control(Out: ACTIVATION of BiochemicalReaction)", "ARROW", "activation",
   "Control(Out: ACTIVATION of ComplexAssembly)", "ARROW", "activation",
@@ -87,7 +89,6 @@ edgeInfo <- literalDataFrame(c("type", "arrow", "spiaType"), c(
   "Process(state change)", "NONE", "indirect effect",
   "Process(ubiquitination)", "ARROW", "ubiquitination"
 ))
-
 
 
 spiaAttributes <- c("activation",

@@ -1,4 +1,4 @@
-# Copyright 2015-2020 Gabriele Sales <gabriele.sales@unipd.it>
+# Copyright 2015-2021 Gabriele Sales <gabriele.sales@unipd.it>
 #
 #
 # This file is part of graphite.
@@ -40,22 +40,22 @@ pathwayDatabases <-function() {
 .server <- "https://graphiteweb.bio.unipd.it/pathways"
 
 .dbs <- list(
-  athaliana=c("kegg", "pathbank"),
-  btaurus=c("kegg", "pathbank", "reactome"),
-  celegans=c("kegg", "pathbank", "reactome"),
-  cfamiliaris=c("kegg", "reactome"),
-  dmelanogaster=c("kegg", "pathbank", "reactome"),
-  drerio=c("kegg", "reactome"),
-  ecoli=c("kegg", "pathbank"),
-  ggallus=c("kegg", "reactome"),
-  hsapiens=c("biocarta", "kegg", "nci", "panther", "pathbank", "pharmgkb", "reactome", "smpdb"),
-  mmusculus=c("kegg", "pathbank", "reactome"),
-  rnorvegicus=c("kegg", "pathbank", "reactome"),
-  scerevisiae=c("kegg", "pathbank", "reactome"),
-  sscrofa=c("kegg", "reactome"),
+  athaliana=c("kegg", "pathbank", "wikipathways"),
+  btaurus=c("kegg", "pathbank", "reactome", "wikipathways"),
+  celegans=c("kegg", "pathbank", "reactome", "wikipathways"),
+  cfamiliaris=c("kegg", "reactome", "wikipathways"),
+  dmelanogaster=c("kegg", "pathbank", "reactome", "wikipathways"),
+  drerio=c("kegg", "reactome", "wikipathways"),
+  ecoli=c("kegg", "pathbank", "wikipathways"),
+  ggallus=c("kegg", "reactome", "wikipathways"),
+  hsapiens=c("kegg", "panther", "pathbank", "pharmgkb", "reactome", "smpdb", "wikipathways"),
+  mmusculus=c("kegg", "pathbank", "reactome", "wikipathways"),
+  rnorvegicus=c("kegg", "pathbank", "reactome", "wikipathways"),
+  scerevisiae=c("kegg", "pathbank", "reactome", "wikipathways"),
+  sscrofa=c("kegg", "reactome", "wikipathways"),
   xlaevis=c("kegg"))
 
-.version <- 15
+.version <- 16
 
 
 loadData <- function(name, retry = TRUE) {

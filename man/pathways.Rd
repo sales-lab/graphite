@@ -6,14 +6,13 @@
 
   graphite currently supports the following databases:
   \itemize{
-    \item BioCarta
-    \item \href{http://humancyc.org/}{HumanCyc}
     \item \href{http://www.kegg.jp/kegg/pathway.html}{KEGG}
-    \item NCI-Nature Pathway Interaction Database
     \item \href{http://www.pantherdb.org/pathway/}{PANTHER}
+    \item \href{https://pathbank.org/}{PathBank}
     \item \href{https://www.pharmgkb.org/pathways/}{PharmGKB}
     \item \href{http://www.reactome.org/}{Reactome}
     \item \href{http://smpdb.ca/}{SMPDB}
+    \item \href{https://www.wikipathways.org/}{WikiPathways}
   }
 
   Call the \code{\link{pathwayDatabase}} function for more details.

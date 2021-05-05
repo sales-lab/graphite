@@ -1,4 +1,4 @@
-# Copyright 2011-2018 Gabriele Sales <gabriele.sales@unipd.it>
+# Copyright 2011-2021 Gabriele Sales <gabriele.sales@unipd.it>
 #
 #
 # This file is part of graphite.
@@ -106,15 +106,13 @@ pathwayTimestamp <- function(p) {
 
 pathwayURL <- function(object) {
   f <- switch(object@database,
-              biocarta = biocartaURL,
-              humancyc = humancycURL,
               KEGG = keggURL,
-              nci = nciURL,
               panther = pantherURL,
               PathBank = pathbankURL,
               PharmGKB = pharmgkbURL,
               Reactome = reactomeURL,
               SMPDB = smpdbURL,
+              WikiPathways = wikipathwaysURL,
               NULL)
 
   if (is.null(f)) {
@@ -124,25 +122,10 @@ pathwayURL <- function(object) {
   }
 }
 
-biocartaURL <- function(p) {
-  paste0("https://cgap.nci.nih.gov/Pathways/PathwaysByKeyword?PATH_KEY=",
-         gsub("\\s", "+", p@title))
-}
-
-humancycURL <- function(p) {
-  paste0("https://humancyc.org/HUMAN/NEW-IMAGE?type=PATHWAY&object=", p@id)
-}
-
 keggURL <- function(p) {
   parts <- unlist(strsplit(p@id, ":", fixed = TRUE))
   paste0("http://www.kegg.jp/kegg-bin/show_pathway?org_name=", parts[1],
          "&mapno=", parts[2])
-}
-
-nciURL <- function(p) {
-  query <- gsub("\\s+", "%20", gsub("[^a-zA-Z0-9-]", " ", p@title))
-  paste0("http://www.ndexbio.org/#/search?searchType=Networks&searchString=",
-         query, "&searchTermExpansion=false")
 }
 
 pantherURL <- function(p) {
@@ -163,6 +146,10 @@ reactomeURL <- function(p) {
 
 smpdbURL <- function(p) {
   paste0("http://smpdb.ca/pathwhiz/pathways/", sub("^.*/", "", p@id))
+}
+
+wikipathwaysURL <- function(p) {
+  paste0("https://www.wikipathways.org/index.php/Pathway:", p@id)
 }
 
 

@@ -1,14 +1,13 @@
 Package: graphite
-Version: 1.37.0
-Date: 2020-10-13
+Version: 1.37.1
+Date: 2021-05-05
 Title: GRAPH Interaction from pathway Topological Environment
 Author: Gabriele Sales <gabriele.sales@unipd.it>, Enrica Calura
         <enrica.calura@gmail.com>, Chiara Romualdi
         <chiara.romualdi@unipd.it>
 Maintainer: Gabriele Sales <gabriele.sales@unipd.it>
-Description: Graph objects from pathway topology derived from Biocarta,
-        HumanCyc, KEGG, NCI, Panther, PathBank, PharmGKB, Reactome and SMPDB
-        databases.
+Description: Graph objects from pathway topology derived from KEGG, Panther,
+  PathBank, PharmGKB, Reactome SMPDB and WikiPathways databases.
 License: AGPL-3
 Depends: R (>= 2.10), methods
 Imports: AnnotationDbi, checkmate, graph (>= 1.67.1), httr, rappdirs,
@@ -21,4 +20,4 @@ Collate: pathway.R fetch.R conversion.R plot.R utils.R clipper.R graph.R spia.R
 LazyData: yes
 VignetteBuilder: R.rsp
 biocViews: Pathways, ThirdPartyClient, GraphAndNetwork, Network,
-           Reactome, KEGG, BioCarta, Metabolomics
+           Reactome, KEGG, Metabolomics
