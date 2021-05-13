@@ -1,6 +1,6 @@
 Package: graphite
-Version: 1.37.2
-Date: 2021-05-05
+Version: 1.37.3
+Date: 2021-05-13
 Title: GRAPH Interaction from pathway Topological Environment
 Author: Gabriele Sales <gabriele.sales@unipd.it>, Enrica Calura
         <enrica.calura@gmail.com>, Chiara Romualdi
@@ -18,6 +18,6 @@ Suggests: a4Preproc, ALL, BiocStyle, clipper, codetools, hgu133plus2.db,
 Collate: pathway.R fetch.R conversion.R plot.R utils.R clipper.R graph.R spia.R
          tables.R topologygsa.R build.R
 LazyData: yes
-VignetteBuilder: R.rsp
+VignetteBuilder: knitr, R.rsp
 biocViews: Pathways, ThirdPartyClient, GraphAndNetwork, Network,
            Reactome, KEGG, Metabolomics

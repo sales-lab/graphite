@@ -422,7 +422,11 @@ converted <- lapply(original, convertIdentifiers, "SYMBOL")
   Jewison T, Su Y, Disfany FM, Liang Y, Knox C, Maciejewski A, Poelzer J, Huynh J, Zhou Y, Arndt D, Djoumbou Y, Liu Y, Deng L, Guo AC, Han B, Pon A, Wilson M, Rafatnia S, Liu P, Wishart DS.
   SMPDB 2.0: big improvements to the Small Molecule Pathway Database.
   Nucleic Acids Res. 2014 Jan;42(Database issue):D478-84. doi:10.1093/nar/gkt1067. Epub 2013 Nov 6.
-  
+
+\bibitem{pathbank}
+  Wishart DS, Li C, Marcu A, Badran H, Pon A, Budinski Z, Patron J, Lipton D, Cao X, Oler E, Li K, Paccoud M, Hong C, Guo AC, Chan C, Wei W, Ramirez-Gaona M.
+  PathBank: a comprehensive pathway database for model organisms. Nucleic Acids Res. 2020 Jan 8;48(D1):D470-D478. doi: 10.1093/nar/gkz861.
+
 \bibitem{wikipathways}
   Martens M, Ammar A, Riutta A, Waagmeester A, Slenter D, Hanspers K,  Miller R, Digles D, Lopes E, Ehrhart F, Dupuis L, Winckers L, Coort S, Willighagen E, Evelo C, Pico A, Kutmon M
   WikiPathways: connecting communities
