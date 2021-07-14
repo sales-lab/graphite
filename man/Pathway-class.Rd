@@ -82,4 +82,13 @@
 \seealso{
   \code{\link{pathways}}
 }
+\examples{
+  reactome <- pathways("hsapiens", "reactome")
+  pathway <- reactome[[1]]
+
+  pathwayTitle(pathway)
+  pathwaySpecies(pathway)
+  nodes(pathway)
+  edges(pathway)
+}
 \keyword{classes}

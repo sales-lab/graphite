@@ -61,7 +61,7 @@ setMethod("prepareSPIA", "list",
   # Add a fake pathway containing at least one activation.
   path.info <- c(path.info, list(spiaFakePathway(path.info[[1]]$nodes[1:2])))
 
-  names(path.info) <- sapply(path.info, function(i) i[["title"]])
+  names(path.info) <- vapply(path.info, function(i) i[["title"]], "")
   save(path.info, file = datasetName(pathwaySetName))
 }
 
