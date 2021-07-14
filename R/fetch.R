@@ -96,7 +96,7 @@ archiveDir <- function() {
 
 loadLocal <- function(archive) {
   res <- try(readRDS(archive), silent = TRUE)
-  if (class(res) == "try-error") NULL else res
+  if (is(res, "try-error")) NULL else res
 }
 
 fetchRemote <- function(name, archive) {
@@ -104,7 +104,7 @@ fetchRemote <- function(name, archive) {
   tmp <- paste0(archive, ".tmp")
 
   res <- try(GET(url, write_disk(tmp, overwrite = TRUE)))
-  if (class(res) != "response") {
+  if (!is(res, "response")) {
     stop("cannot download pathway data: are you offline?")
   } else if (http_status(res)$category != "Success") {
     stop("cannot download pathway data: are you using the latest graphite version?")
