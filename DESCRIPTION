@@ -18,6 +18,6 @@ Suggests: a4Preproc, ALL, BiocStyle, clipper, codetools, hgu133plus2.db,
 Collate: pathway.R fetch.R conversion.R plot.R utils.R clipper.R graph.R spia.R
          tables.R topologygsa.R build.R
 LazyData: yes
-VignetteBuilder: knitr, R.rsp
+VignetteBuilder: R.rsp
 biocViews: Pathways, ThirdPartyClient, GraphAndNetwork, Network,
            Reactome, KEGG, Metabolomics
