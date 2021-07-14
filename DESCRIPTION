@@ -11,7 +11,7 @@ Description: Graph objects from pathway topology derived from KEGG, Panther,
 License: AGPL-3
 Depends: R (>= 2.10), methods
 Imports: AnnotationDbi, checkmate, graph (>= 1.67.1), httr, rappdirs,
-	stats, utils
+	stats, utils, graphics
 Suggests: a4Preproc, ALL, BiocStyle, clipper, codetools, hgu133plus2.db,
           hgu95av2.db, impute, knitr, org.Hs.eg.db, parallel, R.rsp, RCy3,
 	        rmarkdown, SPIA (>= 2.2), testthat, topologyGSA (>= 1.4.0)
