@@ -17,7 +17,6 @@ Suggests: a4Preproc, ALL, BiocStyle, clipper, codetools, hgu133plus2.db,
 	        rmarkdown, SPIA (>= 2.2), testthat, topologyGSA (>= 1.4.0)
 Collate: pathway.R fetch.R conversion.R plot.R utils.R clipper.R graph.R spia.R
          tables.R topologygsa.R build.R
-LazyData: yes
 VignetteBuilder: R.rsp
 biocViews: Pathways, ThirdPartyClient, GraphAndNetwork, Network,
            Reactome, KEGG, Metabolomics
