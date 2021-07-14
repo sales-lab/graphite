@@ -28,9 +28,8 @@ test_that("each pathway database links to valid pathway URLs", {
   dbs <- as.character(dbs[dbs$species == species, "database"])
 
   for (db in dbs) {
-    p <- sample(pathways(species, db), 1)[[1]]
-    r <- HEAD(pathwayURL(p), timeout(30))
-    expect_equal(http_status(r)$category, "Success",
-                 info = paste0(db, "(", pathwayTitle(p), ")"))
+    pth <- sample(pathways(species, db), 1)[[1]]
+    cat <- http_status(HEAD(pathwayURL(pth), timeout(30)))$category
+    expect_equal(c(!!db, !!cat), c(db, "Success"))
   }
 })
