@@ -1,4 +1,4 @@
-# Copyright 2011-2018 Gabriele Sales <gabriele.sales@unipd.it>
+# Copyright 2011-2021 Gabriele Sales <gabriele.sales@unipd.it>
 #
 #
 # This file is part of graphite.
@@ -188,7 +188,7 @@ convertColumn <- function(edges, column, typeColumn, mapping) {
       return(edges[0,])
     }
 
-    runLen <- sapply(converted, length)
+    runLen <- vapply(converted, length, 0)
     extended <- data.frame(lapply(edges[ixs,], rep.int, runLen),
                            stringsAsFactors=FALSE)
     extended[column] <- unlist(converted)

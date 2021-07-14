@@ -21,9 +21,11 @@ setClass("Pathways", contains="VIRTUAL")
 
 checkPathwayList <- function(object) {
   errors <- character()
-  
+
   if (length(object@entries) > 0) {
-    if (any(sapply(object@entries, function(p) p@species != object@species))) {
+    if (any(vapply(object@entries,
+                   function(p) p@species != object@species,
+                   TRUE))) {
       errors <- c(errors,
                   paste("All pathways should belong to the species",
                         object@species))

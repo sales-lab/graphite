@@ -1,4 +1,4 @@
-# Copyright 2011-2019 Gabriele Sales <gabriele.sales@unipd.it>
+# Copyright 2011-2021 Gabriele Sales <gabriele.sales@unipd.it>
 #
 #
 # This file is part of graphite.
@@ -54,7 +54,7 @@ insufficientCommonNodes <- function(pathway, exprNodes, which) {
 }
 
 checkPathwayList <- function(l) {
-  if (!all(sapply(l, function(e) is(e, "Pathway"))))
+  if (!all(vapply(l, function(e) is(e, "Pathway"), FALSE)))
     stop("can only process a list of Pathways")
 }
 
@@ -94,10 +94,10 @@ adaptiveLapply <- function(tasks, f, ...) {
     log <- parallel::parLapply(cl, tasks, wrapFun(f), ...)
   }
 
-  succeeded <- sapply(log, function(x) x$success)
+  succeeded <- vapply(log, function(x) x$success, FALSE)
   list(results  = viewNonNull(log[succeeded], function(x) x$value),
        warnings = viewNonNull(log[succeeded], function(x) x$warnings),
-       errors   = sapply(log[!succeeded], function(x) gettext(x$error)))
+       errors   = lapply(log[!succeeded], function(x) gettext(x$error)))
 }
 
 wrapFun <- function(f) {

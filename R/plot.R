@@ -1,4 +1,4 @@
-# Copyright 2011-2018 Gabriele Sales <gabriele.sales@unipd.it>
+# Copyright 2011-2021 Gabriele Sales <gabriele.sales@unipd.it>
 #
 #
 # This file is part of graphite.
@@ -70,11 +70,11 @@ setEdgeAttributes <- function(g) {
 }
 
 markMultipleEdges <- function(g) {
-  isMultiple <- sapply(edgeData(g), function(e) {
+  isMultiple <- vapply(edgeData(g), function(e) {
     type <- e$edgeType
     length(grep(";", type, fixed = TRUE)) > 0
-  })
-  
+  }, FALSE)
+
   edgeName <- function(nodes) {
     ns <- unlist(strsplit(nodes, "|", fixed = TRUE))
     paste(ns[1], "(interacts with)", ns[2])
