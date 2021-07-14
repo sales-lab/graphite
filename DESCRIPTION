@@ -1,11 +1,11 @@
 Package: graphite
-Version: 1.39.0
-Date: 2021-05-13
+Version: 1.39.1
+Date: 2021-07-14
 Title: GRAPH Interaction from pathway Topological Environment
-Author: Gabriele Sales <gabriele.sales@unipd.it>, Enrica Calura
-        <enrica.calura@gmail.com>, Chiara Romualdi
-        <chiara.romualdi@unipd.it>
-Maintainer: Gabriele Sales <gabriele.sales@unipd.it>
+Authors@R: c(
+    person("Gabriele", "Sales", email = "gabriele.sales@unipd.it", role = "cre"),
+    person("Enrica", "Calura", email = "enrica.calura@gmail.com", role = "aut"),
+    person("Chiara", "Romualdi", email = "chiara.romualdi@unipd.it", role = "aut"))
 Description: Graph objects from pathway topology derived from KEGG, Panther,
   PathBank, PharmGKB, Reactome SMPDB and WikiPathways databases.
 License: AGPL-3
