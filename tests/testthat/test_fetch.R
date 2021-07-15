@@ -1,4 +1,4 @@
-# Copyright 2017-2019 Gabriele Sales <gabriele.sales@unipd.it>
+# Copyright 2017-2021 Gabriele Sales <gabriele.sales@unipd.it>
 #
 #
 # This file is part of graphite.
@@ -19,8 +19,8 @@ suppressPackageStartupMessages(library(httr))
 
 context("Fetching of pathway data")
 
-test_that("Mus musculus pathways are available", {
-  url <- remoteUrl("mmusculus-reactome")
-  r <- HEAD(url)
-  expect_equal(http_status(r)$category, "Success")
+test_that("Mus musculus pathways can be downloaded", {
+  purgeCache()
+  p <- pathways("mmusculus", "kegg")
+  expect_s4_class(p, "PathwayList")
 })
