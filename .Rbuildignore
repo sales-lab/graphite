@@ -1,8 +1,7 @@
-.gitlab-ci.yml
-.travis.yml
 scripts
 vignettes/metabolites.Rmd
 vignettes/metabolites_.*
 TODO.md
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^\.github$
