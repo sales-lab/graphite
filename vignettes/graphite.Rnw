@@ -284,14 +284,14 @@ rownames(expr) <- paste("ENTREZID",
                         sep = ":")
 
 k <- as.list(pathways("hsapiens", "kegg"))
-selected <- k[c("Chronic myeloid leukemia", 
-                "Bladder cancer", 
-                "Cytosolic DNA-sensing pathway")]
+selection <- c("Bladder cancer", "Hippo signaling pathway - multiple species")
+selected <- k[selection]
+names(selected) <- c("Bladder cancer", "Hippo signaling")
 
 clipped <- runClipper(selected, expr, classes, "mean", pathThr = 0.1)
 resClip <- do.call(rbind, clipped$results)
 resClip[, c("startIdx", "endIdx", "maxIdx", "lenght",
-           "maxScore", "aScore", "involvedGenes")]
+            "maxScore", "aScore")]
 @
 
 The function \Rfunction{runClipper}, which easily performs the analysis on the entire pathway database, provides as result a list of two elements: the list with the results of the pathway analyses and the list of eventually generated errors.
