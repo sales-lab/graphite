@@ -221,7 +221,7 @@ library(SPIA)
 data(colorectalcancer)
 
 library(hgu133plus2.db)
-top$ENTREZ <- mapIds(hgu133plus2.db, 
+top$ENTREZ <- mapIds(hgu133plus2.db,
                      top$ID, "ENTREZID", "PROBEID", multiVals = "first")
 top <- top[!is.na(top$ENTREZ) & !duplicated(top$ENTREZ), ]
 top$ENTREZ <- paste("ENTREZID", top$ENTREZ, sep = ":")
@@ -237,6 +237,10 @@ kegg <- kegg[c("Bladder cancer", "Cytosolic DNA-sensing pathway")]
 prepareSPIA(kegg, "keggEx")
 res <- runSPIA(de = DE_Colorectal, all = ALL_Colorectal, "keggEx")
 res
+@
+
+<<echo=FALSE>>=
+unlink("keggExSPIA.RData")
 @
 
 \subsection{topologyGSA}

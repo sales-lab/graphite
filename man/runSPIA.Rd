@@ -64,6 +64,8 @@ if (require(SPIA) && require(hgu133plus2.db)) {
   kegg <- convertIdentifiers(kegg, "ENTREZID")
   prepareSPIA(kegg, "keggEx")
   runSPIA(de = DE_Colorectal, all = ALL_Colorectal, "keggEx")
+
+  unlink("keggExSPIA.RData")
 }
 }
 \seealso{
