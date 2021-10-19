@@ -366,6 +366,13 @@ converted <- lapply(original, convertIdentifiers, "SYMBOL")
 \end{itemize}
 
 
+\section{Session Information}
+
+<<session>>=
+sessionInfo()
+@
+
+
 \begin{thebibliography}{9}
 
 \bibitem{KEGG}
