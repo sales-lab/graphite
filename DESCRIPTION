@@ -1,6 +1,6 @@
 Package: graphite
 Version: 1.39.3
-Date: 2021-10-15
+Date: 2021-10-19
 Title: GRAPH Interaction from pathway Topological Environment
 Authors@R: c(
     person("Gabriele", "Sales", email = "gabriele.sales@unipd.it", role = "cre"),
