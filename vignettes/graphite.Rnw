@@ -349,7 +349,7 @@ options(Ncpus = 6)
 
 Your code, then, should try to call \Biocpkg{graphite} functions passing entire lists of pathways; you should not loop manually.
 
-<<para1, eval = FALSE>>=
+<<para2, eval = FALSE>>=
 original <- pathways("hsapiens", "reactome")
 
 # Do (will exploit parallelism)
