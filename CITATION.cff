@@ -1,0 +1,57 @@
+# -----------------------------------------------------------
+# CITATION file created with {cffr} R package, v0.1.1
+# See also: https://docs.ropensci.org/cffr/
+# -----------------------------------------------------------
+ 
+cff-version: 1.2.0
+message: 'To cite package "graphite" in publications use:'
+type: software
+license: AGPL-3.0-only
+title: 'graphite: GRAPH Interaction from pathway Topological Environment'
+version: 1.41.1
+abstract: Graph objects from pathway topology derived from KEGG, Panther, PathBank,
+  PharmGKB, Reactome SMPDB and WikiPathways databases.
+authors:
+- family-names: Sales
+  given-names: Gabriele
+  email: gabriele.sales@unipd.it
+- family-names: Calura
+  given-names: Enrica
+  email: enrica.calura@gmail.com
+- family-names: Romualdi
+  given-names: Chiara
+  email: chiara.romualdi@unipd.it
+preferred-citation:
+  type: article
+  title: graphite - a Bioconductor package to convert pathway topology to gene network
+  authors:
+  - family-names: Sales
+    given-names: Gabriele
+  - family-names: Calura
+    given-names: Enrica
+  - family-names: Cavalieri
+    given-names: Duccio
+  - family-names: Romualdi
+    given-names: Chiara
+  journal: BMC Bioinformatics
+  year: '2012'
+  url: https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-13-20
+repository: https://bioconductor.org/
+date-released: '2021-11-30'
+contact:
+- family-names: Sales
+  given-names: Gabriele
+  email: gabriele.sales@unipd.it
+references:
+- type: article
+  title: metaGraphite - a new layer of pathway annotation to get metabolite networks
+  authors:
+  - family-names: Sales
+    given-names: Gabriele
+  - family-names: Calura
+    given-names: Enrica
+  - family-names: Romualdi
+    given-names: Chiara
+  journal: Bioinformatics
+  year: '2018'
+  url: https://academic.oup.com/bioinformatics/advance-article/doi/10.1093/bioinformatics/bty719/5090451

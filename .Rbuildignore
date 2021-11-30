@@ -5,3 +5,4 @@ TODO.md
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^\.github$
+^CITATION\.cff$
