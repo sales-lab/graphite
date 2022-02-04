@@ -1,4 +1,4 @@
-# Copyright 2017-2018 Gabriele Sales <gabriele.sales@unipd.it>
+# Copyright 2017-2022 Gabriele Sales <gabriele.sales@unipd.it>
 #
 #
 # This file is part of graphite.
@@ -89,7 +89,7 @@ test_that("proteins with an invalid type of identifier are not converted", {
 test_that("conversion of an unsupported species fails", {
   mod <- homP
   mod@species <- "esuperba"
-  expect_error(convertIdentifiers(mod, "SYMBOL"), "unsupported species")
+  expect_error(convertIdentifiers(mod, "SYMBOL"), "isn't supported")
 })
 
 test_that("conversion to an invalid type of identifier is rejected", {

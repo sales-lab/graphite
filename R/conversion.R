@@ -1,4 +1,4 @@
-# Copyright 2011-2021 Gabriele Sales <gabriele.sales@unipd.it>
+# Copyright 2011-2022 Gabriele Sales <gabriele.sales@unipd.it>
 #
 #
 # This file is part of graphite.
@@ -102,12 +102,14 @@ loadDbs <- function(species) {
 loadProteinDb <- function(species) {
   db <- selectDb(species)
 
-  tryCatch(get(db),
-    error=function(e) {
-      if (!suppressPackageStartupMessages(require(db, character.only=TRUE)))
-        stop("package \"", db, "\" is missing", call.=FALSE)
-      get(db)
-    })
+  if (!requireNamespace(db, quietly = TRUE)) {
+    rlang::abort(c(
+      paste0("Failed to load the package \"", db, "\"."),
+      "i" = paste0("Install it with: `BiocManager::install(\"", db, "\")`.")
+    ))
+  }
+
+  getFromNamespace(db, db)
 }
 
 selectDb <- function(species) {
@@ -127,8 +129,12 @@ selectDb <- function(species) {
             xlaevis="org.Xl.eg.db")
 
   n <- l[[species]]
-  if (is.null(n))
-    stop("unsupported species")
+  if (is.null(n)) {
+    rlang::abort(paste0("Conversion of identifiers for species \"",
+                        species,
+                        "\" isn't supported."),
+                 call = parent.frame())
+  }
 
   return(n)
 }
