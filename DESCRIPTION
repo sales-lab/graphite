@@ -9,6 +9,8 @@ Authors@R: c(
 Description: Graph objects from pathway topology derived from KEGG, Panther,
   PathBank, PharmGKB, Reactome SMPDB and WikiPathways databases.
 License: AGPL-3
+URL: https://github.com/sales-lab/graphite
+BugReports: https://github.com/sales-lab/graphite/issues
 Depends: R (>= 4.1), methods
 Imports: AnnotationDbi, checkmate, graph (>= 1.67.1), httr, rappdirs,
 	stats, utils, graphics
