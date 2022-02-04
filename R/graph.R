@@ -1,4 +1,4 @@
-# Copyright 2011-2017 Gabriele Sales <gabriele.sales@unipd.it>
+# Copyright 2011-2022 Gabriele Sales <gabriele.sales@unipd.it>
 #
 #
 # This file is part of graphite.
@@ -17,7 +17,12 @@
 
 
 pathwayGraph <- function(pathway, which = "proteins", edge.types = NULL) {
-  assertClass(pathway, "Pathway")
+  if (!is(pathway, "Pathway"))
+    rlang::abort(c(
+      "The argument `pathway` must be an object belonging to class `Pathway`.",
+      "i" = "Load some pathways invoking the function `pathways()`."
+    ))
+
   buildGraphNEL(edges(pathway, which), TRUE, edge.types)
 }
 

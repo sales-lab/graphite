@@ -14,7 +14,6 @@ BugReports: https://github.com/sales-lab/graphite/issues
 Depends: R (>= 4.1), methods
 Imports: 
     AnnotationDbi,
-    checkmate,
     graph (>= 1.67.1),
     httr,
     rappdirs,
@@ -22,9 +21,25 @@ Imports:
     utils,
     graphics,
     rlang
-Suggests: a4Preproc, ALL, BiocStyle, clipper, codetools, hgu133plus2.db,
-          hgu95av2.db, impute, knitr, org.Hs.eg.db, parallel, R.rsp, RCy3,
-	        rmarkdown, SPIA (>= 2.2), testthat, topologyGSA (>= 1.4.0)
+Suggests: 
+    checkmate,
+    a4Preproc,
+    ALL,
+    BiocStyle,
+    clipper,
+    codetools,
+    hgu133plus2.db,
+    hgu95av2.db,
+    impute,
+    knitr,
+    org.Hs.eg.db,
+    parallel,
+    R.rsp,
+    RCy3,
+    rmarkdown,
+    SPIA (>= 2.2),
+    testthat,
+    topologyGSA (>= 1.4.0)
 Collate: pathway.R fetch.R conversion.R plot.R utils.R clipper.R graph.R spia.R
          tables.R topologygsa.R build.R
 VignetteBuilder: R.rsp

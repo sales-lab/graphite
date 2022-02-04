@@ -16,9 +16,9 @@
 # License along with graphite. If not, see <http://www.gnu.org/licenses/>.
 
 suppressPackageStartupMessages({
-  require(SPIA)
-  require(hgu133plus2.db)
   library(checkmate)
+  library(hgu133plus2.db)
+  library(SPIA)
 })
 
 context("SPIA analysis")

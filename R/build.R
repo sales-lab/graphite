@@ -1,4 +1,4 @@
-# Copyright 2016-2017 Gabriele Sales <gabriele.sales@unipd.it>
+# Copyright 2016-2022 Gabriele Sales <gabriele.sales@unipd.it>
 #
 #
 # This file is part of graphite.
@@ -18,19 +18,20 @@
 
 buildPathway <- function(id, title, species, database, proteinEdges,
                          metaboliteEdges = NULL, mixedEdges = NULL,
-                         timestamp = NULL) {
-
-  assertString(title, min.chars = 1)
-  assertString(species, min.chars = 1)
-  assertString(database, min.chars = 1)
-  assertEdges(proteinEdges, substitute(proteinEdges), TRUE)
-  assertEdges(metaboliteEdges, substitute(metaboliteEdges), FALSE)
-  assertEdges(mixedEdges, substitute(mixedEdges), FALSE)
+                         timestamp = NULL)
+{
+  check_nonempty_string(id)
+  check_nonempty_string(title)
+  check_nonempty_string(species)
+  check_nonempty_string(database)
+  check_edges(proteinEdges, TRUE)
+  check_edges(metaboliteEdges, FALSE)
+  check_edges(mixedEdges, FALSE)
 
   if (is.null(timestamp)) {
     timestamp <- Sys.Date()
   } else {
-    assertDate(timestamp)
+    check_timestamp(timestamp)
   }
 
   fixedEdges <- fixEdges(proteinEdges, metaboliteEdges, mixedEdges)
@@ -48,20 +49,61 @@ buildPathway <- function(id, title, species, database, proteinEdges,
       timestamp = timestamp)
 }
 
-assertEdges <- function(edges, varName, required) {
-  varName <- deparse(varName)
+check_nonempty_string <- function(value) {
+  argument <- deparse(substitute(value))
+  if (!is.character(value) || length(value) != 1 || nchar(value) == 0)
+    rlang::abort(
+      paste0("Argument `", argument, "` must be a non-empty string."),
+      call = parent.frame())
+}
+
+check_edges <- function(edges, required) {
+  argument <- deparse(substitute(edges))
 
   if (required || !is.null(edges)) {
-    assertDataFrame(edges, any.missing = FALSE,
-                    types = c("character", "factor"), ncols = 6,
-                    .var.name = varName)
+    if (!is.data.frame(edges))
+      rlang::abort(
+        paste0("Argument `", argument, "` must be a `data.frame`."),
+        call = parent.frame())
 
-    cnames <- c("src_type", "src", "dest_type", "dest", "direction", "type")
-    assertNames(colnames(edges), permutation.of = cnames, .var.name = varName)
+    expected <- c("src_type", "src", "dest_type", "dest", "direction", "type")
+    found <- colnames(edges)
+    if (length(found) != length(expected))
+      rlang::abort(
+        paste0("data.frame `", argument, "` must have ", length(expected),
+               " columns."),
+        call = parent.frame())
 
-    assertCharacter(as.character(edges$direction), pattern = '^(un)?directed$',
-                    .var.name = paste0(varName, "$direction"))
+    for (cname in expected) {
+      if (!(cname %in% found))
+        rlang::abort(
+          paste0("data.frame `", argument, "` lacks a column named `",
+                 cname, "`."),
+          call = parent.frame())
+
+      if (!is.character(edges[[cname]]))
+        rlang::abort(
+          paste0("Column `", cname, "` of data.frame `", argument,
+                 "` must be a character vector."),
+          call = parent.frame())
+    }
+
+    if (!all(grepl("^(un)?directed$", edges$direction)))
+      rlang::abort(
+        c(paste0("Values in column `direction` of data.frame `", argument,
+                 "` must be one of:"),
+          "*" = "\"directed\"",
+          "*" = "\"undirected\""),
+        call = parent.frame())
   }
+}
+
+check_timestamp <- function(value) {
+  argument <- deparse(substitute(value))
+  if (!is(value, "Date") || length(value) != 1)
+    rlang::abort(
+      paste0("Argument `", argument, "` must be a Date instance."),
+      call = parent.frame())
 }
 
 fixEdges <- function(prot, metabol, mixed) {
