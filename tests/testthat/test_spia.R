@@ -31,7 +31,7 @@ test_that("analysis result contains one row for each pathway", {
   top$ENTREZ <- paste("ENTREZID", top$ENTREZ, sep = ":")
   tg1 <- top[top$adj.P.Val < 0.05, ]
 
-  DE_Colorectal = tg1$logFC
+  DE_Colorectal <- tg1$logFC
   names(DE_Colorectal) <- tg1$ENTREZ
   ALL_Colorectal <- top$ENTREZ
 
