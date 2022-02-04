@@ -15,10 +15,9 @@
 # You should have received a copy of the GNU Affero General Public
 # License along with graphite. If not, see <http://www.gnu.org/licenses/>.
 
-import(httr)
-import(methods)
-
 importFrom(AnnotationDbi, columns, mapIds)
+importFrom(httr, GET, http_status, write_disk)
+importFrom(methods, is, new)
 importFrom(rappdirs, user_cache_dir)
 importFrom(stats, na.omit)
 importFrom(utils, download.file, getFromNamespace, installed.packages)
@@ -31,6 +30,7 @@ importFrom(graphics, plot)
 
 
 exportClasses(Pathways, PathwayList, Pathway)
+
 
 # Re-exports
 exportMethods(edgeData, "edgeData<-", "edgeDataDefaults<-", edges, nodes)
