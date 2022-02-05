@@ -1,4 +1,4 @@
-# Copyright 2011-2021 Gabriele Sales <gabriele.sales@unipd.it>
+# Copyright 2011-2022 Gabriele Sales <gabriele.sales@unipd.it>
 #
 #
 # This file is part of graphite.
@@ -28,7 +28,7 @@ setMethod("prepareSPIA", "PathwayList",
 setMethod("prepareSPIA", "list",
   function(db, pathwaySetName, print.names) {
     errors <- checkPathwayList(db)
-    if (length(errors)) 
+    if (length(errors))
       stop(paste("There was an error with the list of pathways you provided:",
                  errors[[1]],
                  sep = " "))
@@ -46,14 +46,15 @@ setMethod("prepareSPIA", "list",
       return(NULL)
     }
 
-    l <- sapply(spiaAttributes, edgeMatrix(translated$nodes, translated$edges),
-                simplify=FALSE, USE.NAMES=TRUE)
-    l$title <- p@title
-    l$nodes <- translated$nodes
-    l$NumberOfReactions <- 0
-    return(l)
+    out <- lapply(spiaAttributes,
+                  edgeMatrix(translated$nodes, translated$edges))
+    names(out) <- spiaAttributes
+    out$title <- p@title
+    out$nodes <- translated$nodes
+    out$NumberOfReactions <- 0
+    return(out)
   })
-  
+
   path.info <- Filter(Negate(is.null), path.info)
   if (length(path.info) == 0)
     stop("Your pathway list does not include at least one pathway with 5 edges or more.")
@@ -120,13 +121,13 @@ edgeMatrix <- function(nodes, edges) {
 
 spiaFakePathway <- function(nodes) {
   edges <- data.frame(src = 1, dest = 2, type = "activation")
-  l <- sapply(spiaAttributes, edgeMatrix(nodes, edges),
-              simplify = FALSE, USE.NAMES = TRUE)
-  l$title <- "<graphite_placeholder>"
-  l$nodes <- nodes
-  l$NumberOfReactions <- 0
-  
-  return(l)
+
+  out <- lapply(spiaAttributes, edgeMatrix(nodes, edges))
+  names(out) <- spiaAttributes
+  out$title <- "<graphite_placeholder>"
+  out$nodes <- nodes
+  out$NumberOfReactions <- 0
+  return(out)
 }
 
 

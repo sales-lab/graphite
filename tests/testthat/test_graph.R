@@ -95,7 +95,7 @@ test_that("graphNEL is built", {
 
   graphEdges <- edges(graph)
   expect_list(graphEdges)
-  expect_equal(sum(sapply(graphEdges, length)), 4)
+  expect_equal(sum(vapply(graphEdges, length, 0)), 4)
 })
 
 test_that("graphNEL includes metabolites from pathway", {

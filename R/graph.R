@@ -96,8 +96,8 @@ endpoints <- function(edges) {
 }
 
 edgeList <- function(nodes, edges) {
-  sapply(nodes,
-         function(n) list(edges=edges[edges$src == n, "dest"]),
-         simplify=FALSE,
-         USE.NAMES=TRUE)
+  get_dests <- function(n) list(edges=edges[edges$src == n, "dest"])
+  out <- lapply(nodes, get_dests)
+  names(out) <- nodes
+  return(out)
 }
