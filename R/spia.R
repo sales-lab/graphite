@@ -28,10 +28,12 @@ setMethod("prepareSPIA", "PathwayList",
 setMethod("prepareSPIA", "list",
   function(db, pathwaySetName, print.names) {
     errors <- checkPathwayList(db)
-    if (length(errors))
-      stop(paste("There was an error with the list of pathways you provided:",
-                 errors[[1]],
-                 sep = " "))
+    if (length(errors)) {
+      stop(
+        "There was an error with the list of pathways you provided: ",
+        errors[[1]]
+      )
+    }
 
     .prepareSPIA(db, pathwaySetName, print.names)
   })
@@ -60,7 +62,7 @@ setMethod("prepareSPIA", "list",
     stop("Your pathway list does not include at least one pathway with 5 edges or more.")
 
   # Add a fake pathway containing at least one activation.
-  path.info <- c(path.info, list(spiaFakePathway(path.info[[1]]$nodes[1:2])))
+  path.info <- c(path.info, list(spiaFakePathway(path.info[[1]]$nodes[c(1,2)])))
 
   names(path.info) <- vapply(path.info, function(i) i[["title"]], "")
   save(path.info, file = datasetName(pathwaySetName))
@@ -98,8 +100,8 @@ checkEdgeTypes <- function(title, edges) {
   if (any(nas)) {
     types <- sort(unique(edges$type[nas]))
 
-    stop(paste0("Pathway \"", title, "\" contains edges with types ",
-                "not supported by SPIA: ", paste(types, collapse = ", ")))
+    stop("Pathway \"", title, "\" contains edges with types ",
+         "not supported by SPIA: ", paste(types, collapse = ", "))
   }
 }
 
