@@ -20,6 +20,9 @@
   \item{pathwaySetName}{name of the output pathway set.}
   \item{print.names}{print pathway names as the conversion advances.}
 }
+\value{
+  This function has no return value.
+}
 \references{
   Tarca AL, Draghici S, Khatri P, Hassan SS, Mittal P, Kim JS, Kim CJ,
   Kusanovic JP, Romero R. A novel signaling pathway impact
