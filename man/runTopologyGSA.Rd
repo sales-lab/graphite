@@ -42,6 +42,12 @@
    this given number of nodes.
  }
 }
+\value{
+  See documentation of
+  \code{\link[topologyGSA:pathway.var.test]{pathway.var.test}}
+  and
+  \code{\link[topologyGSA:pathway.mean.test]{pathway.mean.test}}.
+}
 \details{
   This function produces a warning and returns NULL when the number of
   genes in common between the expression matrices and the pathway is
@@ -61,10 +67,6 @@ if (require(topologyGSA)) {
   p <- convertIdentifiers(k[["Fc epsilon RI signaling pathway"]], "SYMBOL")
   runTopologyGSA(p, "var", y1, y2, 0.05)
 }
-}
-\seealso{
-  \code{\link[topologyGSA:pathway.var.test]{pathway.var.test}}
-  \code{\link[topologyGSA:pathway.mean.test]{pathway.mean.test}}
 }
 \keyword{topology}
 \keyword{analysis}

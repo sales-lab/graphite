@@ -57,6 +57,9 @@ runClipper(x, expr, classes, method, which = "proteins", seed = NULL, ...)
     a given number of nodes.
   }
 }
+\value{
+  See the documentation of \code{\link[clipper:easyClip]{easyClip}}.
+}
 \details{
   The expression data and the pathway have to be annotated in the same set of
   identifiers.

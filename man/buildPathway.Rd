@@ -37,8 +37,8 @@ buildPathway(id, title, species, database, proteinEdges,
   }
 }
 
-\seealso{
-  \code{\link{Pathway-class}}
+\value{
+  A new \code{\link[graphite:Pathway-class]{Pathway}} instance.
 }
 
 \examples{
