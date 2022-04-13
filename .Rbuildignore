@@ -6,3 +6,4 @@ TODO.md
 ^\.Rproj\.user$
 ^\.github$
 ^CITATION\.cff$
+^.envrc$
