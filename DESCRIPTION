@@ -1,6 +1,6 @@
 Package: graphite
-Version: 1.41.1
-Date: 2022-02-04
+Version: 1.41.2
+Date: 2022-04-22
 Title: GRAPH Interaction from pathway Topological Environment
 Authors@R: c(
     person("Gabriele", "Sales", email = "gabriele.sales@unipd.it", role = "cre"),
@@ -11,7 +11,7 @@ Description: Graph objects from pathway topology derived from KEGG, Panther,
 License: AGPL-3
 URL: https://github.com/sales-lab/graphite
 BugReports: https://github.com/sales-lab/graphite/issues
-Depends: R (>= 4.1), methods
+Depends: R (>= 4.2), methods
 Imports: 
     AnnotationDbi,
     graph (>= 1.67.1),
