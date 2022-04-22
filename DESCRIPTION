@@ -1,6 +1,6 @@
 Package: graphite
-Version: 1.43.0
-Date: 2022-04-21
+Version: 1.43.1
+Date: 2022-04-22
 Title: GRAPH Interaction from pathway Topological Environment
 Authors@R: c(
     person("Gabriele", "Sales", email = "gabriele.sales@unipd.it", role = "cre"),
@@ -12,7 +12,7 @@ License: AGPL-3
 URL: https://github.com/sales-lab/graphite
 BugReports: https://github.com/sales-lab/graphite/issues
 Depends: R (>= 4.2), methods
-Imports: 
+Imports:
     AnnotationDbi,
     graph (>= 1.67.1),
     httr,
@@ -20,8 +20,9 @@ Imports:
     stats,
     utils,
     graphics,
-    rlang
-Suggests: 
+    rlang,
+    purrr
+Suggests:
     checkmate,
     a4Preproc,
     ALL,

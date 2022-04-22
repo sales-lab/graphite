@@ -203,6 +203,11 @@ convertColumn <- function(edges, column, typeColumn, mapping) {
   }
 }
 
-lookupKeys <- function(mapping, keys, from)
-  tryCatch(mapIds(mapping$db, keys, mapping$to, from, multiVals="list"),
-           error=function(e) NULL)
+lookupKeys <- function(mapping, keys, from) {
+  muted <- purrr::quietly(mapIds)
+  mapper <- function() {
+    x <- muted(mapping$db, keys, mapping$to, from, multiVals="list")
+    x$result
+  }
+  purrr::possibly(mapper, NULL)()
+}
