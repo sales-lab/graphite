@@ -1,5 +1,5 @@
 Package: graphite
-Version: 1.44.0
+Version: 1.45.0
 Date: 2022-10-31
 Title: GRAPH Interaction from pathway Topological Environment
 Authors@R: c(
