@@ -60,7 +60,6 @@ The topological pathway analyses directly supported are:
 \begin{itemize}
 \item \Biocpkg{SPIA} \cite{Tarca2009,Adi2009,Draghici2007}
 \item \Biocpkg{topologyGSA} \cite{Massa2010}
-\item \Biocpkg{clipper} \cite{Martini2013}
 \end{itemize}
 
 Since version 1.24, every \Biocpkg{graphite} pathway can be accessed through three separate views:
@@ -205,7 +204,7 @@ Since version 1.24, using the option {\it which} we can access the pathway with 
 \end{center}
 
 \section{Topological pathway analysis}
-\Biocpkg{graphite} gives access to three types of topological pathway analyses. For more details on the results obtained by these analyses see the corresponding R packages. Following developper instructions, all the methods with the exception of \Biocpkg{clipper} are available only for pathways with proteins and with edges propagated through metabolites. \Biocpkg{clipper} is the only analysis that can be used to study metabolomics data.
+\Biocpkg{graphite} gives access to two types of topological pathway analyses. For more details on the results obtained by these analyses see the corresponding R packages.
 
 Note that, since version 1.24, given the introduction of nodes with mixed types, all the ID in the pathway have been prefixed with the type of identifier (e.g. ENTREZID:7157 or SYMBOL:TP53). Thus, also the gene expression or metabolite data, in order to match with the pathway nodes, should be in the same format (e.g. ENTREZID:7157 or SYMBOL:TP53).
 
@@ -264,46 +263,6 @@ The function \Rfunction{runTopologyGSA}, which easily performs the analysis on t
 
 For more details see the \Biocpkg{topologyGSA} package \cite{Massa2010}.
 
-\subsection{clipper}
-
-\Biocpkg{clipper} is a package for topological analysis. It implements a two-step empirical approach based on the exploitation of graph decomposition into a junction tree to reconstruct the most relevant signal path. In the first step clipper selects significant pathways according to statistical tests on the means and the concentration matrices of the graphs derived from pathway topologies. Then, it "clips" the whole pathway identifying the signal paths having the greatest association with a specific phenotype.
-
-In \Biocpkg{graphite}, \Biocpkg{clipper} has a dedicated function, \Rfunction{runClipper}, which performs the analysis on a single pathway or on a pathway list.
-
-<<tg2>>=
-library(ALL)
-library(a4Preproc)
-library(clipper)
-
-data(ALL)
-pheno <- as(phenoData(ALL), "data.frame")
-samples <- unlist(lapply(c("NEG", "BCR/ABL"), function(t) {
-  which(grepl("^B\\d*", pheno$BT) & (pheno$mol.biol == t))[1:10]
-}))
-classes <- c(rep(1,10), rep(2,10))
-
-expr <- exprs(ALL)[,samples]
-rownames(expr) <- paste("ENTREZID",
-                        featureData(addGeneInfo(ALL))$ENTREZID,
-                        sep = ":")
-
-k <- as.list(pathways("hsapiens", "kegg"))
-selection <- c("Bladder cancer", "Hippo signaling pathway - multiple species")
-selected <- k[selection]
-names(selected) <- c("Bladder cancer", "Hippo signaling")
-
-clipped <- runClipper(selected, expr, classes, "mean", pathThr = 0.1)
-resClip <- do.call(rbind, clipped$results)
-resClip[, c("startIdx", "endIdx", "maxIdx", "lenght",
-            "maxScore", "aScore")]
-@
-
-The function \Rfunction{runClipper}, which easily performs the analysis on the entire pathway database, provides as result a list of two elements: the list with the results of the pathway analyses and the list of eventually generated errors.
-
-Since version 1.24, using the option {\it which} we can access the pathway with proteins and metabolites ({\it which = "mixed"}) or the pathway with only metabolites and edges propagated through proteins ({\it which} = "metabolites").
-
-For more details see the \Biocpkg{clipper} package \cite{Martini2013}.
-
 \section{Build pathway}
 
 In \Biocpkg{graphite}, it is also possible build a pathway object using \Rfunction{buildPathway}. This function creates a new object of type \Rclass{Pathway} given a data frame describing its edges. The edges should be divided in three dataframes containing edges between proteins, edges between proteins and metabolites, and edges between metabolites, and the should be included in the new pathway using {\it proteinEdges}, {\it mixedEdges} and {\it metaboliteEdges} respectively. This practice will guarantee the compatibility with \Rfunction{convertIdentifiers}, this only works with the types of identifiers that are provided in the Annotation package (for example using the string,‘"ENTREZID"’).
@@ -337,7 +296,6 @@ pathway <- buildPathway("#1", "example", "hsapiens", "database",
 Some of \Biocpkg{graphite} operations can be made significantly faster by exploiting the parallelism offered by recent hardware. Here is a list of the functions providing this option:
 \begin{itemize}
 \item \Rfunction{convertIdentifiers}
-\item \Rfunction{runClipper}
 \item \Rfunction{runTopologyGSA}
 \end{itemize}
 

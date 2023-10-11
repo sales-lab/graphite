@@ -1,4 +1,4 @@
-# Copyright 2011-2022 Gabriele Sales <gabriele.sales@unipd.it>
+# Copyright 2011-2023 Gabriele Sales <gabriele.sales@unipd.it>
 #
 #
 # This file is part of graphite.
@@ -37,7 +37,7 @@ exportMethods(edgeData, "edgeData<-", "edgeDataDefaults<-", edges, nodes)
 
 exportMethods(
   convertIdentifiers, plot,
-  runClipper, prepareSPIA, runTopologyGSA)
+  prepareSPIA, runTopologyGSA)
 
 export(
   pathways, pathwayDatabases, pathwayId, pathwayTitle, pathwayDatabase,
