@@ -1,4 +1,4 @@
-# Copyright 2011-2021 Gabriele Sales <gabriele.sales@unipd.it>
+# Copyright 2011-2024 Gabriele Sales <gabriele.sales@unipd.it>
 #
 #
 # This file is part of graphite.
@@ -42,6 +42,7 @@ edgeInfo <- literalDataFrame(c("type", "arrow", "spiaType"), c(
   "Control(In: ACTIVATION of Transport)", "ARROW", "activation",
   "Control(In: INHIBITION of BiochemicalReaction)", "T", "inhibition",
   "Control(In: INHIBITION of ComplexAssembly)", "T", "inhibition",
+  "Control(In: INHIBITION of Degradation)", "T", "inhibition",
   "Control(In: INHIBITION of Transport)", "T", "inhibition",
   "Control(In: INHIBITION-COMPETITIVE of BiochemicalReaction)", "T", "inhibition",
   "Control(In: unknown of BiochemicalReaction)", "ARROW", "indirect effect",
