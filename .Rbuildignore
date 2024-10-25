@@ -7,3 +7,4 @@ vignettes/metabolites_.*
 ^CITATION\.cff$
 ^.envrc$
 ^.renv$
+^\.jj$
