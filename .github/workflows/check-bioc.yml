@@ -34,7 +34,7 @@ name: R-CMD-check-bioc
 ## Note that you can always run a GHA test without the cache by using the word
 ## "/nocache" in the commit message.
 env:
-  has_testthat: 'true'
+  has_testthat: 'false'
   run_covr: 'false'
   run_pkgdown: 'false'
   has_RUnit: 'false'
@@ -52,9 +52,9 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - { os: ubuntu-latest, r: '4.4', bioc: '3.19', cont: "bioconductor/bioconductor_docker:devel", rspm: "https://packagemanager.rstudio.com/cran/__linux__/jammy/latest" }
-          - { os: macOS-latest, r: '4.4', bioc: '3.19'}
-          - { os: windows-latest, r: '4.4', bioc: '3.19'}
+          - { os: ubuntu-latest, r: '4.4', bioc: '3.20', cont: "bioconductor/bioconductor_docker:devel", rspm: "https://packagemanager.rstudio.com/cran/__linux__/jammy/latest" }
+          - { os: macOS-latest, r: '4.4', bioc: '3.20'}
+          - { os: windows-latest, r: '4.4', bioc: '3.20'}
           ## Check https://github.com/r-lib/actions/tree/master/examples
           ## for examples using the http-user-agent
     env:
@@ -105,16 +105,16 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ${{ env.R_LIBS_USER }}
-          key: ${{ env.cache-version }}-${{ runner.os }}-biocversion-devel-r-devel-${{ hashFiles('.github/depends.Rds') }}
-          restore-keys: ${{ env.cache-version }}-${{ runner.os }}-biocversion-devel-r-devel-
+          key: ${{ env.cache-version }}-${{ runner.os }}-biocversion-devel-r-4.4-${{ hashFiles('.github/depends.Rds') }}
+          restore-keys: ${{ env.cache-version }}-${{ runner.os }}-biocversion-devel-r-4.4-
 
       - name: Cache R packages on Linux
         if: "!contains(github.event.head_commit.message, '/nocache') && runner.os == 'Linux' "
         uses: actions/cache@v3
         with:
           path: /home/runner/work/_temp/Library
-          key: ${{ env.cache-version }}-${{ runner.os }}-biocversion-devel-r-devel-${{ hashFiles('.github/depends.Rds') }}
-          restore-keys: ${{ env.cache-version }}-${{ runner.os }}-biocversion-devel-r-devel-
+          key: ${{ env.cache-version }}-${{ runner.os }}-biocversion-devel-r-4.4-${{ hashFiles('.github/depends.Rds') }}
+          restore-keys: ${{ env.cache-version }}-${{ runner.os }}-biocversion-devel-r-4.4-
 
       # - name: Install Linux system dependencies
       #   if: runner.os == 'Linux'
@@ -171,19 +171,11 @@ jobs:
       - name: Install TinyTex (part 2)
         run: |
           install.packages("tinytex")
-          tinytex::tlmgr_install(c("caption",
-              "changepage", "enumitem", "etoolbox", "fancyhdr",
-              "footmisc", "framed", "geometry",
-              "hyperref", "marginfix", "mathtools", "nowidow",
-              "parnotes", "parskip", "placeins", "ragged2e", "soul", "titlesec",
-              "xstring"))
-          tinytex::parse_install(text = "! LaTeX Error: File `authblk.sty' not found.")
-          tinytex::parse_install(text = "! LaTeX Error: File `beramono.sty' not found.")
-          tinytex::parse_install(text = "! LaTeX Error: File `color.sty' not found.")
-          tinytex::parse_install(text = "! LaTeX Error: File `fontenc.sty' not found.")
-          tinytex::parse_install(text = "! LaTeX Error: File `graphicx.sty' not found.")
-          tinytex::parse_install(text = "! LaTeX Error: File `ifthen.sty' not found.")
-          tinytex::parse_install(text = "! LaTeX Error: File `titletoc.sty' not found.")
+          tinytex::tlmgr_install(c("bera", "caption", "changepage", "color",
+            "enumitem", "etoolbox", "fancyhdr", "fontenc", "footmisc", "framed",
+            "geometry", "graphicx", "hyperref", "ifthen", "marginfix",
+            "mathtools", "nowidow", "parnotes", "parskip", "placeins",
+            "preprint", "ragged2e", "soul", "titlesec", "titletoc", "xstring"))
         shell: Rscript {0}
 
       - name: Install dependencies pass 1
