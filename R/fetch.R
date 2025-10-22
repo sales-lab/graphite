@@ -56,7 +56,7 @@ pathwayDatabases <-function() {
   sscrofa=c("kegg", "reactome", "wikipathways"),
   xlaevis=c("kegg"))
 
-.version <- 24
+.version <- 25
 
 
 loadData <- function(name, retry = TRUE) {
