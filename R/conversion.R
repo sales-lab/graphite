@@ -1,4 +1,4 @@
-# Copyright 2011-2022 Gabriele Sales <gabriele.sales@unipd.it>
+# Copyright 2011-2025 Gabriele Sales <gabriele.sales@unipd.it>
 #
 #
 # This file is part of graphite.
@@ -15,22 +15,6 @@
 # You should have received a copy of the GNU Affero General Public
 # License along with graphite. If not, see <http://www.gnu.org/licenses/>.
 
-
-setClass("MetaboliteDb", representation(table = "data.frame"))
-
-setMethod("columns", signature("MetaboliteDb"), function(x) colnames(x@table))
-
-setMethod("mapIds", signature("MetaboliteDb"),
-  function(x, keys, column, keytype, ..., multiVals) {
-    stopifnot(multiVals == "list")
-
-    table <- selectConvColumns(keytype, column, x@table)
-    lapply(keys, function(k) {
-      where <- which(table$source == k)
-      targets <- unique(na.omit(table[where, "target"]))
-      if (length(targets) == 0) NA else targets
-    })
-  })
 
 selectConvColumns <- function(from, to, table) {
   if (!all(c(from, to) %in% colnames(table))) {
@@ -95,8 +79,7 @@ convertWithDbs <- function(x, to, dbs) {
 
 loadDbs <- function(species) {
   proteinDb <- loadProteinDb(species)
-  metabolDb <- loadMetaboliteDb()
-  list(proteinDb, metabolDb)
+  list(proteinDb, metabolites())
 }
 
 loadProteinDb <- function(species) {
@@ -139,10 +122,6 @@ selectDb <- function(species) {
   return(n)
 }
 
-loadMetaboliteDb <- function() {
-  new("MetaboliteDb", table = metabolites())
-}
-
 selectMapping <- function(to, dbs) {
   if (to == "entrez")
     to <- "ENTREZID"
@@ -150,7 +129,7 @@ selectMapping <- function(to, dbs) {
     to <- "SYMBOL"
 
   for (db in dbs) {
-    if (checkIdentifier(to, db)) {
+    if (supportedIdentType(to, db)) {
       return(list(to = to, db = db))
     }
   }
@@ -158,11 +137,19 @@ selectMapping <- function(to, dbs) {
   stop(to, " is not supported in this species")
 }
 
-checkIdentifier <- function(id, db) id %in% columns(db)
+supportedIdentType <- function(type, db) {
+  if (is(db, "OrgDb")) {
+    type %in% columns(db)
+  } else if (is(db, "data.frame")) {
+    type %in% db$type
+  } else {
+    stop("invalid conversion database")
+  }
+}
 
 convertEdges <- function(edges, mapping) {
-  convertSide(convertSide(edges, "src", mapping),
-              "dest", mapping)
+  c1 <- convertSide(edges, "src", mapping)
+  convertSide(c1, "dest", mapping)
 }
 
 convertSide <- function(edges, column, mapping) {
@@ -171,12 +158,14 @@ convertSide <- function(edges, column, mapping) {
   }
 
   typeColumn <- paste0(column, "_type")
-  parts <- nameLapply(splitByType(edges, typeColumn),
-                      convertColumn(edges, column, typeColumn, mapping))
+  parts <- nameLapply(
+    splitByType(edges, typeColumn),
+    convertColumn(edges, column, typeColumn, mapping)
+  )
 
   merged <- do.call(rbind.data.frame, parts)
-  row.names(merged) <- NULL
-  return(merged)
+  rownames(merged) <- NULL
+  merged
 }
 
 splitByType <- function(edges, typeColumn) {
@@ -185,7 +174,7 @@ splitByType <- function(edges, typeColumn) {
 
 convertColumn <- function(edges, column, typeColumn, mapping) {
   function(type, ixs) {
-    if (type == mapping$to || !checkIdentifier(type, mapping$db)) {
+    if (type == mapping$to || !supportedIdentType(type, mapping$db)) {
       return(edges[ixs,])
     }
 
@@ -204,10 +193,29 @@ convertColumn <- function(edges, column, typeColumn, mapping) {
 }
 
 lookupKeys <- function(mapping, keys, from) {
-  muted <- purrr::quietly(mapIds)
-  mapper <- function() {
-    x <- muted(mapping$db, keys, mapping$to, from, multiVals="list")
-    x$result
+  if (is(mapping$db, "OrgDb")) {
+    muted <- purrr::quietly(mapIds)
+    mapper <- function() {
+      x <- muted(mapping$db, keys, mapping$to, from, multiVals="list")
+      x$result
+    }
+    purrr::possibly(mapper, NULL)()
+    
+  } else if (is(mapping$db, "data.frame")) {
+    db <- mapping$db
+
+    queries <-
+      data.frame(idx = seq_along(keys), type = from, label = keys) |>
+      merge(db, all.x = TRUE, all.y = FALSE)
+    queries <- queries[, c("idx", "group"), drop = FALSE]
+
+    candidates <-
+      db[db$type == mapping$to, c("group", "label"), drop = FALSE] |>
+      merge(queries, all.x = FALSE, all.y = TRUE)
+
+    tapply(candidates$label, candidates$idx, list)
+    
+  } else {
+    stop("invalid conversion database")
   }
-  purrr::possibly(mapper, NULL)()
 }
