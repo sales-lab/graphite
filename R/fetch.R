@@ -1,4 +1,4 @@
-# Copyright 2015-2024 Gabriele Sales <gabriele.sales@unipd.it>
+# Copyright 2015-2025 Gabriele Sales <gabriele.sales@unipd.it>
 #
 #
 # This file is part of graphite.
@@ -26,6 +26,7 @@ pathways <- function(species, database) {
     stop("no database \"", database, "\" for species \"", species, "\"",
          call.=FALSE)
 
+  checkArchiveV1()
   loadData(paste(species, database, sep = "-"))
 }
 
@@ -59,39 +60,50 @@ pathwayDatabases <-function() {
 
 
 loadData <- function(name, retry = TRUE) {
-  path <- archivePath(name)
-  if (!file.exists(path)) {
-    fetchRemote(name, path)
-  }
+  withArchiveDir(\(dir) {
+    path <- archivePath(dir, name)
+    if (!file.exists(path)) {
+      fetchRemote(name, path)
+    }
 
-  ps <- loadLocal(path)
-  if (!is.null(ps)) {
-    ps
-  } else {
-    if (!retry) {
-      stop("Error loading pathway data. Please retry the operation at a later time.")
+    ps <- loadLocal(path)
+    if (!is.null(ps)) {
+      ps
     } else {
-      unlink(path)
-      loadData(name, FALSE)
+      if (!retry) {
+        stop("Error loading pathway data. Please retry the operation at a later time.")
+      } else {
+        unlink(path)
+        loadData(name, FALSE)
+      }
+    }
+  })
+}
+
+withArchiveDir <- function(func) {
+  path <- user_cache_dir(
+    "graphite-bioc2",
+    "graphiteweb.bio.unipd.it",
+    packageVersion("graphite"),
+    opinion = FALSE
+  )
+  lock <- dir.expiry::lockDirectory(path)
+  on.exit(dir.expiry::unlockDirectory(lock))
+
+  if (!file.exists(path)) {
+    if (!dir.create(path, showWarnings = FALSE, recursive = TRUE)) {
+      stop("error creating directory: ", path)
     }
   }
+
+  out <- func(path)
+  dir.expiry::touchDirectory(path)
+
+  out
 }
 
-archivePath <- function(name) {
-  d <- archiveDir()
-  paste0(d, "/", name, ".rds")
-}
-
-archiveDir <- function() {
-  d <- user_cache_dir("graphite-bioc", "graphiteweb.bio.unipd.it",
-                      as.character(.version))
-
-  if (!file.exists(d)) {
-    if (!dir.create(d, FALSE, TRUE))
-      stop("error creating directory: ", d)
-  }
-
-  return(d)
+archivePath <- function(dir, name) {
+  paste0(dir, "/", name, ".rds")
 }
 
 loadLocal <- function(archive) {
@@ -118,11 +130,36 @@ remoteUrl <- function(name) {
   paste0(.server, "/", v, "/", name, ".rds")
 }
 
+purgeCache <- function() {
+  withArchiveDir(\(dir) {
+    archives <- list.files(dir, full.names = TRUE)
+    file.remove(archives)
+  })
+  invisible(NULL)
+}
 
 metabolites <- function() {
   loadData("metabolites")
 }
 
-purgeCache <- function() {
-  unlink(archiveDir(), recursive = TRUE)
+checkArchiveV1 <- function() {
+  if (dir.exists(archivePathV1())) {
+    lifecycle::deprecate_warn(
+      when = "1.55.1",
+      what = I("Local storage of pathway data using format v1"),
+      details =
+        c("v" = "graphite will automatically migrate to and use format v2 going forward.",
+          "i" = "If you no longer need compatibility with older graphite versions, run purgeCacheV1() to reclaim disk space."),
+      env = rlang::caller_env(),
+      user_env = rlang::caller_env(2)
+    )
+  }
+}
+
+archivePathV1 <- function() {
+  user_cache_dir("graphite-bioc", "graphiteweb.bio.unipd.it")
+}
+
+purgeCacheV1 <- function() {
+  unlink(archivePathV1(), recursive = TRUE)
 }

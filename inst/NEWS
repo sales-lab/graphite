@@ -1,3 +1,6 @@
+Changes in version 1.55.1 (2024-10-22)
+  - Automatic cleanup of stale pathway data.
+
 Changes in version 1.53.1 (2024-04-14)
   - Updated all pathway data.
 

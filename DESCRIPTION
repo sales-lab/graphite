@@ -1,6 +1,6 @@
 Package: graphite
-Version: 1.55.0
-Date: 2024-04-14
+Version: 1.55.1
+Date: 2025-10-22
 Title: GRAPH Interaction from pathway Topological Environment
 Authors@R: c(
     person("Gabriele", "Sales", email = "gabriele.sales@unipd.it", role = "cre"),
@@ -21,7 +21,9 @@ Imports:
     utils,
     graphics,
     rlang,
-    purrr
+    lifecycle,
+    purrr,
+    dir.expiry
 Suggests:
     checkmate,
     a4Preproc,
