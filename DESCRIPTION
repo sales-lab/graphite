@@ -1,5 +1,5 @@
 Package: graphite
-Version: 1.55.1
+Version: 1.55.2
 Date: 2025-10-22
 Title: GRAPH Interaction from pathway Topological Environment
 Authors@R: c(
@@ -29,6 +29,7 @@ Suggests:
     a4Preproc,
     ALL,
     BiocStyle,
+    clipper,
     codetools,
     hgu133plus2.db,
     hgu95av2.db,
@@ -42,7 +43,7 @@ Suggests:
     SPIA (>= 2.2),
     testthat,
     topologyGSA (>= 1.4.0)
-Collate: pathway.R fetch.R conversion.R plot.R utils.R graph.R spia.R
+Collate: pathway.R fetch.R conversion.R plot.R utils.R clipper.R graph.R spia.R
          tables.R topologygsa.R build.R
 VignetteBuilder: R.rsp
 biocViews: Pathways, ThirdPartyClient, GraphAndNetwork, Network,

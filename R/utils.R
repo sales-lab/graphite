@@ -87,17 +87,19 @@ adaptiveLapply <- function(tasks, f, ...) {
   }
 
   cl <- parallelCluster(tasks)
+  wrapped <- wrapFun(f)
   if (is.null(cl)) {
-    log <- lapply(tasks, wrapFun(f), ...)
+    log <- lapply(tasks, wrapped, ...)
   } else {
     on.exit(parallel::stopCluster(cl), add = TRUE)
-    log <- parallel::parLapply(cl, tasks, wrapFun(f), ...)
+    log <- parallel::parLapply(cl, tasks, wrapped, ...)
   }
 
-  succeeded <- vapply(log, function(x) x$success, FALSE)
-  list(results  = viewNonNull(log[succeeded], function(x) x$value),
-       warnings = viewNonNull(log[succeeded], function(x) x$warnings),
-       errors   = lapply(log[!succeeded], function(x) gettext(x$error)))
+  succeeded <- purrr::map_lgl(log, \(x) x$success)
+  list(results  = viewNonNull(log[succeeded], \(x) x$value),
+       warnings = viewNonNull(log[succeeded], \(x) x$warnings) |>
+                  purrr::map(unique),
+       errors   = lapply(log[!succeeded], \(x) gettext(x$error)))
 }
 
 wrapFun <- function(f) {
@@ -107,7 +109,7 @@ wrapFun <- function(f) {
       value <- withCallingHandlers(
         f(...),
         warning = function(w) {
-          warns <<- c(warns, w)
+          warns <<- c(warns, conditionMessage(w))
           invokeRestart("muffleWarning")
         })
 

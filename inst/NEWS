@@ -1,4 +1,7 @@
-Changes in version 1.55.1 (2024-10-22)
+Changes in version 1.55.2 (2025-10-22)
+  - Reinstated clipper support.
+
+Changes in version 1.55.1 (2025-10-22)
   - Automatic cleanup of stale pathway data.
   - Updated all pathway data.
 

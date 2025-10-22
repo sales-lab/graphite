@@ -34,7 +34,7 @@ exportMethods(edgeData, "edgeData<-", "edgeDataDefaults<-", edges, nodes)
 
 exportMethods(
   convertIdentifiers, plot,
-  prepareSPIA, runTopologyGSA)
+  runClipper, prepareSPIA, runTopologyGSA)
 
 export(
   pathways, pathwayDatabases, pathwayId, pathwayTitle, pathwayDatabase,
