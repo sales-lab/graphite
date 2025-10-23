@@ -3,7 +3,8 @@ Version: 1.55.3
 Date: 2025-10-23
 Title: GRAPH Interaction from pathway Topological Environment
 Authors@R: c(
-    person("Gabriele", "Sales", email = "gabriele.sales@unipd.it", role = "cre"),
+    person("Gabriele", "Sales", email = "gabriele.sales@unipd.it", role = "cre",
+           comment=c(ORCID="0000-0003-2078-5661")),
     person("Enrica", "Calura", email = "enrica.calura@gmail.com", role = "aut"),
     person("Chiara", "Romualdi", email = "chiara.romualdi@unipd.it", role = "aut"))
 Description: Graph objects from pathway topology derived from KEGG, Panther,
