@@ -239,7 +239,7 @@ res <- runSPIA(de = DE_Colorectal, all = ALL_Colorectal, "keggEx")
 res
 @
 
-<<echo=FALSE>>=
+<<spia2, echo=FALSE>>=
 unlink("keggExSPIA.RData")
 @
 
